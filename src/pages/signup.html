@@ -1,0 +1,35 @@
+<!--meta {"title":"Create your account","description":"Create your Vybez account. No app to download. It works in your browser, on any phone or laptop.","layout":"bare"}-->
+<div class="auth">
+  <div class="photo auth-photo">
+    {{photo:crowd:eager}}
+    <div class="scrim"></div>
+    <a class="over" href="/" aria-label="Vybez home" style="left:32px;top:32px;right:auto;bottom:auto">{{lockup}}</a>
+    <figure class="over">
+      <blockquote class="quote">“My whole crowd follows me here now. They see the tracklist before the set even ends.”</blockquote>
+      <figcaption class="caption t2">DJ Kemi · Lagos · illustrative quote</figcaption>
+    </figure>
+  </div>
+  <div class="auth-form">
+    <form data-preview-form novalidate>
+      <div class="stack gap-8">
+        <h1 class="h-page">Create your Vybez account</h1>
+        <p class="t2">No app to download. It works in your browser, on any phone or laptop.</p>
+      </div>
+      <div class="stack gap-8">
+        <p class="overline muted" id="role-l">I’m here to</p>
+        <div class="role-choice" role="radiogroup" aria-labelledby="role-l">
+          <button class="role" type="button" role="radio" aria-checked="true" data-radio tabindex="0"><span class="row">{{icon:disc-3:22}}<span class="tick">{{icon:circle-check:20}}</span></span><span class="label">DJ</span><span class="caption t3">Share sets, tracklists and go live</span></button>
+          <button class="role" type="button" role="radio" aria-checked="false" data-radio tabindex="-1"><span class="row">{{icon:headphones:22}}<span class="tick">{{icon:circle-check:20}}</span></span><span class="label">Listen</span><span class="caption t3">Follow DJs and save tracklists</span></button>
+        </div>
+      </div>
+      <button class="btn btn-outline btn-block" type="button" data-toast="Accounts open soon. Nothing was sent to Google.">{{brand:google:18}}Continue with Google</button>
+      <button class="btn btn-outline btn-block" type="button" data-toast="Accounts open soon. Nothing was sent to Apple.">{{brand:apple:18}}Continue with Apple</button>
+      <p class="or">or</p>
+      <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" placeholder="kemi@example.com" autocomplete="email"><span class="hint">We’ll email you a sign-in link. No password to remember.</span></div>
+      <button class="btn btn-primary btn-block" type="submit">Continue with email</button>
+      <div class="notice" data-form-notice hidden tabindex="-1">{{icon:info:18}}<span><strong>Accounts open soon.</strong> We didn’t store your email. Meanwhile, <a class="link" href="/dj">tour the DJ dashboard</a> or <a class="link" href="/social/new">plan a night</a>.</span></div>
+      <p class="caption t3" style="text-align:center">Already on Vybez? <a class="link" href="/signin">Sign in</a></p>
+      <p class="caption t3" style="text-align:center">By continuing you agree to the <a class="link" href="/terms">Terms</a> and <a class="link" href="/privacy">Privacy Policy</a>. Free for listeners and DJs.</p>
+    </form>
+  </div>
+</div>

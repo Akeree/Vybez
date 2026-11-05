@@ -1,0 +1,59 @@
+<!--meta {"title":"Explore","description":"Live rooms, upcoming nights and sets worth saving on Vybez. Example rooms.","layout":"site","nav":"explore"}-->
+<div class="wrap stack gap-32" style="padding-top:32px;padding-bottom:96px">
+  <div class="stack gap-16">
+    <h1 class="h1">Explore</h1>
+    <p class="lead">Live rooms, upcoming nights and sets worth saving.</p>
+    <label class="search round" style="max-width:640px">{{icon:search:18}}<span class="sr-only">Search</span><input type="search" placeholder="Search DJs, sets, tracks or cities"></label>
+    <div class="pills" data-pills="#live-cards" role="group" aria-label="Filter">
+      <button class="pill" type="button" aria-pressed="true" data-pill="all">All</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="afrobeats">Afrobeats</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="amapiano">Amapiano</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="afrohouse">Afro house</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="lagos">Lagos</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="abuja">Abuja</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="accra">Accra</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="london">London</button>
+    </div>
+  </div>
+
+  <section class="stack gap-16" aria-labelledby="live-t">
+    <div class="sec-head"><div class="stack"><h2 class="h-sec row gap-8" id="live-t"><span class="live-badge">Live</span> Live now</h2><p class="small t2">Rooms hear the music. You see the tracklist and can react.</p></div><span class="chip">Example rooms</span></div>
+    <div>
+    <div class="live-cards" id="live-cards">
+      <article class="live-card stack gap-16" data-kind="afrobeats lagos"><div class="photo">{{photo:kemi}}<div class="over tl row gap-8"><span class="live-badge">Live</span></div><div class="over tr"><span class="glass glass-chip">{{icon:users:14}}1.2k watching</span></div></div><div class="row gap-16"><div class="stack grow gap-2" style="min-width:0"><h3 class="h4 ellipsis">Rooftop Sunday · Vol. 8</h3><p class="caption t3 ellipsis">DJ Kemi · Now playing: Water, Tyla</p></div><a class="btn btn-primary btn-sm" href="/kemi/rooftop-sunday-vol-7">Join</a></div></article>
+      <article class="live-card stack gap-16" data-kind="afrobeats lagos"><div class="photo">{{photo:owambe}}<div class="over tl row gap-8"><span class="live-badge">Live</span></div><div class="over tr"><span class="glass glass-chip">{{icon:users:14}}640 watching</span></div></div><div class="row gap-16"><div class="stack grow gap-2" style="min-width:0"><h3 class="h4 ellipsis">Owambe after dark</h3><p class="caption t3 ellipsis">Tunde Spins · Now playing: Ku Lo Sa, Oxlade</p></div><button class="btn btn-primary btn-sm" type="button" data-toast="Live rooms open with accounts. This is an example room.">Join</button></div></article>
+      <article class="live-card stack gap-16" data-kind="afrohouse accra"><div class="photo">{{photo:hands}}<div class="over tl row gap-8"><span class="live-badge">Live</span></div><div class="over tr"><span class="glass glass-chip">{{icon:users:14}}310 watching</span></div></div><div class="row gap-16"><div class="stack grow gap-2" style="min-width:0"><h3 class="h4 ellipsis">Accra afro house night</h3><p class="caption t3 ellipsis">Ama K · Now playing: Mnike, Tyler ICU</p></div><button class="btn btn-primary btn-sm" type="button" data-toast="Live rooms open with accounts. This is an example room.">Join</button></div></article>
+    </div>
+    <div class="card state" data-empty hidden><span class="tile">{{icon:radio}}</span><h3 class="h4">Nothing live right now</h3><p class="small t2">Follow a few DJs and we’ll remind you when they go live.</p><button class="btn btn-outline btn-sm" type="button" data-soon="Finding DJs">Find DJs</button></div>
+    </div>
+  </section>
+
+  <div class="explore-cols">
+    <section class="stack gap-16" aria-labelledby="week-t">
+      <div class="sec-head"><div class="stack"><h2 class="h-sec" id="week-t">This week</h2><p class="small t2">Follow a DJ to get a reminder when they go live.</p></div></div>
+      <div class="stack gap-8">
+        <div class="card event-row"><span class="date-tile"><span class="overline">Sat</span><span class="h3">9</span></span><div class="stack grow gap-2" style="min-width:180px"><span class="h4">Rooftop Sunday · Vol. 8</span><span class="caption t3">DJ Kemi · Lagos · 9pm</span></div><button class="btn btn-outline btn-sm" type="button" data-toast="Reminders start once accounts open.">{{icon:bell:16}}Remind me</button></div>
+        <div class="card event-row"><span class="date-tile"><span class="overline">Sun</span><span class="h3">10</span></span><div class="stack grow gap-2" style="min-width:180px"><span class="h4">Sunset on Tarkwa Bay</span><span class="caption t3">Ife Waves · Lagos · 5pm</span></div><button class="btn btn-outline btn-sm" type="button" data-toast="Reminders start once accounts open.">{{icon:bell:16}}Remind me</button></div>
+        <div class="card event-row"><span class="date-tile"><span class="overline">Fri</span><span class="h3">15</span></span><div class="stack grow gap-2" style="min-width:180px"><span class="h4">Amapiano in the living room</span><span class="caption t3">Lerato · Joburg · 8pm</span></div><button class="btn btn-outline btn-sm" type="button" data-toast="Reminders start once accounts open.">{{icon:bell:16}}Remind me</button></div>
+        <div class="card event-row"><span class="date-tile"><span class="overline">Sat</span><span class="h3">16</span></span><div class="stack grow gap-2" style="min-width:180px"><span class="h4">Afro house rooftop</span><span class="caption t3">Ama K · Accra · 10pm</span></div><button class="btn btn-outline btn-sm" type="button" data-toast="Reminders start once accounts open.">{{icon:bell:16}}Remind me</button></div>
+      </div>
+    </section>
+    <aside class="card p-16 stack gap-16" aria-labelledby="djs-t">
+      <h2 class="h4" id="djs-t">DJs to follow</h2>
+      <div class="dj-row"><img src="/img/kemi-sm.webp" alt="" width="48" height="48" loading="lazy"><a class="stack grow" href="/kemi"><span class="label">DJ Kemi</span><span class="caption t3">Afrobeats · Lagos · 12.4k</span></a><button class="btn btn-outline btn-sm" type="button" aria-pressed="false" data-press><span data-label-on="Following" data-label-off="Follow">Follow</span></button></div>
+      <div class="dj-row"><img src="/img/face-3.webp" alt="" width="48" height="48" loading="lazy"><span class="stack grow"><span class="label">Tunde Spins</span><span class="caption t3">Owambe · Lagos · 8.1k</span></span><button class="btn btn-outline btn-sm" type="button" aria-pressed="false" data-press><span data-label-on="Following" data-label-off="Follow">Follow</span></button></div>
+      <div class="dj-row"><img src="/img/face-1.webp" alt="" width="48" height="48" loading="lazy"><span class="stack grow"><span class="label">Ife Waves</span><span class="caption t3">Amapiano · Lagos · 5.3k</span></span><button class="btn btn-outline btn-sm" type="button" aria-pressed="false" data-press><span data-label-on="Following" data-label-off="Follow">Follow</span></button></div>
+      <div class="dj-row"><img src="/img/face-4.webp" alt="" width="48" height="48" loading="lazy"><span class="stack grow"><span class="label">Ama K</span><span class="caption t3">Afro house · Accra · 3.9k</span></span><button class="btn btn-outline btn-sm" type="button" aria-pressed="false" data-press><span data-label-on="Following" data-label-off="Follow">Follow</span></button></div>
+    </aside>
+  </div>
+
+  <section class="stack gap-16" aria-labelledby="pop-t">
+    <div class="sec-head"><div class="stack"><h2 class="h-sec" id="pop-t">Popular sets this week</h2><p class="small t2">Most saved tracklists.</p></div></div>
+    <ul class="pop-grid">
+      <li class="stack gap-8"><a class="photo" href="/kemi/rooftop-sunday-vol-7" aria-label="Rooftop Sunday Vol. 7">{{photo:rooftop:small}}</a><span class="h4">Rooftop Sunday · Vol. 7</span><span class="caption t3">DJ Kemi · 2.1k saves</span></li>
+      <li class="stack gap-8"><div class="photo">{{photo:owambe:small}}</div><span class="h4">Owambe after dark</span><span class="caption t3">Tunde Spins · 1.4k saves</span></li>
+      <li class="stack gap-8"><div class="photo">{{photo:bucket:small}}</div><span class="h4">Bucket list Fridays</span><span class="caption t3">Lerato · 980 saves</span></li>
+      <li class="stack gap-8"><div class="photo">{{photo:beach:small}}</div><span class="h4">Tarkwa Bay sunset</span><span class="caption t3">Ife Waves · 870 saves</span></li>
+    </ul>
+  </section>
+</div>

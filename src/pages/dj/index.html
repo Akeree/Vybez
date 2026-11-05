@@ -1,0 +1,72 @@
+<!--meta {"title":"Vybez DJ dashboard","description":"A tour of the Vybez DJ dashboard: your sets, plays, requests and next gig in one place. Example data.","layout":"app","app":"overview"}-->
+<div class="app-head">
+  <div class="stack gap-4">
+    <h1 class="h-page">Good evening, Kemi</h1>
+    <p class="t2">Rooftop Sunday is in 7 days. Your set is 18 tracks, 1h 22m.</p>
+  </div>
+  <div class="actions">
+    <label class="search hide-sm" style="width:300px">{{icon:search:18}}<span class="sr-only">Search</span><input type="search" placeholder="Search sets, tracks, crates"></label>
+    <a class="btn btn-primary btn-pad-sm" href="/dj/sets">{{icon:plus:18}}Publish a set</a>
+  </div>
+</div>
+
+<p class="notice" role="note">{{icon:info:18}}<span>This is a demo dashboard with example numbers. Each figure says where it comes from: <strong>Imported</strong> from a platform, <strong>Verified</strong> by Vybez, or <strong>Estimated</strong>.</span></p>
+
+<section class="kpis" aria-label="Last 28 days">
+  <div class="card kpi"><div class="row between"><span class="caption t2">Plays · 28 days</span><span class="chip info">Imported</span></div><div class="row gap-8"><span class="kpi-num">2,140</span><span class="chip success">+18%</span></div><div class="bars" aria-hidden="true"><span style="height:30%"></span><span style="height:45%"></span><span style="height:35%"></span><span style="height:60%"></span><span style="height:50%"></span><span class="hi" style="height:90%"></span><span class="hi" style="height:100%"></span></div></div>
+  <div class="card kpi"><div class="row between"><span class="caption t2">Saves</span><span class="chip success">Verified</span></div><div class="row gap-8"><span class="kpi-num">318</span><span class="chip success">+9%</span></div><div class="bars" aria-hidden="true"><span style="height:40%"></span><span style="height:35%"></span><span style="height:55%"></span><span style="height:45%"></span><span style="height:60%"></span><span class="hi" style="height:80%"></span><span class="hi" style="height:70%"></span></div></div>
+  <div class="card kpi"><div class="row between"><span class="caption t2">New followers</span><span class="chip success">Verified</span></div><div class="row gap-8"><span class="kpi-num">96</span><span class="chip success">+24</span></div><div class="bars" aria-hidden="true"><span style="height:20%"></span><span style="height:30%"></span><span style="height:25%"></span><span style="height:40%"></span><span style="height:35%"></span><span class="hi" style="height:75%"></span><span class="hi" style="height:95%"></span></div></div>
+  <div class="card kpi"><div class="row between"><span class="caption t2">Requests · last gig</span><span class="chip warning">Estimated</span></div><div class="row gap-8"><span class="kpi-num">41</span><span class="chip accent">6 top</span></div><div class="bars" aria-hidden="true"><span style="height:15%"></span><span style="height:25%"></span><span style="height:45%"></span><span class="hi" style="height:100%"></span><span class="hi" style="height:85%"></span><span style="height:40%"></span><span style="height:20%"></span></div></div>
+</section>
+
+<div class="dash-cols">
+  <div class="stack gap-16">
+    <section class="card p-16 stack gap-16" aria-labelledby="sets-title">
+      <div class="row between"><h2 class="h4" id="sets-title">Your sets</h2><a class="link" href="/dj/sets">Manage sets</a></div>
+      <div class="table-scroll">
+        <table class="table">
+          <thead><tr><th scope="col">Set</th><th scope="col" class="hide-sm">Source</th><th scope="col">Status</th><th scope="col" style="text-align:right">Plays</th></tr></thead>
+          <tbody>
+            <tr><td><a class="row gap-16" href="/kemi/rooftop-sunday-vol-7"><span class="art g1"></span><span class="label">Lagos Rooftop Sessions Vol. 3</span></a></td><td class="hide-sm"><span class="provider">{{brand:mixcloud:16}}Mixcloud link</span></td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">968</td></tr>
+            <tr><td><span class="row gap-16"><span class="art g2"></span><span class="label">Sunday Owambe Warm-up</span></span></td><td class="hide-sm"><span class="provider">{{icon:list-music:16}}Tracklist only</span></td><td><span class="chip dot warning">Draft</span></td><td class="mono t3" style="text-align:right">—</td></tr>
+            <tr><td><span class="row gap-16"><span class="art g5"></span><span class="label">Detty December Teaser</span></span></td><td class="hide-sm"><span class="provider">{{icon:upload:16}}Upload</span></td><td><span class="chip dot">Private</span></td><td class="mono t3" style="text-align:right">—</td></tr>
+            <tr><td><span class="row gap-16"><span class="art g3"></span><span class="label">Afro House Sunset 12</span></span></td><td class="hide-sm"><span class="provider">{{brand:soundcloud:16}}SoundCloud link</span></td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">860</td></tr>
+            <tr><td><span class="row gap-16"><span class="art g4"></span><span class="label">Gqom After Dark</span></span></td><td class="hide-sm"><span class="provider">{{brand:mixcloud:16}}Mixcloud link</span></td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">312</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="card p-16 stack gap-16" aria-labelledby="days-title">
+      <div class="stack gap-4"><h2 class="h4" id="days-title">Plays by day</h2><p class="caption t3">Imported from Mixcloud and SoundCloud · updated 6h ago</p></div>
+      <div class="bars tall" role="img" aria-label="Plays by day for 28 days. Weekend bars are tallest.">
+        <span style="height:22%"></span><span style="height:28%"></span><span style="height:25%"></span><span style="height:34%"></span><span style="height:40%"></span><span class="hi" style="height:82%"></span><span class="hi" style="height:74%"></span>
+        <span style="height:26%"></span><span style="height:20%"></span><span style="height:31%"></span><span style="height:36%"></span><span style="height:44%"></span><span class="hi" style="height:90%"></span><span class="hi" style="height:80%"></span>
+        <span style="height:24%"></span><span style="height:30%"></span><span style="height:27%"></span><span style="height:38%"></span><span style="height:46%"></span><span class="hi" style="height:96%"></span><span class="hi" style="height:84%"></span>
+        <span style="height:28%"></span><span style="height:33%"></span><span style="height:30%"></span><span style="height:41%"></span><span style="height:50%"></span><span class="hi" style="height:100%"></span><span class="hi" style="height:88%"></span>
+      </div>
+      <p class="small t2">Bright bars are Saturdays and Sundays. 62% of plays land on weekends.</p>
+    </section>
+  </div>
+
+  <div class="stack gap-16">
+    <section class="card next-gig p-16 stack gap-16" aria-labelledby="gig-title">
+      <p class="overline">Next gig</p>
+      <h2 class="h3" id="gig-title">Rooftop Sunday, Victoria Island</h2>
+      <p class="small t2">Sat 31 Oct · 6pm<br>Set: Sunday Owambe · 18 tracks · 108 → 122 BPM</p>
+      <div class="row gap-8 wrap-row">
+        <button class="btn btn-outline btn-sm" type="button" data-toast="Export to rekordbox XML arrives with accounts. Nothing was exported.">{{icon:download:16}}Export XML</button>
+        <a class="btn btn-primary btn-sm" href="/explore">{{icon:radio:16}}Start live</a>
+      </div>
+    </section>
+    <section class="card p-16 stack gap-16" aria-labelledby="conn-title">
+      <div class="row between"><h2 class="h4" id="conn-title">Connections</h2><a class="link" href="/dj/connections">Manage</a></div>
+      <div class="row gap-16"><span class="logo-well">{{brand:applemusic:20}}</span><span class="grow label">Apple Music</span><span class="chip dot success">Healthy</span></div>
+      <div class="row gap-16"><span class="logo-well">{{brand:spotify:20}}</span><span class="grow label">Spotify</span><span class="chip dot warning">Limited</span></div>
+      <div class="row gap-16"><span class="logo-well">{{brand:serato:20}}</span><span class="grow label">Serato</span><span class="chip dot info">File import</span></div>
+    </section>
+    <section class="card p-16 row gap-16" aria-labelledby="req-title">
+      <div class="stack grow gap-4"><h2 class="h4" id="req-title">Live requests</h2><p class="caption t3">Curated mode ready for Saturday.</p></div>
+      <button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="req-title" data-switch="Live requests"></button>
+    </section>
+  </div>
+</div>

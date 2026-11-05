@@ -1,0 +1,62 @@
+<!--meta {"title":"Plan a small night","description":"Plan a small, invite-only night with Vybez Social. One link on WhatsApp, RSVPs without an account, approve every guest.","layout":"app","app":"socials"}-->
+<div class="app-head end">
+  <div class="stack gap-4">
+    <p class="overline">New social</p>
+    <h1 class="h-page">Plan a small night</h1>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline btn-pad-sm" type="button" data-toast="Drafts save to your account once accounts open. Nothing was saved.">Save draft</button>
+    <a class="btn btn-primary btn-pad-sm" href="/i/tobi-30">Preview invite</a>
+  </div>
+</div>
+
+<div class="plan-cols">
+  <form class="stack gap-32" data-preview-form data-toast="Invites go out once accounts open. Nothing was sent.">
+    <section class="card form-card" aria-labelledby="basics">
+      <h2 class="h4" id="basics">The basics</h2>
+      <div class="field"><label for="ev-name">Name</label><input class="input" id="ev-name" value="Tobi’s Rooftop Birthday" maxlength="60" data-mirror="[data-ev-name]"><span class="hint">Guests see this first.</span></div>
+      <div class="field"><label for="ev-when">When</label><input class="input" id="ev-when" value="Sat 7 Nov · 7pm" data-mirror="[data-ev-when]"><span class="hint">Lagos time (WAT)</span></div>
+      <div class="field"><label for="ev-where">Where</label><input class="input" id="ev-where" value="12 Admiralty Way, Lekki"><span class="hint">Hidden until a guest is approved.</span></div>
+    </section>
+    <section class="card form-card" aria-labelledby="who">
+      <h2 class="h4" id="who">Who’s invited</h2>
+      <div class="setting"><span class="stack grow gap-2"><span class="label" id="cap-l">Guest cap</span><span class="caption t3">Small by design. Max 50.</span></span><input class="input" style="width:88px;text-align:center" type="number" min="2" max="50" value="24" aria-labelledby="cap-l"></div>
+      <div class="setting"><span class="stack grow gap-2"><span class="label" id="ap-l">Approve each RSVP</span><span class="caption t3">You see who’s asking before they get the address.</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="ap-l" data-switch></button></div>
+      <div class="setting"><span class="stack grow gap-2"><span class="label" id="po-l">Plus-ones</span><span class="caption t3">Off keeps the list exactly who you invited.</span></span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="po-l" data-switch></button></div>
+      <div class="setting"><span class="stack grow gap-2"><span class="label" id="sg-l">Guests can add a song</span><span class="caption t3">Up to 2 each. Goes to the DJ as a suggestion.</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sg-l" data-switch></button></div>
+    </section>
+    <section class="card form-card" aria-labelledby="music">
+      <h2 class="h4" id="music">Music</h2>
+      <div class="row gap-16"><span class="avatar">SM</span><span class="stack grow gap-2"><span class="label">Selecta Moyo</span><span class="caption t3">Invited to DJ · Afrobeats, amapiano</span></span><span class="chip dot warning">Waiting to accept</span></div>
+      <p class="caption t3">No DJ? Pick a set from Listen and it plays from the host’s phone.</p>
+    </section>
+    <button class="btn btn-primary btn-block" type="submit">Send invites</button>
+  </form>
+
+  <aside class="stack gap-16" aria-label="Guest preview">
+    <div class="row between"><p class="overline muted">Guest preview</p><a class="link" href="/i/tobi-30">Open as guest</a></div>
+    <div class="invite-card">
+      <div class="cover rings" style="height:200px"></div>
+      <div class="p-16 stack gap-16">
+        <span class="chip accent">{{icon:lock:12}}Invite only · 6 of 24 spots left</span>
+        <p class="h3" data-ev-name>Tobi’s Rooftop Birthday</p>
+        <p class="small t2"><span data-ev-when>Sat 7 Nov · 7pm</span> · Lekki (address after RSVP)</p>
+        <div class="row gap-8"><span class="btn btn-primary btn-sm grow" aria-hidden="true">I’m in</span><span class="btn btn-outline btn-sm grow" aria-hidden="true">Can’t make it</span></div>
+      </div>
+    </div>
+    <div class="card p-16 stack gap-16">
+      <div class="row gap-8"><span class="search grow" style="height:40px"><span class="mono ellipsis" style="color:var(--text-primary)" id="inv-link">vyb.ez/i/tobi-30</span></span><button class="btn btn-outline btn-sm" type="button" data-copy="https://vyb.ez/i/tobi-30" data-copied="Invite link copied. (Example link: vyb.ez isn't live yet.)">{{icon:copy:14}}Copy</button></div>
+      <div class="row gap-8 wrap-row">
+        <button class="btn btn-outline btn-sm" type="button" data-toast="Sharing opens once invites are live.">{{brand:whatsapp:16}}WhatsApp</button>
+        <button class="btn btn-outline btn-sm" type="button" data-toast="Sharing opens once invites are live.">Instagram DM</button>
+        <button class="btn btn-outline btn-sm" type="button" data-toast="Sharing opens once invites are live.">SMS</button>
+      </div>
+    </div>
+    <div class="card p-16 stack gap-16">
+      <div class="row between"><h2 class="h4">Guest list</h2><span class="caption t3">18 going · 3 asking</span></div>
+      <div class="row gap-16"><img class="avatar" src="/img/face-2.webp" alt="" width="40" height="40" loading="lazy"><span class="label grow">Amaka</span><button class="btn btn-primary btn-sm" type="button" data-press aria-pressed="false" data-msg="Amaka approved (example)."><span data-label-on="Approved" data-label-off="Approve">Approve</span></button></div>
+      <div class="row gap-16"><img class="avatar" src="/img/face-1.webp" alt="" width="40" height="40" loading="lazy"><span class="label grow">Kemi</span><span class="chip dot success">Going</span></div>
+      <div class="row gap-16"><img class="avatar" src="/img/face-3.webp" alt="" width="40" height="40" loading="lazy"><span class="label grow">Femi</span><span class="chip dot success">Going</span></div>
+    </div>
+  </aside>
+</div>

@@ -1,0 +1,43 @@
+<!--meta {"title":"Settings","description":"Privacy and data settings for Vybez DJ.","layout":"app","app":"settings","noindex":true}-->
+<div class="app-head">
+  <div class="stack gap-4">
+    <h1 class="h-page">Settings</h1>
+    <p class="t2">In this preview, changes stay on this page and aren’t saved to an account.</p>
+  </div>
+</div>
+<div class="settings-cols">
+  <nav class="settings-nav" aria-label="Settings sections">
+    <a href="#privacy" data-soon="Profile settings">Profile</a>
+    <a href="#privacy" data-soon="Account settings">Account</a>
+    <a href="#privacy" data-soon="Notification settings">Notifications</a>
+    <a href="/dj/connections">DJ software</a>
+    <a href="#privacy" aria-current="page">Privacy and data</a>
+    <a href="/pricing">Plan and billing</a>
+  </nav>
+  <div class="stack gap-32" id="privacy">
+    <section class="card set-card" aria-labelledby="vis-title">
+      <header><h2 class="h4" id="vis-title">Who can see your sets</h2><p class="caption t3">Applies to new sets. You can change any single set from the Sets page.</p></header>
+      <div role="radiogroup" aria-labelledby="vis-title">
+        <button class="opt" type="button" role="radio" aria-checked="true" data-radio tabindex="0"><span class="radio-dot"></span><span class="stack grow gap-2"><span class="label">Everyone</span><span class="caption t3">Anyone with the link, and in Explore</span></span></button>
+        <button class="opt" type="button" role="radio" aria-checked="false" data-radio tabindex="-1"><span class="radio-dot"></span><span class="stack grow gap-2"><span class="label">Followers only</span><span class="caption t3">People who follow you</span></span></button>
+        <button class="opt" type="button" role="radio" aria-checked="false" data-radio tabindex="-1"><span class="radio-dot"></span><span class="stack grow gap-2"><span class="label">Only people I invite</span><span class="caption t3">Private link for each set</span></span></button>
+      </div>
+    </section>
+    <section class="card set-card" aria-labelledby="live-title">
+      <header><h2 class="h4" id="live-title">Live rooms</h2></header>
+      <div class="opt"><span class="stack grow gap-2"><span class="label" id="sw-1">Show my live tracklist as it plays</span><span class="caption t3">Turn off to publish the tracklist after the night ends</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw-1" data-switch></button></div>
+      <div class="opt"><span class="stack grow gap-2"><span class="label" id="sw-2">Allow comments</span><span class="caption t3">Reactions stay on either way</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw-2" data-switch></button></div>
+      <div class="opt"><span class="stack grow gap-2"><span class="label" id="sw-3">Show me in Explore when I’m live</span></span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="sw-3" data-switch></button></div>
+    </section>
+    <section class="card set-card" aria-labelledby="data-title">
+      <header><h2 class="h4" id="data-title">Your data</h2><p class="caption t3">Download everything you’ve added to Vybez. We email you a link within a day.</p></header>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Download my data</span><span class="caption t3">Sets, tracklists, followers and comments as CSV and JSON</span></span><button class="btn btn-outline btn-sm" type="button" data-toast="There's no data to download in this preview.">Request download</button></div>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Imported files</span><span class="caption t3">We keep the track list from each file, not the file itself</span></span><span class="chip dot success">Files not stored</span></div>
+    </section>
+    <section class="danger-zone" aria-labelledby="danger-title">
+      <h2 class="h4" id="danger-title">Delete account</h2>
+      <p class="small t2">This removes your profile, sets and tracklists for good after 30 days. You can cancel during that time by signing in again.</p>
+      <button class="btn btn-danger btn-sm" type="button" data-toast="There's no account to delete in this preview.">Delete my account</button>
+    </section>
+  </div>
+</div>

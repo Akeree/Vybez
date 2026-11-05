@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+{{> head}}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+{{> preview-bar}}
+<div class="app">
+{{> app-sidebar}}
+<div class="app-col">
+{{> app-topbar}}
+<main id="main" class="app-main">
+{{var:content}}
+</main>
+</div>
+</div>
+<div class="toast-host" data-toast-host aria-live="polite" role="status"></div>
+</body>
+</html>

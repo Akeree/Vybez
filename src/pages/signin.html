@@ -1,0 +1,24 @@
+<!--meta {"title":"Sign in","description":"Sign in to Vybez with Google, Apple or an email link.","layout":"bare"}-->
+<div class="auth">
+  <div class="photo auth-photo">
+    {{photo:rooftop:eager}}
+    <div class="scrim"></div>
+    <a class="over" href="/" aria-label="Vybez home" style="left:32px;top:32px;right:auto;bottom:auto">{{lockup}}</a>
+    <div class="over"><p class="quote">Welcome back. The night’s waiting.</p></div>
+  </div>
+  <div class="auth-form">
+    <form data-preview-form novalidate>
+      <div class="stack gap-8">
+        <h1 class="h-page">Sign in to Vybez</h1>
+        <p class="t2">Use the same way you signed up.</p>
+      </div>
+      <button class="btn btn-outline btn-block" type="button" data-toast="Accounts open soon. Nothing was sent to Google.">{{brand:google:18}}Continue with Google</button>
+      <button class="btn btn-outline btn-block" type="button" data-toast="Accounts open soon. Nothing was sent to Apple.">{{brand:apple:18}}Continue with Apple</button>
+      <p class="or">or</p>
+      <div class="field"><label for="email">Email</label><input class="input" id="email" type="email" placeholder="kemi@example.com" autocomplete="email"><span class="hint">We’ll email you a sign-in link.</span></div>
+      <button class="btn btn-primary btn-block" type="submit">Email me a link</button>
+      <div class="notice" data-form-notice hidden tabindex="-1">{{icon:info:18}}<span><strong>Accounts open soon.</strong> There’s nothing to sign in to yet. <a class="link" href="/dj">Tour the DJ dashboard</a> instead.</span></div>
+      <p class="caption t3" style="text-align:center">New here? <a class="link" href="/signup">Create an account</a></p>
+    </form>
+  </div>
+</div>

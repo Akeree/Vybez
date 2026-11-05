@@ -1,0 +1,54 @@
+<!--meta {"title":"Connections","description":"Connect the music services and DJ software you already use with Vybez DJ. See what works today and what is planned.","layout":"app","app":"connections"}-->
+<div class="app-head end">
+  <div class="stack gap-4">
+    <h1 class="h-page">Connections</h1>
+    <p class="t2" style="max-width:640px">Vybez works without any of these. Connect what you use; disconnect any time and we delete the synced copy.</p>
+  </div>
+  <div class="actions"><a class="btn btn-primary btn-pad-sm" href="/dj/sets">{{icon:upload:18}}Import a set</a></div>
+</div>
+
+<section class="stack gap-16" aria-labelledby="stream-title">
+  <div class="stack gap-4">
+    <h2 class="h3" id="stream-title">Streaming and libraries</h2>
+    <p class="small t2">Connect in the browser. We read your library to power DJ Mode and export sets back as playlists.</p>
+  </div>
+  <div class="int-grid">
+    <div class="card int-row"><span class="logo-well">{{brand:applemusic}}</span><div class="stack grow gap-2"><span class="label">Apple Music</span><span class="caption t3">Example: library synced 10 min ago · 1,102 tracks</span></div><span class="chip dot success">Connected</span><button class="btn btn-outline btn-sm" type="button" data-soon="Managing Apple Music">Manage</button></div>
+    <div class="card int-row"><span class="logo-well">{{brand:spotify}}</span><div class="stack grow gap-2"><span class="label">Spotify</span><span class="caption t3">Export works. Playback and audio features are closed to new apps.</span></div><span class="chip dot warning">Limited</span><button class="btn btn-outline btn-sm" type="button" data-toast="Spotify no longer gives new apps playback or audio features, so Vybez can only export sets to Spotify as playlists.">Details</button></div>
+    <div class="card int-row"><span class="logo-well">{{brand:soundcloud}}</span><div class="stack grow gap-2"><span class="label">SoundCloud</span><span class="caption t3">Sets play inside Vybez with SoundCloud’s player.</span></div><span class="chip dot success">Connected</span><button class="btn btn-outline btn-sm" type="button" data-soon="Managing SoundCloud">Manage</button></div>
+    <div class="card int-row"><span class="logo-well">{{brand:tidal}}</span><div class="stack grow gap-2"><span class="label">TIDAL</span><span class="caption t3">Export sets as TIDAL playlists.</span></div><button class="btn btn-primary btn-sm" type="button" data-toast="Connecting TIDAL opens with accounts. Nothing was connected.">Connect</button></div>
+  </div>
+</section>
+
+<section class="stack gap-16" aria-labelledby="sw-title">
+  <div class="stack gap-4">
+    <h2 class="h3" id="sw-title">DJ software</h2>
+    <p class="small t2" style="max-width:760px">Pick what you play. Bring sets in with the export your software already makes. Live sync is under investigation and will only appear here once it is verified with each app.</p>
+  </div>
+  <div class="sw-grid" data-press-group role="group" aria-label="Your DJ software">
+    <button class="sw-card" type="button" aria-pressed="true" data-press><span class="check">{{icon:check:14}}</span><span class="well">{{svg:w-serato}}</span><span class="label">Serato DJ Pro</span><span class="caption t3">History export (.csv)</span><span class="chip dot success">Imported 18 Oct</span></button>
+    <button class="sw-card" type="button" aria-pressed="false" data-press><span class="check">{{icon:check:14}}</span><span class="well">{{svg:w-rekordbox}}</span><span class="label">rekordbox</span><span class="caption t3">Collection export (.xml)</span><span class="chip dot info">Available</span></button>
+    <button class="sw-card" type="button" aria-pressed="false" data-press><span class="check">{{icon:check:14}}</span><span class="well"><span class="pending">VirtualDJ<small>logo pending</small></span></span><span class="label">VirtualDJ</span><span class="caption t3">History file (.m3u)</span><span class="chip dot info">Available</span></button>
+    <button class="sw-card" type="button" aria-pressed="false" data-press><span class="check">{{icon:check:14}}</span><span class="well"><span class="pending">TRAKTOR<small>logo pending</small></span></span><span class="label">TRAKTOR</span><span class="caption t3">Playlist export (.nml)</span><span class="chip dot info">Available</span></button>
+    <button class="sw-card" type="button" aria-pressed="false" aria-disabled="true" data-press data-disabled-msg="djay Pro is under investigation. We'll only list it once an import is verified."><span class="well"><span class="pending">djay Pro<small>logo pending</small></span></span><span class="label">djay Pro</span><span class="caption t3">No export route yet</span><span class="chip dot warning">Under investigation</span></button>
+    <button class="sw-card" type="button" aria-pressed="false" aria-disabled="true" data-press data-disabled-msg="Engine DJ is planned and not available yet."><span class="well"><span class="pending">Engine DJ<small>logo pending</small></span></span><span class="label">Engine DJ</span><span class="caption t3">Coming soon</span><span class="chip dot">Planned</span></button>
+  </div>
+  <p class="caption t3">Logos belong to their owners. Vybez is not affiliated with, endorsed or certified by them.</p>
+</section>
+
+<section class="card-xl p-32 row gap-16 wrap-row" aria-labelledby="ext-title">
+  <span class="tile lg">{{brand:googlechrome:28}}</span>
+  <div class="stack grow gap-4" style="min-width:240px">
+    <h2 class="h4" id="ext-title">Vybez for your browser</h2>
+    <p class="small t2">Hearing a set on Mixcloud, SoundCloud or YouTube? Save it, with its tracklist, in one click. Reads only the tab you click on.</p>
+  </div>
+  <div class="row gap-8">
+    <button class="btn btn-primary btn-sm" type="button" data-toast="The Vybez extension isn't in the Chrome Web Store yet. We'll announce it when it is.">Add to Chrome</button>
+    <button class="btn btn-outline btn-sm" type="button" data-toast="Safari support is planned after Chrome.">Safari</button>
+  </div>
+</section>
+
+<section class="callout" aria-labelledby="link-title">
+  {{icon:info:20}}
+  <div class="stack gap-4"><h2 class="h4" id="link-title">Vybez Link is planned</h2><p class="small t2">A small desktop helper that sends crates and history from your DJ software. It never touches audio files. We're still investigating it, so it isn't available yet. <a class="link" href="/guides#link">Read how it would work</a></p></div>
+</section>

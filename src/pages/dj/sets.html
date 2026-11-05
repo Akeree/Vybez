@@ -1,0 +1,48 @@
+<!--meta {"title":"Your sets","description":"Manage your sets on Vybez DJ: import, publish, keep drafts and private sets. Example data.","layout":"app","app":"sets"}-->
+<div class="app-head end">
+  <div class="stack gap-4">
+    <h1 class="h-page">Sets</h1>
+    <p class="t2" style="max-width:620px">Every set you import or build lives here. Publish when the tracklist looks right. Example data.</p>
+  </div>
+  <div class="actions">
+    <button class="btn btn-outline btn-pad-sm" type="button" data-soon="Adding tracks by hand">{{icon:plus:18}}Add tracks by hand</button>
+    <label class="btn btn-primary btn-pad-sm" for="file">{{icon:upload:18}}Import a set</label>
+  </div>
+</div>
+
+<div class="dropzone" data-dropzone>
+  <span class="tile lg">{{icon:upload:24}}</span>
+  <div class="stack grow gap-4" style="min-width:220px">
+    <p class="label">Drop an exported playlist here</p>
+    <p class="caption t3">rekordbox XML, Serato CSV, VirtualDJ M3U or TRAKTOR NML. We read track names only, never your audio files. In this preview nothing is uploaded.</p>
+  </div>
+  <div class="row gap-8"><a class="btn btn-outline btn-sm" href="/help#imports">How to export</a><label class="btn btn-primary btn-sm" for="file">Choose file</label></div>
+  <input class="sr-only" id="file" type="file" accept=".csv,.xml,.m3u,.m3u8,.nml,.txt">
+</div>
+
+<section class="card p-16 stack gap-16" aria-labelledby="all-title">
+  <h2 class="sr-only" id="all-title">All sets</h2>
+  <div class="row between wrap-row gap-16">
+    <div class="pills" data-pills="#set-rows" role="group" aria-label="Filter sets">
+      <button class="pill" type="button" aria-pressed="true" data-pill="all">All 38</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="published">Published 34</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="draft">Drafts 3</button>
+      <button class="pill" type="button" aria-pressed="false" data-pill="private">Private 1</button>
+    </div>
+    <label class="search" style="width:260px;max-width:100%">{{icon:search:18}}<span class="sr-only">Search your sets</span><input type="search" placeholder="Search your sets"></label>
+  </div>
+  <div class="table-scroll">
+    <table class="table">
+      <thead><tr><th scope="col">Set</th><th scope="col" class="hide-sm">Source</th><th scope="col" class="hide-sm">Tracks</th><th scope="col">Status</th><th scope="col" style="text-align:right">Saves</th><th scope="col"><span class="sr-only">Actions</span></th></tr></thead>
+      <tbody id="set-rows">
+        <tr data-kind="published"><td><a class="row gap-16" href="/kemi/rooftop-sunday-vol-7"><img src="/img/crowd-sm.webp" alt="" width="40" height="40" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover"><span class="stack"><span class="label">Rooftop Sunday · Vol. 7</span><span class="caption t3">2 Nov · Sky Bar, VI</span></span></a></td><td class="small t2 hide-sm">rekordbox XML</td><td class="mono hide-sm">18</td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">2.1k</td><td><button class="icon-btn ghost" type="button" aria-label="More for Rooftop Sunday · Vol. 7" data-soon="Set actions">{{icon:ellipsis:18}}</button></td></tr>
+        <tr data-kind="draft"><td><span class="row gap-16"><span class="art g1"></span><span class="stack"><span class="label">Rooftop Sunday · Vol. 8</span><span class="caption t3">Draft · edited 2h ago</span></span></span></td><td class="small t2 hide-sm">rekordbox XML</td><td class="mono hide-sm">16</td><td><span class="chip dot warning">2 tracks to check</span></td><td class="mono" style="text-align:right">—</td><td><button class="icon-btn ghost" type="button" aria-label="More for Rooftop Sunday · Vol. 8" data-soon="Set actions">{{icon:ellipsis:18}}</button></td></tr>
+        <tr data-kind="published"><td><span class="row gap-16"><img src="/img/owambe-sm.webp" alt="" width="40" height="40" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover"><span class="stack"><span class="label">Owambe after dark</span><span class="caption t3">26 Oct · Ikoyi</span></span></span></td><td class="small t2 hide-sm">Serato CSV</td><td class="mono hide-sm">24</td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">1.4k</td><td><button class="icon-btn ghost" type="button" aria-label="More for Owambe after dark" data-soon="Set actions">{{icon:ellipsis:18}}</button></td></tr>
+        <tr data-kind="private"><td><span class="row gap-16"><img src="/img/beach-sm.webp" alt="" width="40" height="40" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover"><span class="stack"><span class="label">Tarkwa Bay sunset</span><span class="caption t3">19 Oct · Lagos</span></span></span></td><td class="small t2 hide-sm">Added by hand</td><td class="mono hide-sm">14</td><td><span class="chip dot">Private</span></td><td class="mono" style="text-align:right">—</td><td><button class="icon-btn ghost" type="button" aria-label="More for Tarkwa Bay sunset" data-soon="Set actions">{{icon:ellipsis:18}}</button></td></tr>
+        <tr data-kind="published"><td><span class="row gap-16"><img src="/img/living-sm.webp" alt="" width="40" height="40" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover"><span class="stack"><span class="label">Living room sessions #4</span><span class="caption t3">12 Oct · Yaba</span></span></span></td><td class="small t2 hide-sm">VirtualDJ M3U</td><td class="mono hide-sm">11</td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">640</td><td><button class="icon-btn ghost" type="button" aria-label="More for Living room sessions #4" data-soon="Set actions">{{icon:ellipsis:18}}</button></td></tr>
+        <tr data-kind="published"><td><span class="row gap-16"><img src="/img/dinner-sm.webp" alt="" width="40" height="40" loading="lazy" style="width:40px;height:40px;border-radius:8px;object-fit:cover"><span class="stack"><span class="label">Dinner with friends</span><span class="caption t3">5 Oct · Lekki</span></span></span></td><td class="small t2 hide-sm">TRAKTOR NML</td><td class="mono hide-sm">20</td><td><span class="chip dot success">Published</span></td><td class="mono" style="text-align:right">410</td><td><button class="icon-btn ghost" type="button" aria-label="More for Dinner with friends" data-soon="Set actions">{{icon:ellipsis:18}}</button></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption t3">Showing 6 of 38.</p>
+</section>
