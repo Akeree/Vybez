@@ -1,12 +1,8 @@
 {
-  "name": "vybez",
-  "version": "1.0.0",
-  "private": true,
-  "description": "Vybez website: Vybez DJ and Vybez Social. Static site, no runtime dependencies.",
-  "type": "module",
-  "scripts": {
-    "build": "node scripts/build.mjs",
-    "dev": "node scripts/build.mjs && npx --yes serve dist -l 3000"
-  },
-  "engines": { "node": ">=18" }
+  "name":"vybez","version":"1.1.0","private":true,
+  "description":"Vybez DJ and Vybez Social static frontend with Supabase-backed Vercel API",
+  "type":"module",
+  "scripts":{"build":"node scripts/build.mjs","dev":"node scripts/build.mjs && npx --yes serve dist -l 3000","test":"node --test"},
+  "engines":{"node":">=20"},
+  "dependencies":{"@supabase/supabase-js":"^2.49.1"}
 }
