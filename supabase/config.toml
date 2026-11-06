@@ -1,0 +1,13 @@
+project_id = "vybez"
+[api]
+enabled = true
+[db]
+major_version = 15
+[auth]
+enabled = true
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/**"]
+[auth.email]
+enable_signup = true
+double_confirm_changes = true
+enable_confirmations = true
