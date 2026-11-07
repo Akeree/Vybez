@@ -1,0 +1,46 @@
+<!--meta {"title":"Live room","description":"A live room on Vybez: see what the DJ is playing, react and comment.","layout":"site","nav":"explore","page":"live","noindex":true}-->
+<div class="wrap stack gap-32" style="padding-top:32px;padding-bottom:96px">
+  <div class="skeleton" style="height:200px" data-loading></div>
+  <div class="card state" data-missing hidden><span class="tile">{{icon:radio}}</span><h1 class="h4">This room doesn’t exist</h1><p class="small t2">The link may be wrong, or the DJ changed their handle.</p><a class="btn btn-outline btn-sm" href="/explore">See who is live</a></div>
+  <div class="stack gap-32" data-room hidden>
+    <div class="room-head">
+      <a class="row gap-16" data-dj-link href="#"><span class="avatar lg" data-dj-avatar></span><span class="stack gap-2"><span class="label" data-dj-name></span><span class="caption t3" data-dj-meta></span></span></a>
+      <div class="row gap-8 wrap-row" data-state-chips></div>
+      <div class="row gap-8 actions">
+        <button class="btn btn-primary btn-sm" type="button" data-follow aria-pressed="false">Follow</button>
+        <button class="btn btn-outline btn-sm" type="button" data-share>{{icon:share:16}}Share</button>
+      </div>
+    </div>
+    <div class="live-desk">
+      <div class="stack gap-16">
+        <section class="now-hero" aria-labelledby="room-title">
+          <div class="cover rings now-cover"></div>
+          <div class="stack gap-8 now-body">
+            <h1 class="h1" id="room-title" data-room-title></h1>
+            <p class="overline" data-now-label>Now playing</p>
+            <p class="h3" data-now-title></p>
+            <p class="t2" data-now-artist></p>
+            <div class="row gap-8 wrap-row" data-now-links></div>
+          </div>
+        </section>
+        <div class="row gap-8 wrap-row" role="group" aria-label="React" data-reacts></div>
+        <section class="card stack" aria-labelledby="rp-t">
+          <div class="p-16 row between"><h2 class="h4" id="rp-t">Tracklist so far</h2><span class="caption t3" data-pl-count></span></div>
+          <ol class="queue" data-played></ol>
+        </section>
+      </div>
+      <aside class="card p-16 stack gap-16 feed-card" aria-labelledby="rf-t">
+        <div class="row between"><h2 class="h4" id="rf-t">The room</h2><span class="caption t3" data-watching></span></div>
+        <ol class="feed" data-feed aria-live="polite"></ol>
+        <form class="stack gap-8" data-comment-form>
+          <div class="field" data-name-field><label for="c-name">Your name</label><input class="input" id="c-name" name="name" maxlength="30" autocomplete="given-name" style="height:40px"></div>
+          <div class="row gap-8"><label class="sr-only" for="c-text">Comment</label><input class="input grow" id="c-text" name="text" maxlength="200" placeholder="Say something" style="height:40px"><button class="btn btn-primary btn-sm" type="submit">{{icon:send:16}}<span class="sr-only">Send</span></button></div>
+          <label class="row gap-8 check-row"><input type="checkbox" name="request"> <span class="caption t2">This is a song request</span></label>
+          <p class="form-error" data-error role="alert" hidden></p>
+        </form>
+      </aside>
+    </div>
+    <p class="caption t3">Vybez shows what’s playing; it doesn’t stream audio. Each track opens in your own streaming app.</p>
+  </div>
+</div>
+<span hidden data-brand-marks>{{brand:spotify:18}}{{brand:applemusic:18}}</span>

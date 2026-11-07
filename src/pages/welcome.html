@@ -1,0 +1,59 @@
+<!--meta {"title":"Welcome to Vybez","description":"Set up your Vybez profile.","layout":"bare","page":"welcome","noindex":true}-->
+<div class="onboard">
+  <header class="onboard-head">
+    <a href="/" aria-label="Vybez home">{{lockup}}</a>
+    <ol class="steps" aria-label="Setup progress" data-steps>
+      <li aria-current="step"><span>1</span>Profile</li>
+      <li><span>2</span>Sound</li>
+      <li data-dj-only><span>3</span>DJ software</li>
+      <li><span data-last-num>4</span>First steps</li>
+    </ol>
+  </header>
+
+  <form class="onboard-card card" data-step="1" novalidate>
+    <div class="stack gap-8"><p class="overline">Step 1</p><h1 class="h-page">How should people find you?</h1><p class="t2">This is your public name and link. You can change both later in Settings.</p></div>
+    <div class="field"><label for="ob-name">Name</label><input class="input" id="ob-name" name="name" required maxlength="50"></div>
+    <div class="field"><label for="ob-handle">Your link</label><div class="input-prefix"><span>vybez/u/</span><input class="input" id="ob-handle" name="handle" required maxlength="24" autocomplete="off" spellcheck="false"></div><span class="hint">Letters, numbers and dashes.</span></div>
+    <div class="field"><label for="ob-city">City</label><input class="input" id="ob-city" name="city" placeholder="Lagos" maxlength="60" autocomplete="address-level2"></div>
+    <div class="field" data-dj-only><label for="ob-bio">Short bio <span class="t3">(optional)</span></label><textarea class="input textarea" id="ob-bio" name="bio" maxlength="280" rows="3" placeholder="Afrobeats, amapiano and Lagos house. Rooftop Sundays resident."></textarea></div>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <div class="row between"><span></span><button class="btn btn-primary" type="submit">Continue{{icon:chevron-right:18}}</button></div>
+  </form>
+
+  <form class="onboard-card card" data-step="2" hidden novalidate>
+    <div class="stack gap-8"><p class="overline">Step 2</p><h1 class="h-page">What do you play or love?</h1><p class="t2">Pick up to 6. We use these for Explore and your profile.</p></div>
+    <div class="pills" role="group" aria-label="Genres" data-genres>
+      <button class="pill" type="button" aria-pressed="false">Afrobeats</button><button class="pill" type="button" aria-pressed="false">Amapiano</button><button class="pill" type="button" aria-pressed="false">Afro house</button><button class="pill" type="button" aria-pressed="false">Lagos house</button><button class="pill" type="button" aria-pressed="false">Gqom</button><button class="pill" type="button" aria-pressed="false">Highlife</button><button class="pill" type="button" aria-pressed="false">Fuji</button><button class="pill" type="button" aria-pressed="false">Owambe</button><button class="pill" type="button" aria-pressed="false">Hip-hop</button><button class="pill" type="button" aria-pressed="false">R&amp;B</button><button class="pill" type="button" aria-pressed="false">Dancehall</button><button class="pill" type="button" aria-pressed="false">Afro tech</button><button class="pill" type="button" aria-pressed="false">House</button><button class="pill" type="button" aria-pressed="false">Techno</button><button class="pill" type="button" aria-pressed="false">Disco</button><button class="pill" type="button" aria-pressed="false">Gospel</button>
+    </div>
+    <p class="caption t3" data-genre-count>0 of 6 picked</p>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <div class="row between"><button class="btn btn-outline" type="button" data-back>Back</button><button class="btn btn-primary" type="submit">Continue{{icon:chevron-right:18}}</button></div>
+  </form>
+
+  <form class="onboard-card card" data-step="3" hidden novalidate>
+    <div class="stack gap-8"><p class="overline">Step 3</p><h1 class="h-page">What do you play on?</h1><p class="t2">Nothing connects yet. This tells us which export to explain when you import a set.</p></div>
+    <div class="sw-grid sw-grid-3" data-press-group role="group" aria-label="Your DJ software" data-software>
+      <button class="sw-card" type="button" aria-pressed="false" data-press data-value="Serato"><span class="check">{{icon:check:14}}</span><span class="well">{{svg:w-serato}}</span><span class="label">Serato DJ Pro</span><span class="caption t3">History export (.csv)</span></button>
+      <button class="sw-card" type="button" aria-pressed="false" data-press data-value="rekordbox"><span class="check">{{icon:check:14}}</span><span class="well">{{svg:w-rekordbox}}</span><span class="label">rekordbox</span><span class="caption t3">Playlist export (.xml)</span></button>
+      <button class="sw-card" type="button" aria-pressed="false" data-press data-value="VirtualDJ"><span class="check">{{icon:check:14}}</span><span class="well"><span class="pending">VirtualDJ<small>logo pending</small></span></span><span class="label">VirtualDJ</span><span class="caption t3">History file (.m3u)</span></button>
+      <button class="sw-card" type="button" aria-pressed="false" data-press data-value="TRAKTOR"><span class="check">{{icon:check:14}}</span><span class="well"><span class="pending">TRAKTOR<small>logo pending</small></span></span><span class="label">TRAKTOR</span><span class="caption t3">Playlist export (.nml)</span></button>
+      <button class="sw-card" type="button" aria-pressed="false" data-press data-value="Other"><span class="check">{{icon:check:14}}</span><span class="well">{{icon:disc-3:28}}</span><span class="label">Something else</span><span class="caption t3">Paste a tracklist as text</span></button>
+    </div>
+    <p class="caption t3">Logos belong to their owners. Vybez is not affiliated with or endorsed by them.</p>
+    <div class="row between"><button class="btn btn-outline" type="button" data-back>Back</button><button class="btn btn-primary" type="submit">Continue{{icon:chevron-right:18}}</button></div>
+  </form>
+
+  <div class="onboard-card card" data-step="4" hidden>
+    <div class="stack gap-8"><p class="overline">All set</p><h1 class="h-page" data-done-title>You’re in.</h1><p class="t2" data-done-sub>Here’s where to start.</p></div>
+    <div class="stack gap-8" data-next-dj>
+      <a class="card choice" href="/dj/sets?import=1"><span class="tile">{{icon:upload}}</span><span class="stack grow gap-2"><span class="label">Import your first set</span><span class="caption t3">Drop a rekordbox, Serato, VirtualDJ or TRAKTOR export</span></span>{{icon:chevron-right}}</a>
+      <a class="card choice" href="/dj/live"><span class="tile">{{icon:radio}}</span><span class="stack grow gap-2"><span class="label">Go live tonight</span><span class="caption t3">Share what you’re playing while the room reacts</span></span>{{icon:chevron-right}}</a>
+      <a class="card choice" href="/dj"><span class="tile">{{icon:house}}</span><span class="stack grow gap-2"><span class="label">Open your dashboard</span><span class="caption t3">Sets, crates, insights and your nights</span></span>{{icon:chevron-right}}</a>
+    </div>
+    <div class="stack gap-8" data-next-listener hidden>
+      <a class="card choice" href="/explore"><span class="tile">{{icon:headphones}}</span><span class="stack grow gap-2"><span class="label">Find DJs to follow</span><span class="caption t3">See who’s live and save tracklists</span></span>{{icon:chevron-right}}</a>
+      <a class="card choice" href="/social/new"><span class="tile">{{icon:calendar-plus}}</span><span class="stack grow gap-2"><span class="label">Plan a small night</span><span class="caption t3">One invite link, RSVPs without an account</span></span>{{icon:chevron-right}}</a>
+      <a class="card choice" href="/me"><span class="tile">{{icon:bookmark}}</span><span class="stack grow gap-2"><span class="label">Your Vybez</span><span class="caption t3">Following, saved sets and notifications</span></span>{{icon:chevron-right}}</a>
+    </div>
+  </div>
+</div>

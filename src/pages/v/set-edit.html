@@ -1,0 +1,68 @@
+<!--meta {"title":"Edit set","description":"Edit a set on Vybez DJ.","layout":"app","app":"sets","page":"set-edit","noindex":true}-->
+<div class="stack gap-32" data-loading>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/dj/sets">Sets</a>{{icon:chevron-right:16}}<span aria-current="page" class="t3" data-crumb>Loading…</span></nav>
+  <div class="skeleton" style="height:120px"></div>
+</div>
+<div class="stack gap-32" data-editor hidden>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/dj/sets">Sets</a>{{icon:chevron-right:16}}<span aria-current="page" class="t3" data-crumb></span></nav>
+  <div class="app-head end">
+    <div class="stack gap-8">
+      <div class="row gap-8 wrap-row"><span class="chip dot" data-status-chip>Draft</span><span class="caption t3" data-saved-at></span></div>
+      <h1 class="h-page" data-title-out>Untitled set</h1>
+    </div>
+    <div class="actions">
+      <a class="btn btn-outline btn-pad-sm" href="#" data-view-public target="_blank" rel="noopener">{{icon:external-link:18}}View page</a>
+      <button class="btn btn-outline btn-pad-sm" type="button" data-save>Save</button>
+      <button class="btn btn-primary btn-pad-sm" type="button" data-publish>Publish</button>
+    </div>
+  </div>
+  <div class="two-col">
+    <section class="card tracklist" aria-labelledby="ed-tl">
+      <div class="p-16 row between wrap-row gap-8" style="border-bottom:1px solid var(--border-subtle)">
+        <div class="stack gap-2"><h2 class="h4" id="ed-tl">Tracklist</h2><span class="caption t3" data-track-count>0 tracks</span></div>
+        <div class="row gap-8 wrap-row">
+          <button class="btn btn-outline btn-sm" type="button" data-paste-open>{{icon:file-text:16}}Paste a list</button>
+          <label class="btn btn-outline btn-sm" for="ed-file">{{icon:upload:16}}Add from file</label>
+          <input class="sr-only" id="ed-file" type="file" accept=".csv,.xml,.m3u,.m3u8,.nml,.txt">
+        </div>
+      </div>
+      <div class="edit-track head" aria-hidden="true"><span>#</span><span>Artist</span><span>Title</span><span class="hide-sm">BPM</span><span class="hide-sm">Key</span><span class="hide-sm">Time</span><span></span></div>
+      <ol data-tracks></ol>
+      <div class="p-16 stack gap-8" style="border-top:1px solid var(--border-subtle)">
+        <form class="add-track" data-add-track>
+          <label class="sr-only" for="add-a">Artist</label><input class="input" id="add-a" name="a" placeholder="Artist" maxlength="160">
+          <label class="sr-only" for="add-t">Title</label><input class="input" id="add-t" name="t" placeholder="Track title" maxlength="200">
+          <button class="btn btn-primary btn-sm" type="submit">{{icon:plus:16}}Add</button>
+        </form>
+        <p class="caption t3">Tip: put unreleased edits as “ID”. Listeners see “Not on streaming”.</p>
+      </div>
+    </section>
+    <aside class="stack gap-16" aria-label="Set details">
+      <form class="card form-card" data-details novalidate>
+        <h2 class="h4">Details</h2>
+        <div class="field"><label for="sd-title">Name</label><input class="input" id="sd-title" name="title" maxlength="90" required></div>
+        <div class="field"><label for="sd-date">Date played</label><input class="input" id="sd-date" name="date" type="date"></div>
+        <div class="field"><label for="sd-venue">Venue or city</label><input class="input" id="sd-venue" name="venue" maxlength="80" placeholder="Sky Bar, Victoria Island"></div>
+        <div class="field"><label for="sd-link">Recording link <span class="t3">(optional)</span></label><input class="input" id="sd-link" name="link" type="url" maxlength="300" placeholder="https://www.mixcloud.com/…"><span class="hint">Mixcloud, SoundCloud or YouTube. Vybez links out; it doesn’t host audio.</span></div>
+        <div class="field"><label for="sd-vis">Who can see it</label><select class="input" id="sd-vis" name="visibility"><option value="public">Everyone, and in Explore</option><option value="followers">Followers only</option><option value="unlisted">Anyone with the link</option><option value="private">Only me</option></select></div>
+        <div class="field"><label for="sd-notes">Notes <span class="t3">(optional)</span></label><textarea class="input textarea" id="sd-notes" name="notes" rows="3" maxlength="1000"></textarea></div>
+        <p class="form-error" data-error role="alert" hidden></p>
+      </form>
+      <div class="card p-16 stack gap-8">
+        <p class="overline muted">More</p>
+        <a class="btn btn-outline btn-block" href="/dj/live" data-live-with>{{icon:radio:18}}Go live with this set</a>
+        <button class="btn btn-outline btn-block" type="button" data-download>{{icon:file-down:18}}Download as text</button>
+        <button class="btn btn-danger btn-block" type="button" data-delete>{{icon:trash-2:18}}Delete set</button>
+      </div>
+    </aside>
+  </div>
+</div>
+<dialog class="modal" data-paste-dialog aria-labelledby="paste-t">
+  <form method="dialog" class="stack gap-16" data-paste-form>
+    <div class="row between"><h2 class="h4" id="paste-t">Paste a tracklist</h2><button class="icon-btn ghost" value="cancel" aria-label="Close">{{icon:x}}</button></div>
+    <p class="small t2">One track per line, like “Burna Boy - Last Last”. Numbers and times at the start are fine.</p>
+    <label class="sr-only" for="paste-box">Tracklist</label>
+    <textarea class="input textarea" id="paste-box" rows="10" placeholder="01. Burna Boy - Last Last&#10;02. Rema - Calm Down&#10;03. Tyla - Water"></textarea>
+    <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" value="cancel">Cancel</button><button class="btn btn-primary btn-sm" value="ok">Add tracks</button></div>
+  </form>
+</dialog>

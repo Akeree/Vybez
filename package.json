@@ -2,11 +2,14 @@
   "name": "vybez",
   "version": "1.0.0",
   "private": true,
-  "description": "Vybez website: Vybez DJ and Vybez Social. Static site, no runtime dependencies.",
+  "description": "Vybez website and API: Vybez DJ and Vybez Social. Static pages plus one Vercel Function, no runtime dependencies.",
   "type": "module",
   "scripts": {
     "build": "node scripts/build.mjs",
-    "dev": "node scripts/build.mjs && npx --yes serve dist -l 3000"
+    "dev": "node scripts/dev.mjs",
+    "test": "node scripts/test-api.mjs"
   },
-  "engines": { "node": ">=18" }
+  "engines": {
+    "node": ">=18"
+  }
 }

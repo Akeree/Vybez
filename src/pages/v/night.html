@@ -1,0 +1,58 @@
+<!--meta {"title":"Your night","description":"Manage guests for your Vybez Social night.","layout":"app","app":"nights","page":"night","noindex":true}-->
+<div class="skeleton" style="height:200px" data-loading></div>
+<div class="card state" data-missing hidden><span class="tile">{{icon:users}}</span><h1 class="h4">Night not found</h1><p class="small t2">It may have been deleted, or it belongs to another account.</p><a class="btn btn-outline btn-sm" href="/social">Your nights</a></div>
+<div class="stack gap-32" data-content hidden>
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/social">Your nights</a>{{icon:chevron-right:16}}<span aria-current="page" class="t3" data-crumb></span></nav>
+  <p class="notice" data-created hidden>{{icon:circle-check:18}}<span><strong>Your night is ready.</strong> Copy the link below and send it on WhatsApp. Guests RSVP without an account.</span></p>
+  <div class="app-head end">
+    <div class="stack gap-8">
+      <div class="row gap-8 wrap-row" data-chips></div>
+      <h1 class="h-page" data-title></h1>
+      <p class="t2" data-when></p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-outline btn-pad-sm" href="#" data-edit>{{icon:pencil:18}}Edit</a>
+      <a class="btn btn-outline btn-pad-sm" href="#" data-preview target="_blank" rel="noopener">{{icon:eye:18}}Guest view</a>
+      <a class="btn btn-primary btn-pad-sm" href="#" data-door>{{icon:scan-line:18}}Door mode</a>
+    </div>
+  </div>
+  <section class="kpis" aria-label="Guest numbers">
+    <div class="card kpi"><span class="caption t2">Going</span><span class="kpi-num"><span data-n="going">0</span><span class="t3" style="font-size:16px"> / <span data-n="cap">0</span></span></span><div class="meter" aria-hidden="true"><span data-meter></span></div></div>
+    <div class="card kpi"><span class="caption t2">Asking to join</span><span class="kpi-num" data-n="asking">0</span></div>
+    <div class="card kpi"><span class="caption t2">Checked in</span><span class="kpi-num" data-n="in">0</span></div>
+    <div class="card kpi"><span class="caption t2">Can’t make it</span><span class="kpi-num" data-n="out">0</span></div>
+  </section>
+  <div class="plan-cols">
+    <section class="card p-16 stack gap-16" aria-labelledby="gl-t">
+      <div class="row between wrap-row gap-8"><h2 class="h4" id="gl-t">Guest list</h2><button class="btn btn-outline btn-sm" type="button" data-refresh>{{icon:refresh-cw:16}}Refresh</button></div>
+      <div class="pills" role="group" aria-label="Filter guests" data-guest-filter>
+        <button class="pill" type="button" aria-pressed="true" data-k="asking">Asking</button>
+        <button class="pill" type="button" aria-pressed="false" data-k="going">Going</button>
+        <button class="pill" type="button" aria-pressed="false" data-k="out">Not coming</button>
+      </div>
+      <div class="stack" data-guests></div>
+    </section>
+    <aside class="stack gap-16" aria-label="Share and settings">
+      <div class="card p-16 stack gap-16">
+        <h2 class="h4">Invite link</h2>
+        <div class="row gap-8"><span class="search grow" style="height:40px"><span class="mono ellipsis" style="color:var(--text-primary)" data-link></span></span><button class="btn btn-outline btn-sm" type="button" data-copy-link>{{icon:copy:14}}Copy</button></div>
+        <div class="row gap-8 wrap-row">
+          <a class="btn btn-outline btn-sm" href="#" data-wa target="_blank" rel="noopener">{{brand:whatsapp:16}}WhatsApp</a>
+          <a class="btn btn-outline btn-sm" href="#" data-sms>{{icon:send:16}}SMS</a>
+          <a class="btn btn-outline btn-sm" href="#" data-mail>{{icon:mail:16}}Email</a>
+        </div>
+      </div>
+      <div class="card p-16 stack gap-16">
+        <div class="row between"><h2 class="h4">Songs from guests</h2><span class="caption t3" data-song-count></span></div>
+        <ol class="stack gap-8" data-songs></ol>
+        <button class="btn btn-outline btn-sm" type="button" data-copy-songs style="align-self:flex-start">{{icon:copy:14}}Copy for the DJ</button>
+      </div>
+      <div class="card p-16 stack gap-8" data-rules></div>
+      <div class="danger-zone">
+        <h2 class="h4">Cancel or delete</h2>
+        <p class="small t2">Cancelling keeps the list and tells guests on the invite page. Deleting removes the night and every RSVP.</p>
+        <div class="row gap-8 wrap-row"><button class="btn btn-outline btn-sm" type="button" data-cancel>Cancel night</button><button class="btn btn-danger btn-sm" type="button" data-delete>{{icon:trash-2:16}}Delete</button></div>
+      </div>
+    </aside>
+  </div>
+</div>

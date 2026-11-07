@@ -1,0 +1,133 @@
+// End-to-end API check against the in-memory store: node scripts/test-api.mjs
+process.env.VYBEZ_STORE = 'memory';
+const { handle } = await import('../server/api.js');
+let failures = 0;
+const jar = {};
+async function call(who, method, path, body) {
+  const headers = { 'content-type': 'application/json', host: 'localhost:3000' };
+  if (jar[who]) headers.cookie = `vz_session=${jar[who]}`;
+  const res = await handle(new Request(`http://localhost:3000/api/${path}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(body || {}) }));
+  const c = res.headers.getSetCookie?.()[0];
+  if (c) jar[who] = c.split(';')[0].split('=')[1] || null;
+  return { status: res.status, data: await res.json() };
+}
+function check(name, cond, extra) {
+  if (cond) console.log(`  ok  ${name}`);
+  else { failures++; console.log(`  FAIL ${name}`, extra === undefined ? '' : JSON.stringify(extra)); }
+}
+
+let r = await call('dj', 'POST', 'auth/signup', { email: 'kemi@test.dev', password: 'short', name: 'Kemi' });
+check('rejects short password', r.status === 400);
+r = await call('dj', 'POST', 'auth/signup', { email: 'kemi@test.dev', password: 'longenough1', name: 'DJ Kemi', role: 'dj' });
+check('signup', r.status === 200 && r.data.user.handle === 'dj-kemi', r.data);
+r = await call('x', 'POST', 'auth/signup', { email: 'KEMI@test.dev', password: 'longenough1', name: 'Other' });
+check('duplicate email blocked', r.status === 409);
+r = await call('dj', 'GET', 'me');
+check('me', r.data.user?.email === 'kemi@test.dev');
+r = await call('dj', 'PATCH', 'me', { handle: 'kemi-lagos', city: 'Lagos', genres: ['Afrobeats'], onboarded: true });
+check('update profile + handle', r.data.user?.handle === 'kemi-lagos', r.data);
+r = await call('dj', 'POST', 'sets', { title: 'Rooftop Sunday', tracks: [{ a: 'Burna Boy', t: 'Last Last', bpm: 104 }, { a: 'Rema', t: 'Calm Down' }] });
+check('create set', r.data.set?.tracks.length === 2, r.data);
+const setId = r.data.set.id;
+r = await call('anon', 'GET', `sets/${setId}`);
+check('draft hidden from public', r.status === 404);
+r = await call('dj', 'PATCH', `sets/${setId}`, { status: 'published' });
+check('publish', r.data.set?.status === 'published');
+r = await call('anon', 'GET', `sets/${setId}`);
+check('public can view', r.status === 200 && r.data.dj.handle === 'kemi-lagos');
+r = await call('anon', 'POST', `sets/${setId}/comments`, { name: 'Tolu', text: 'Crazy blend' });
+check('guest comment', r.status === 200);
+r = await call('anon', 'POST', `sets/${setId}/react`, { emoji: '🔥' });
+check('react', r.data.count === 1);
+
+r = await call('fan', 'POST', 'auth/signup', { email: 'fan@test.dev', password: 'longenough1', name: 'Ada Fan', role: 'listener' });
+check('listener signup', r.status === 200);
+r = await call('fan', 'POST', 'users/kemi-lagos/follow');
+check('follow', r.data.following === true && r.data.followers === 1);
+r = await call('fan', 'POST', `sets/${setId}/save`);
+check('save set', r.data.saved === true);
+r = await call('fan', 'GET', 'me/saved');
+check('saved list', r.data.sets.length === 1 && r.data.following.length === 1);
+r = await call('dj', 'GET', 'notifications');
+check('notifications', r.data.items.length >= 3, r.data.items.map((i) => i.type));
+r = await call('anon', 'GET', 'users/kemi-lagos');
+check('profile', r.data.sets.length === 1 && r.data.followers === 1);
+r = await call('anon', 'GET', 'explore');
+check('explore lists dj + set', r.data.djs.length === 1 && r.data.sets.length === 1, r.data);
+
+r = await call('dj', 'POST', 'live/start', { title: 'Rooftop live', setId });
+check('go live', r.data.live?.on && r.data.live.queue.length === 2);
+r = await call('dj', 'POST', 'live/now', { queueIndex: 0 });
+check('now playing from queue', r.data.live.now.t === 'Last Last');
+r = await call('dj', 'POST', 'live/now', { track: { a: 'Tyla', t: 'Water' } });
+check('now playing by hand', r.data.live.played.length === 1);
+r = await call('anon', 'POST', 'live/kemi-lagos/react', { emoji: '🙌' });
+check('live react', r.data.count === 1);
+r = await call('anon', 'POST', 'live/kemi-lagos/comment', { name: 'Seyi', text: 'Play Rush!', request: true });
+check('live comment', r.status === 200);
+r = await call('anon', 'GET', 'live/kemi-lagos?since=0');
+check('live view', r.data.live.on && r.data.feed.length === 1 && r.data.reactions['🙌'] === 1 && r.data.live.queue.length === 0, r.data);
+r = await call('anon', 'GET', 'explore');
+check('explore shows live room', r.data.live.length === 1);
+r = await call('dj', 'POST', 'live/end', { saveAsSet: true });
+check('end live saves draft set', r.data.set?.tracks.length === 2, r.data);
+
+r = await call('dj', 'POST', 'nights', { title: 'Tobi’s Birthday', when: '2026-11-14T19:00', place: '12 Admiralty Way', area: 'Lekki', cap: 2, approve: true, plusOnes: true });
+check('create night', !!r.data.night?.code, r.data);
+const night = r.data.night;
+r = await call('anon', 'GET', `invites/${night.code}`);
+check('invite hides address', r.status === 200 && !r.data.invite.place);
+r = await call('anon', 'POST', `invites/${night.code}/rsvp`, { name: 'Bisi', plus: true });
+check('rsvp asks', r.data.invite.guest.status === 'asking', r.data);
+const guestToken = r.data.guest;
+r = await call('dj', 'GET', `nights/${night.id}`);
+const gid = r.data.guests[0].id;
+check('host sees guest', r.data.guests.length === 1 && !r.data.guests[0].token);
+r = await call('dj', 'PATCH', `nights/${night.id}/guests/${gid}`, { status: 'going' });
+check('approve', r.data.guest?.status === 'going', r.data);
+r = await call('anon', 'GET', `invites/${night.code}?guest=${guestToken}`);
+check('approved guest sees address + pass', r.data.invite.place === '12 Admiralty Way' && r.data.invite.guest.pass, r.data);
+const pass = r.data.invite.guest.pass;
+r = await call('anon', 'POST', `invites/${night.code}/rsvp`, { name: 'Femi' });
+r = await call('dj', 'GET', `nights/${night.id}`);
+const femi = r.data.guests.find((g) => g.name === 'Femi');
+r = await call('dj', 'PATCH', `nights/${night.id}/guests/${femi.id}`, { status: 'going' });
+check('cap enforced', r.status === 409, r.data);
+r = await call('anon', 'POST', `invites/${night.code}/song`, { guest: guestToken, track: { a: 'Ayra Starr', t: 'Rush' } });
+check('add song', r.data.songs?.length === 1);
+r = await call('dj', 'POST', `nights/${night.id}/checkin`, { pass: pass.toLowerCase() });
+check('door check-in', r.data.guest?.checkedIn && r.data.already === false, r.data);
+r = await call('fan', 'GET', `nights/${night.id}`);
+check('other users cannot see guest list', r.status === 404);
+
+r = await call('dj', 'POST', 'crates', { name: 'Warm-up' });
+const crate = r.data.crate;
+r = await call('dj', 'PATCH', `crates/${crate.id}`, { add: { a: 'Rema', t: 'Calm Down' } });
+check('crate add', r.data.crate.tracks.length === 1);
+r = await call('dj', 'GET', 'insights');
+check('insights', r.data.sets === 2 && r.data.followers === 1 && r.data.topArtists.length > 0, r.data);
+r = await call('dj', 'GET', 'me/export');
+check('export', r.data.sets.length === 2 && r.data.nights.length === 1 && !JSON.stringify(r.data).includes('"pw"'));
+
+r = await call('dj', 'POST', 'auth/forgot', { email: 'kemi@test.dev' });
+check('forgot ok', r.data.ok && !r.data.devLink);
+r = await call('dj', 'POST', 'me/password', { current: 'longenough1', next: 'newpassword2' });
+check('change password', r.data.ok);
+r = await call('dj', 'POST', 'auth/signout');
+r = await call('dj', 'GET', 'me');
+check('signed out', r.data.user === null);
+r = await call('dj', 'POST', 'auth/signin', { email: 'kemi@test.dev', password: 'longenough1' });
+check('old password rejected', r.status === 401);
+r = await call('dj', 'POST', 'auth/signin', { email: 'kemi@test.dev', password: 'newpassword2' });
+check('sign in', r.status === 200);
+const csrf = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'text/plain', cookie: `vz_session=${jar.dj}` }, body: '{}' }));
+check('non-JSON POST blocked', csrf.status === 415);
+const cross = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://evil.example', host: 'localhost:3000', cookie: `vz_session=${jar.dj}` }, body: '{}' }));
+check('cross-origin POST blocked', cross.status === 403);
+r = await call('dj', 'DELETE', 'me', { password: 'newpassword2' });
+check('delete account', r.data.ok);
+r = await call('anon', 'GET', 'users/kemi-lagos');
+check('profile gone', r.status === 404);
+
+console.log(failures ? `\n${failures} failed` : '\nAll API checks passed');
+process.exit(failures ? 1 : 0);

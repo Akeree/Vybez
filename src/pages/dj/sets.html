@@ -1,8 +1,43 @@
-<!--meta {"title":"Your sets","description":"Manage your sets on Vybez DJ: import, publish, keep drafts and private sets. Example data.","layout":"app","app":"sets"}-->
+<!--meta {"title":"Your sets","description":"Manage your sets on Vybez DJ: import, publish, keep drafts and private sets. Example data.","layout":"app","app":"sets","page":"sets"}-->
+<div class="stack gap-32" data-real hidden>
+  <div class="app-head end">
+    <div class="stack gap-4">
+      <h1 class="h-page">Sets</h1>
+      <p class="t2" style="max-width:620px">Every set you import or build lives here. Publish when the tracklist looks right.</p>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline btn-pad-sm" type="button" data-new-set>{{icon:plus:18}}Add tracks by hand</button>
+      <label class="btn btn-primary btn-pad-sm" for="import-file">{{icon:upload:18}}Import a set</label>
+    </div>
+  </div>
+  <div class="dropzone" data-import>
+    <span class="tile lg">{{icon:upload:24}}</span>
+    <div class="stack grow gap-4" style="min-width:220px">
+      <p class="label">Drop an exported playlist here</p>
+      <p class="caption t3">rekordbox XML, Serato CSV, VirtualDJ M3U, TRAKTOR NML or a text file with one “Artist - Title” per line. Your browser reads the track names; the file itself never leaves your device.</p>
+    </div>
+    <div class="row gap-8"><a class="btn btn-outline btn-sm" href="/help#imports">How to export</a><label class="btn btn-primary btn-sm" for="import-file">Choose file</label></div>
+    <input class="sr-only" id="import-file" type="file" accept=".csv,.xml,.m3u,.m3u8,.nml,.txt">
+  </div>
+  <section class="card p-16 stack gap-16" aria-labelledby="mine-title">
+    <h2 class="sr-only" id="mine-title">Your sets</h2>
+    <div class="row between wrap-row gap-16">
+      <div class="pills" role="group" aria-label="Filter sets" data-set-filter>
+        <button class="pill" type="button" aria-pressed="true" data-f="all">All</button>
+        <button class="pill" type="button" aria-pressed="false" data-f="published">Published</button>
+        <button class="pill" type="button" aria-pressed="false" data-f="draft">Drafts</button>
+      </div>
+      <label class="search" style="width:260px;max-width:100%">{{icon:search:18}}<span class="sr-only">Search your sets</span><input type="search" placeholder="Search your sets" data-set-search></label>
+    </div>
+    <div data-set-list><p class="caption t3">Loading your sets…</p></div>
+  </section>
+</div>
+<div class="stack gap-32" data-demo>
 <div class="app-head end">
   <div class="stack gap-4">
     <h1 class="h-page">Sets</h1>
-    <p class="t2" style="max-width:620px">Every set you import or build lives here. Publish when the tracklist looks right. Example data.</p>
+    <p class="t2" style="max-width:620px">Every set you import or build lives here. Publish when the tracklist looks right.</p>
+    <p class="caption t3">Example data. <a class="link" href="/signin?next=/dj/sets">Sign in</a> to manage your own sets.</p>
   </div>
   <div class="actions">
     <button class="btn btn-outline btn-pad-sm" type="button" data-soon="Adding tracks by hand">{{icon:plus:18}}Add tracks by hand</button>
@@ -46,3 +81,5 @@
   </div>
   <p class="caption t3">Showing 6 of 38.</p>
 </section>
+
+</div>
