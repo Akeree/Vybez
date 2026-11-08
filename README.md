@@ -36,7 +36,7 @@ Not live yet (the UI says so): Google/Apple sign-in, payments (`/upgrade` is a p
 Spacing and radius use one x2 scale: none 0, xxs 2, xs 4, sm 8, md 16, lg 32 (`--s-*`, `--r-*`). Grid: desktop margin 64 / gutter 32, tablet 32 / 16, mobile 16 / 16, content max 1280. Type: display 72, brand heading 44, heading-1 30, heading-2 28, heading-3 22, heading-4 16, body 14, caption 13, overline 11. Fonts: Bricolage Grotesque, Figtree, JetBrains Mono (self-hosted). Icons: Lucide outline 2px.
 
 ## Placeholders to replace before launch
-- **Photos** are AI-generated placeholders.
+- **Photos** are real photos from Unsplash (Unsplash License). Credits are in src/img/CREDITS.md.
 - **Serato and rekordbox logos** are recreations. Swap in official press-kit files (`src/logos/w-*.svg`, `m-*.svg`). VirtualDJ, TRAKTOR, djay Pro and Engine DJ show "logo pending".
 - **Pricing** figures are placeholders pending confirmation.
 - `/kemi`, the demo dashboard and `/i/tobi-30` are example pages and say so.
