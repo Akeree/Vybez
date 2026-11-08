@@ -171,8 +171,17 @@
     const notice = $('[data-form-notice]', f) || (f.dataset.notice ? $(f.dataset.notice) : null);
     if (notice) { notice.hidden = false; notice.focus?.(); }
     if (f.dataset.toast) toast(f.dataset.toast);
+    const first = f.elements.first && f.elements.first.value.trim();
+    if (first) { try { sessionStorage.setItem('vybez-first', first); } catch (_) {} }
     if (f.dataset.next) setTimeout(() => { window.location.href = f.dataset.next; }, 350);
   }));
+
+  // Example invite confirmation: greet the guest by the name they typed.
+  $$('[data-first-name]').forEach((el) => {
+    let first = '';
+    try { first = sessionStorage.getItem('vybez-first') || ''; } catch (_) {}
+    el.textContent = first ? `, ${first}` : '';
+  });
 
   // Drop zone (sets manager)
   $$('[data-dropzone]').forEach((z) => {

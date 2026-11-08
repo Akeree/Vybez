@@ -1,0 +1,18 @@
+<!--meta {"title":"Crates","description":"Group tracks into crates for gigs and moods.","layout":"app","app":"crates","page":"crates","noindex":true}-->
+<div class="app-head end">
+  <div class="stack gap-4">
+    <h1 class="h-page">Crates</h1>
+    <p class="t2" style="max-width:640px">Group tracks for a gig, a mood or a warm-up. Add tracks from your Library, then turn a crate into a set when you’ve played it.</p>
+  </div>
+  <form class="actions" data-new-crate>
+    <label class="sr-only" for="crate-name">Crate name</label>
+    <input class="input" id="crate-name" name="name" placeholder="New crate, e.g. Rooftop warm-up" maxlength="50" required style="width:280px;max-width:100%;height:40px">
+    <button class="btn btn-primary btn-pad-sm" type="submit" style="height:40px">{{icon:folder-plus:18}}Create</button>
+  </form>
+</div>
+<div class="crates-cols">
+  <nav class="stack gap-8" aria-label="Your crates" data-crate-list><p class="caption t3">Loading…</p></nav>
+  <section class="card" aria-live="polite" data-crate-detail>
+    <div class="state"><span class="tile">{{icon:layers}}</span><h2 class="h4">Pick a crate</h2><p class="small t2">Or create one above. Crates are private to you.</p></div>
+  </section>
+</div>

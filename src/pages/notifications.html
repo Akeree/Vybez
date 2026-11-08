@@ -1,0 +1,15 @@
+<!--meta {"title":"Notifications","description":"What’s new on your Vybez.","layout":"site","page":"notifications","noindex":true}-->
+<div class="wrap stack gap-32" style="padding-top:32px;padding-bottom:96px;max-width:calc(800px + 2 * var(--gutter))">
+  <div class="app-head">
+    <div class="stack gap-4"><h1 class="h1">Notifications</h1><p class="t2">Follows, RSVPs, comments and live rooms from people you follow.</p></div>
+    <a class="btn btn-outline btn-pad-sm" href="/dj/settings#notifications">{{icon:sliders-horizontal:18}}Choose what you get</a>
+  </div>
+  <div class="pills" role="group" aria-label="Filter" data-notif-filter>
+    <button class="pill" type="button" aria-pressed="true" data-k="all">All</button>
+    <button class="pill" type="button" aria-pressed="false" data-k="rsvp">RSVPs</button>
+    <button class="pill" type="button" aria-pressed="false" data-k="follow">Follows</button>
+    <button class="pill" type="button" aria-pressed="false" data-k="comment">Comments</button>
+    <button class="pill" type="button" aria-pressed="false" data-k="live">Live</button>
+  </div>
+  <ol class="card notif-list" data-notifs><li class="p-16 caption t3">Loading…</li></ol>
+</div>

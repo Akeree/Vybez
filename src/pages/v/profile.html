@@ -1,0 +1,37 @@
+<!--meta {"title":"DJ","description":"A DJ on Vybez.","layout":"site","nav":"explore","page":"profile","noindex":true}-->
+<div class="cover rings cover-band-gradient"></div>
+<div class="wrap">
+  <div class="skeleton" style="height:160px;margin-top:32px" data-loading></div>
+  <div class="card state" data-missing hidden style="margin-top:32px"><span class="tile">{{icon:user-round}}</span><h1 class="h4">No one with that handle</h1><p class="small t2">Check the link, or search on Explore.</p><a class="btn btn-outline btn-sm" href="/explore">Explore</a></div>
+  <div data-content hidden>
+    <div class="profile-head">
+      <span class="profile-avatar avatar" data-avatar></span>
+      <div class="stack grow gap-8" style="min-width:240px">
+        <div class="row gap-8 wrap-row" data-badges></div>
+        <h1 class="h1" data-name></h1>
+        <p class="t2" data-bio></p>
+        <div class="row gap-8 wrap-row" data-chips></div>
+      </div>
+      <div class="row gap-8 actions">
+        <button class="btn btn-primary" type="button" aria-pressed="false" data-follow>Follow</button>
+        <button class="btn btn-outline" type="button" data-share>{{icon:share:18}}Share</button>
+        <a class="btn btn-outline" href="/dj/settings#profile" data-edit hidden>{{icon:pencil:18}}Edit profile</a>
+      </div>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Profile">
+      <button class="tab" role="tab" type="button" aria-selected="true" aria-controls="pp-sets" id="pt-sets" data-tab>Sets</button>
+      <button class="tab" role="tab" type="button" aria-selected="false" aria-controls="pp-about" id="pt-about" data-tab tabindex="-1">About</button>
+    </div>
+    <div class="two-col" style="padding-top:32px;padding-bottom:96px">
+      <div>
+        <section id="pp-sets" role="tabpanel" aria-labelledby="pt-sets" class="stack gap-8" data-sets></section>
+        <section id="pp-about" role="tabpanel" aria-labelledby="pt-about" hidden class="card p-32 stack gap-16" data-about></section>
+      </div>
+      <aside class="stack gap-16" aria-label="Stats">
+        <div class="card live-cta p-16 stack gap-16" data-live hidden></div>
+        <div class="card stats"><div class="stack gap-2"><span class="stat-num" data-followers>0</span><span class="caption t3">Followers</span></div><div class="stack gap-2"><span class="stat-num" data-set-count>0</span><span class="caption t3">Sets</span></div><div class="stack gap-2"><span class="stat-num" data-since>–</span><span class="caption t3">On Vybez since</span></div></div>
+        <div class="card p-16 stack gap-16" data-links hidden><p class="overline muted">Find their music</p><div class="stack gap-8" data-link-list></div></div>
+      </aside>
+    </div>
+  </div>
+</div>

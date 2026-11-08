@@ -1,0 +1,34 @@
+<!--meta {"title":"Library","description":"Every track from your Vybez sets in one place.","layout":"app","app":"library","page":"library","noindex":true}-->
+<div class="app-head end">
+  <div class="stack gap-4">
+    <h1 class="h-page">Library</h1>
+    <p class="t2" style="max-width:640px">Every track from every set you’ve imported or built, counted once. Sort it, search it, and drop tracks into crates.</p>
+  </div>
+  <div class="actions"><a class="btn btn-primary btn-pad-sm" href="/dj/sets?import=1">{{icon:upload:18}}Import a set</a></div>
+</div>
+<section class="kpis kpis-3" aria-label="Library totals" data-lib-stats>
+  <div class="card kpi"><span class="caption t2">Tracks</span><span class="kpi-num" data-n="tracks">–</span></div>
+  <div class="card kpi"><span class="caption t2">Artists</span><span class="kpi-num" data-n="artists">–</span></div>
+  <div class="card kpi"><span class="caption t2">Sets</span><span class="kpi-num" data-n="sets">–</span></div>
+</section>
+<section class="card p-16 stack gap-16" aria-labelledby="lib-t">
+  <h2 class="sr-only" id="lib-t">Tracks</h2>
+  <div class="row between wrap-row gap-16">
+    <div class="pills" role="group" aria-label="Sort tracks" data-lib-sort>
+      <button class="pill" type="button" aria-pressed="true" data-s="most">Most played</button>
+      <button class="pill" type="button" aria-pressed="false" data-s="recent">Recent</button>
+      <button class="pill" type="button" aria-pressed="false" data-s="artist">Artist A–Z</button>
+      <button class="pill" type="button" aria-pressed="false" data-s="bpm">BPM</button>
+    </div>
+    <label class="search" style="width:300px;max-width:100%">{{icon:search:18}}<span class="sr-only">Search the library</span><input type="search" placeholder="Search artist or title" data-lib-search></label>
+  </div>
+  <div data-lib-list><p class="caption t3">Loading your library…</p></div>
+</section>
+<dialog class="modal" data-crate-dialog aria-labelledby="crd-t">
+  <form method="dialog" class="stack gap-16">
+    <div class="row between"><h2 class="h4" id="crd-t">Add to a crate</h2><button class="icon-btn ghost" value="cancel" aria-label="Close">{{icon:x}}</button></div>
+    <p class="small t2" data-crate-track></p>
+    <div class="stack gap-8" data-crate-options></div>
+    <div class="row gap-8"><label class="sr-only" for="new-crate">New crate name</label><input class="input grow" id="new-crate" placeholder="New crate name" maxlength="50"><button class="btn btn-outline btn-sm" type="button" data-crate-create>{{icon:folder-plus:16}}Create</button></div>
+  </form>
+</dialog>

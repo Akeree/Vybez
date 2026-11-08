@@ -1,8 +1,51 @@
-<!--meta {"title":"Vybez DJ dashboard","description":"A tour of the Vybez DJ dashboard: your sets, plays, requests and next gig in one place. Example data.","layout":"app","app":"overview"}-->
+<!--meta {"title":"Vybez DJ dashboard","description":"A tour of the Vybez DJ dashboard: your sets, plays, requests and next gig in one place. Example data.","layout":"app","app":"overview","page":"dashboard"}-->
+<div class="stack gap-32" data-real hidden>
+  <div class="app-head">
+    <div class="stack gap-4">
+      <h1 class="h-page" data-greeting>Welcome back</h1>
+      <p class="t2" data-summary>Loading your dashboard…</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-outline btn-pad-sm" href="/dj/live">{{icon:radio:18}}Go live</a>
+      <a class="btn btn-primary btn-pad-sm" href="/dj/sets?import=1">{{icon:upload:18}}Import a set</a>
+    </div>
+  </div>
+  <div class="checklist card p-16 stack gap-16" data-getting-started hidden>
+    <div class="row between wrap-row gap-8"><h2 class="h4">Get your page ready</h2><span class="caption t3" data-gs-count></span></div>
+    <ol class="gs-list" data-gs-list></ol>
+  </div>
+  <section class="kpis" aria-label="Your numbers" data-kpis></section>
+  <div class="dash-cols">
+    <div class="stack gap-16">
+      <section class="card p-16 stack gap-16" aria-labelledby="rs-title">
+        <div class="row between"><h2 class="h4" id="rs-title">Your sets</h2><a class="link" href="/dj/sets">Manage sets</a></div>
+        <div data-recent-sets><p class="caption t3">Loading…</p></div>
+      </section>
+      <section class="card p-16 stack gap-16" aria-labelledby="act-title">
+        <div class="row between"><h2 class="h4" id="act-title">Latest activity</h2><a class="link" href="/notifications">See all</a></div>
+        <div class="stack gap-8" data-activity><p class="caption t3">Loading…</p></div>
+      </section>
+    </div>
+    <div class="stack gap-16">
+      <section class="card next-gig p-16 stack gap-16" aria-labelledby="nn-title" data-next-night>
+        <p class="overline">Next night</p>
+        <h2 class="h3" id="nn-title">Nothing planned</h2>
+        <p class="small t2">Plan a small night and share one link on WhatsApp.</p>
+        <a class="btn btn-primary btn-sm" href="/social/new" style="align-self:flex-start">{{icon:calendar-plus:16}}Plan a night</a>
+      </section>
+      <section class="card p-16 stack gap-16" aria-labelledby="pp-title">
+        <h2 class="h4" id="pp-title">Your public page</h2>
+        <div class="row gap-8"><span class="search grow" style="height:40px"><span class="mono ellipsis" style="color:var(--text-primary)" data-profile-url></span></span><button class="btn btn-outline btn-sm" type="button" data-copy-profile>{{icon:copy:14}}Copy</button></div>
+        <a class="link" href="#" data-profile-link>View as a fan</a>
+      </section>
+    </div>
+  </div>
+</div>
+<div class="stack gap-32" data-demo>
 <div class="app-head">
   <div class="stack gap-4">
     <h1 class="h-page">Good evening, Kemi</h1>
-    <p class="t2">Rooftop Sunday is in 7 days. Your set is 18 tracks, 1h 22m.</p>
+    <p class="t2">Rooftop Sunday is on Sun 13 Dec. Your set is 18 tracks, 1h 22m.</p>
   </div>
   <div class="actions">
     <label class="search hide-sm" style="width:300px">{{icon:search:18}}<span class="sr-only">Search</span><input type="search" placeholder="Search sets, tracks, crates"></label>
@@ -10,7 +53,7 @@
   </div>
 </div>
 
-<p class="notice" role="note">{{icon:info:18}}<span>This is a demo dashboard with example numbers. Each figure says where it comes from: <strong>Imported</strong> from a platform, <strong>Verified</strong> by Vybez, or <strong>Estimated</strong>.</span></p>
+<p class="notice" role="note">{{icon:info:18}}<span><strong>You’re looking at a demo.</strong> <a class="link" href="/signup">Create a free account</a> or <a class="link" href="/signin?next=/dj">sign in</a> to see your own sets. This demo uses example numbers. Each figure says where it comes from: <strong>Imported</strong> from a platform, <strong>Verified</strong> by Vybez, or <strong>Estimated</strong>.</span></p>
 
 <section class="kpis" aria-label="Last 28 days">
   <div class="card kpi"><div class="row between"><span class="caption t2">Plays · 28 days</span><span class="chip info">Imported</span></div><div class="row gap-8"><span class="kpi-num">2,140</span><span class="chip success">+18%</span></div><div class="bars" aria-hidden="true"><span style="height:30%"></span><span style="height:45%"></span><span style="height:35%"></span><span style="height:60%"></span><span style="height:50%"></span><span class="hi" style="height:90%"></span><span class="hi" style="height:100%"></span></div></div>
@@ -52,7 +95,7 @@
     <section class="card next-gig p-16 stack gap-16" aria-labelledby="gig-title">
       <p class="overline">Next gig</p>
       <h2 class="h3" id="gig-title">Rooftop Sunday, Victoria Island</h2>
-      <p class="small t2">Sat 31 Oct · 6pm<br>Set: Sunday Owambe · 18 tracks · 108 → 122 BPM</p>
+      <p class="small t2">Sun 13 Dec · 6pm<br>Set: Sunday Owambe · 18 tracks · 108 → 122 BPM</p>
       <div class="row gap-8 wrap-row">
         <button class="btn btn-outline btn-sm" type="button" data-toast="Export to rekordbox XML arrives with accounts. Nothing was exported.">{{icon:download:16}}Export XML</button>
         <a class="btn btn-primary btn-sm" href="/explore">{{icon:radio:16}}Start live</a>
@@ -69,4 +112,6 @@
       <button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="req-title" data-switch="Live requests"></button>
     </section>
   </div>
+</div>
+
 </div>

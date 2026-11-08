@@ -1,0 +1,90 @@
+<!--meta {"title":"Go live","description":"Go live on Vybez: share what you’re playing while the room reacts.","layout":"app","app":"live","page":"golive","noindex":true}-->
+<div class="stack gap-32" data-off hidden>
+  <div class="app-head end">
+    <div class="stack gap-4">
+      <h1 class="h-page">Go live</h1>
+      <p class="t2" style="max-width:640px">The music stays in the room. Your followers see what you’re playing, react and comment from anywhere. No audio is streamed.</p>
+    </div>
+  </div>
+  <div class="plan-cols">
+    <form class="stack gap-32" data-start novalidate>
+      <section class="card form-card" aria-labelledby="gl-room">
+        <h2 class="h4" id="gl-room">Your room</h2>
+        <div class="field"><label for="gl-title">Room name</label><input class="input" id="gl-title" name="title" maxlength="80" required placeholder="Rooftop Sunday · Vol. 8"><span class="hint">Shown on your profile and in Explore.</span></div>
+        <div class="field"><label for="gl-set">Play from a set <span class="t3">(optional)</span></label><select class="input" id="gl-set" name="setId"><option value="">No set: I’ll add tracks as I go</option></select><span class="hint">Its tracks become your queue. Tap one when it starts playing.</span></div>
+      </section>
+      <section class="card form-card" aria-labelledby="gl-who">
+        <h2 class="h4" id="gl-who">Room settings</h2>
+        <div class="setting"><span class="stack grow gap-2"><span class="label" id="gl-tl">Show the tracklist as it plays</span><span class="caption t3">Off: listeners see only what’s playing now</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="gl-tl" data-pref="liveTracklist"></button></div>
+        <div class="setting"><span class="stack grow gap-2"><span class="label" id="gl-cm">Allow comments and requests</span><span class="caption t3">Reactions stay on either way</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="gl-cm" data-pref="comments"></button></div>
+        <div class="setting"><span class="stack grow gap-2"><span class="label" id="gl-ex">Show me in Explore</span><span class="caption t3">Off: only people with your link find the room</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="gl-ex" data-pref="exploreLive"></button></div>
+      </section>
+      <p class="form-error" data-error role="alert" hidden></p>
+      <button class="btn btn-primary btn-block" type="submit">{{icon:radio:18}}Go live now</button>
+    </form>
+    <aside class="stack gap-16" aria-label="How it works">
+      <div class="card p-16 stack gap-16">
+        <p class="overline">How a live room works</p>
+        <ol class="stack gap-16">
+          <li class="row gap-16" style="align-items:flex-start"><span class="step-num">1</span><span class="small t2">You open the room. Followers get a notification with your link.</span></li>
+          <li class="row gap-16" style="align-items:flex-start"><span class="step-num">2</span><span class="small t2">Tap a track when it starts. The room page updates within seconds.</span></li>
+          <li class="row gap-16" style="align-items:flex-start"><span class="step-num">3</span><span class="small t2">Read reactions, comments and requests here while you play.</span></li>
+          <li class="row gap-16" style="align-items:flex-start"><span class="step-num">4</span><span class="small t2">End the room and keep the tracklist as a draft set.</span></li>
+        </ol>
+      </div>
+      <p class="callout">{{icon:info:20}}<span class="small t2">Live sync from rekordbox or Serato is under investigation. For now you mark tracks yourself, from your phone or laptop.</span></p>
+    </aside>
+  </div>
+</div>
+
+<div class="stack gap-32" data-on hidden>
+  <div class="app-head">
+    <div class="stack gap-8">
+      <div class="row gap-8 wrap-row"><span class="live-badge">Live</span><span class="chip">{{icon:users:12}}<span data-watching>0</span> watching</span><span class="chip mono" data-elapsed>0:00</span></div>
+      <h1 class="h-page" data-room-title>Live</h1>
+    </div>
+    <div class="actions">
+      <button class="btn btn-outline btn-pad-sm" type="button" data-copy-room>{{icon:copy:18}}Copy room link</button>
+      <a class="btn btn-outline btn-pad-sm" href="#" data-open-room target="_blank" rel="noopener">{{icon:eye:18}}Open as fan</a>
+      <button class="btn btn-danger btn-pad-sm" type="button" data-end-open>End room</button>
+    </div>
+  </div>
+  <div class="live-desk">
+    <div class="stack gap-16">
+      <section class="card now-card" aria-labelledby="np-t">
+        <p class="overline" id="np-t">Now playing</p>
+        <div class="row gap-16"><span class="art g1 art-lg"></span><div class="stack grow gap-4" style="min-width:0"><p class="h3 ellipsis" data-now-title>Nothing yet</p><p class="t2 ellipsis" data-now-artist>Tap a track from your queue, or add one below.</p></div></div>
+        <form class="add-track" data-now-form>
+          <label class="sr-only" for="np-a">Artist</label><input class="input" id="np-a" name="a" placeholder="Artist" maxlength="160">
+          <label class="sr-only" for="np-tt">Title</label><input class="input" id="np-tt" name="t" placeholder="Track title" maxlength="200">
+          <button class="btn btn-primary btn-sm" type="submit">{{icon:play:16}}Playing now</button>
+        </form>
+      </section>
+      <section class="card stack" aria-labelledby="q-t">
+        <div class="p-16 row between"><h2 class="h4" id="q-t">Up next from your set</h2><span class="caption t3" data-q-count></span></div>
+        <ol data-queue class="queue"></ol>
+      </section>
+      <section class="card stack" aria-labelledby="pl-t">
+        <div class="p-16 row between"><h2 class="h4" id="pl-t">Played so far</h2><span class="caption t3" data-pl-count></span></div>
+        <ol data-played class="queue"></ol>
+      </section>
+    </div>
+    <aside class="card p-16 stack gap-16 feed-card" aria-labelledby="feed-t">
+      <div class="row between"><h2 class="h4" id="feed-t">The room</h2><span class="caption t3">Updates every few seconds</span></div>
+      <div class="row gap-8 wrap-row" data-react-counts></div>
+      <div class="pills" role="group" aria-label="Show" data-feed-filter><button class="pill" type="button" aria-pressed="true" data-k="all">All</button><button class="pill" type="button" aria-pressed="false" data-k="request">Requests</button></div>
+      <ol class="feed" data-feed aria-live="polite"></ol>
+      <form class="row gap-8" data-dj-say><label class="sr-only" for="dj-say">Say something to the room</label><input class="input grow" id="dj-say" name="text" placeholder="Say something to the room" maxlength="200" style="height:40px"><button class="btn btn-primary btn-sm" type="submit">{{icon:send:16}}<span class="sr-only">Send</span></button></form>
+    </aside>
+  </div>
+</div>
+<div class="skeleton" style="height:240px" data-loading></div>
+
+<dialog class="modal" data-end-dialog aria-labelledby="end-t">
+  <form method="dialog" class="stack gap-16">
+    <div class="row between"><h2 class="h4" id="end-t">End the room?</h2><button class="icon-btn ghost" value="cancel" aria-label="Close">{{icon:x}}</button></div>
+    <p class="small t2">Listeners will see that you’ve finished. Comments close.</p>
+    <label class="row gap-8 check-row"><input type="checkbox" checked data-save-set> <span class="small">Keep the tracklist as a draft set</span></label>
+    <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" value="cancel">Keep playing</button><button class="btn btn-danger btn-sm" value="end">End room</button></div>
+  </form>
+</dialog>

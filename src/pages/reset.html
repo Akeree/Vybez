@@ -1,0 +1,15 @@
+<!--meta {"title":"Set a new password","description":"Set a new Vybez password.","layout":"bare","page":"reset","noindex":true}-->
+<div class="center-page">
+  <a href="/" aria-label="Vybez home">{{lockup}}</a>
+  <form class="card p-32 stack gap-16" data-form="reset" novalidate>
+    <span class="tile">{{icon:key-round}}</span>
+    <div class="stack gap-8">
+      <h1 class="h-page">Set a new password</h1>
+      <p class="t2">This signs you out on your other devices.</p>
+    </div>
+    <div class="field"><label for="password">New password</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" required><span class="hint">At least 8 characters.</span></div>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <button class="btn btn-primary btn-block" type="submit">Save and sign in</button>
+    <p class="caption t3" style="text-align:center">Link expired? <a class="link" href="/forgot">Get a new one</a></p>
+  </form>
+</div>

@@ -1,0 +1,66 @@
+<!--meta {"title":"You’re invited","description":"An invite on Vybez Social.","layout":"bare","page":"invite","noindex":true}-->
+<div class="phone-page">
+  <div class="cover rings" style="height:260px" data-cover>
+    <div class="row between" style="position:relative;z-index:1;padding:16px">
+      <a href="/" aria-label="Vybez home">{{lockup:social}}</a>
+      <span class="glass glass-chip" data-host-chip hidden>You’re the host</span>
+    </div>
+  </div>
+  <div class="content">
+    <div class="skeleton" style="height:160px" data-loading></div>
+    <div class="card state" data-missing hidden><span class="tile">{{icon:circle-x}}</span><h1 class="h4">This invite doesn’t exist</h1><p class="small t2">Ask your host for a fresh link.</p></div>
+    <div class="stack gap-16" data-content hidden>
+      <div class="row gap-8 wrap-row" data-chips></div>
+      <div class="stack gap-4"><h1 class="h1" data-title></h1><p class="t2" data-host></p></div>
+      <div class="notice" data-cancelled hidden>{{icon:triangle-alert:18}}<span><strong>The host cancelled this night.</strong> Nothing else to do.</span></div>
+      <div class="stack gap-16">
+        <div class="info-row"><span class="ic">{{icon:clock:18}}</span><span class="stack"><span class="label" data-when></span><span class="caption t3" data-until></span></span></div>
+        <div class="info-row"><span class="ic" data-place-icon>{{icon:lock:18}}</span><span class="stack"><span class="label" data-place></span><span class="caption t3" data-place-note></span></span></div>
+        <div class="info-row" data-music-row hidden><span class="ic">{{icon:music:18}}</span><span class="stack"><span class="label" data-music></span><span class="caption t3" data-music-note></span></span></div>
+      </div>
+      <p class="small t2 note-box" data-note hidden></p>
+      <p class="small t2" data-going></p>
+
+      <form class="card p-16 stack gap-16" data-rsvp hidden novalidate>
+        <div class="field"><label for="first">Your name</label><input class="input" id="first" name="name" required autocomplete="name" maxlength="40"><span class="hint">No account needed. Only the host sees it.</span></div>
+        <div class="field"><label for="contact">Phone or email <span class="t3">(optional)</span></label><input class="input" id="contact" name="contact" autocomplete="tel" maxlength="80"><span class="hint">So the host can reach you if plans change.</span></div>
+        <label class="row gap-8 check-row" data-plus-row hidden><input type="checkbox" name="plus"> <span class="small">I’m bringing a plus-one</span></label>
+        <p class="form-error" data-error role="alert" hidden></p>
+        <button class="btn btn-primary btn-block" type="submit">I’m in</button>
+        <button class="btn btn-outline btn-block" type="button" data-cant>Can’t make it</button>
+      </form>
+
+      <div class="card p-16 stack gap-16" data-status hidden></div>
+
+      <div class="card p-16 stack gap-16 pass-card" data-pass hidden>
+        <p class="overline">Your pass</p>
+        <p class="pass-code mono" data-pass-code></p>
+        <p class="caption t3">Show this at the door. The host types it in to check you in.</p>
+      </div>
+
+      <div class="card p-16 stack gap-16" data-address hidden>
+        <p class="overline">Address · unlocked</p>
+        <p class="h4" data-address-text></p>
+        <div class="row gap-8">
+          <a class="btn btn-outline btn-sm grow" href="#" data-maps target="_blank" rel="noopener">{{icon:map-pin:16}}Open in Maps</a>
+          <button class="btn btn-outline btn-sm grow" type="button" data-ics>{{icon:calendar:16}}Add to calendar</button>
+        </div>
+      </div>
+
+      <div class="card p-16 stack gap-16" data-songs hidden>
+        <div class="row between"><h2 class="h4">Bring a song</h2><span class="chip" data-songs-left></span></div>
+        <ol class="stack gap-8" data-song-list></ol>
+        <form class="add-track" data-song-form>
+          <label class="sr-only" for="sg-a">Artist</label><input class="input" id="sg-a" name="a" placeholder="Artist" maxlength="160">
+          <label class="sr-only" for="sg-t">Song</label><input class="input" id="sg-t" name="t" placeholder="Song" maxlength="200">
+          <button class="btn btn-primary btn-sm" type="submit">{{icon:plus:16}}Add</button>
+        </form>
+        <p class="caption t3">Songs are suggestions. The DJ reads the room.</p>
+      </div>
+
+      <button class="btn btn-outline btn-block" type="button" data-leave hidden style="color:var(--danger)">Plans changed? Leave the list</button>
+      <a class="btn btn-primary btn-block" href="#" data-manage hidden>{{icon:users:18}}Manage guest list</a>
+      <p class="caption t3" style="text-align:center">Made with Vybez Social. <a class="link" href="/social/new">Plan your own night</a></p>
+    </div>
+  </div>
+</div>

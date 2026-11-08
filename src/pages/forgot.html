@@ -1,0 +1,16 @@
+<!--meta {"title":"Reset your password","description":"Get a link to reset your Vybez password.","layout":"bare","page":"forgot","noindex":true}-->
+<div class="center-page">
+  <a href="/" aria-label="Vybez home">{{lockup}}</a>
+  <form class="card p-32 stack gap-16" data-form="forgot" novalidate>
+    <span class="tile">{{icon:key-round}}</span>
+    <div class="stack gap-8">
+      <h1 class="h-page">Forgot your password?</h1>
+      <p class="t2">Enter the email you signed up with. If there’s an account, we’ll send a link to set a new password. It works for 1 hour.</p>
+    </div>
+    <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required></div>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <button class="btn btn-primary btn-block" type="submit">Send reset link</button>
+    <div class="notice" data-done hidden tabindex="-1">{{icon:mail:18}}<span data-done-text>If that email has an account, a reset link is on its way. Check your inbox and spam folder.</span></div>
+    <p class="caption t3" style="text-align:center">Remembered it? <a class="link" href="/signin">Sign in</a></p>
+  </form>
+</div>

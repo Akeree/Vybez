@@ -125,6 +125,13 @@ for (const file of pages) {
   if (!meta.noindex) urls.push(SITE + (route === '/' ? '/' : route));
 }
 
+// Icons for client-side rendering (src/js/app.js): window.VZ_ICONS[name] -> inner SVG markup.
+const iconMap = Object.fromEntries(readdirSync(join(src, 'icons')).filter((f) => f.endsWith('.svg')).map((f) => {
+  const name = f.replace(/\.svg$/, '');
+  return [name, icon(name).match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1]];
+}));
+writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(iconMap)};\n`);
+
 writeFileSync(join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
 console.log(`Built ${pages.length} pages into dist/`);

@@ -1,0 +1,19 @@
+<!--meta {"title":"Door mode","description":"Check guests in at the door.","layout":"bare","page":"door","noindex":true}-->
+<div class="phone-page door-page">
+  <div class="row between" style="padding:16px">
+    <a class="icon-btn" href="#" data-back aria-label="Back to the guest list">{{icon:arrow-left}}</a>
+    <span class="chip" data-count>0 of 0 in</span>
+  </div>
+  <div class="content">
+    <div class="stack gap-4"><p class="overline">Door mode</p><h1 class="h1" data-title>Loading…</h1><p class="t2" data-when></p></div>
+    <form class="card p-16 stack gap-16" data-pass-form novalidate>
+      <div class="field"><label for="pass">Guest pass code</label><input class="input pass-input" id="pass" name="pass" maxlength="6" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="K7Q2MX" inputmode="text"><span class="hint">Every approved guest has a 6-letter pass on their invite page.</span></div>
+      <button class="btn btn-primary btn-block" type="submit">{{icon:user-check:18}}Check in</button>
+      <div class="door-result" data-result hidden role="status" tabindex="-1"></div>
+    </form>
+    <div class="stack gap-8">
+      <label class="search">{{icon:search:18}}<span class="sr-only">Find a guest by name</span><input type="search" placeholder="Or find by name" data-find></label>
+      <div class="card stack" data-list></div>
+    </div>
+  </div>
+</div>

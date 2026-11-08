@@ -1,0 +1,47 @@
+<!--meta {"title":"Set","description":"A tracklist on Vybez.","layout":"site","nav":"explore","page":"set","noindex":true}-->
+<div class="wrap stack gap-32" style="padding-top:32px;padding-bottom:96px">
+  <div class="skeleton" style="height:280px" data-loading></div>
+  <div class="card state" data-missing hidden><span class="tile">{{icon:disc-3}}</span><h1 class="h4">This set isn’t available</h1><p class="small t2">It may be private, still a draft, or deleted.</p><a class="btn btn-outline btn-sm" href="/explore">Explore sets</a></div>
+  <div class="stack gap-32" data-content hidden>
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="#" data-dj-crumb></a>{{icon:chevron-right:16}}<span aria-current="page" class="t3" data-title-crumb></span></nav>
+    <div class="set-head">
+      <div class="cover rings set-art" data-art></div>
+      <div class="stack gap-16">
+        <p class="overline" data-meta></p>
+        <h1 class="h1" data-title></h1>
+        <a class="row gap-8" href="#" data-dj-row><span class="avatar xs" data-dj-avatar></span><span class="label" data-dj-name></span><span class="caption t3" data-dj-followers></span></a>
+        <div class="row gap-8 wrap-row" data-chips></div>
+        <div class="row gap-8 wrap-row">
+          <button class="btn btn-primary" type="button" aria-pressed="false" data-save>Save tracklist</button>
+          <button class="btn btn-outline" type="button" data-copy-list>{{icon:copy:18}}Copy tracklist</button>
+          <a class="btn btn-outline" href="#" data-edit hidden>{{icon:pencil:18}}Edit</a>
+        </div>
+      </div>
+    </div>
+    <div class="two-col">
+      <section class="card tracklist" aria-labelledby="tl-title">
+        <h2 class="sr-only" id="tl-title">Tracklist</h2>
+        <div class="track head" aria-hidden="true"><span>#</span><span></span><span>Track</span><span class="played">Time</span><span>Listen</span></div>
+        <ol data-tracklist></ol>
+      </section>
+      <aside class="stack gap-16" aria-label="From the crowd">
+        <div class="card p-16 stack gap-16">
+          <p class="overline">From the crowd</p>
+          <div class="row gap-8 wrap-row" data-reacts></div>
+          <ol class="feed" data-comments></ol>
+          <form class="stack gap-8" data-comment-form>
+            <div class="field" data-name-field><label for="sc-name">Your name</label><input class="input" id="sc-name" name="name" maxlength="30" autocomplete="given-name" style="height:40px"></div>
+            <div class="row gap-8"><label class="sr-only" for="sc-text">Comment</label><input class="input grow" id="sc-text" name="text" maxlength="280" placeholder="Say something about this set" style="height:40px"><button class="btn btn-primary btn-sm" type="submit">{{icon:send:16}}<span class="sr-only">Post</span></button></div>
+            <p class="form-error" data-error role="alert" hidden></p>
+          </form>
+        </div>
+        <div class="card p-16 stack gap-16" data-rec hidden>
+          <p class="overline muted">Recording</p>
+          <a class="btn btn-outline btn-block" href="#" data-rec-link target="_blank" rel="noopener nofollow">{{icon:external-link:18}}Listen to the recording</a>
+          <p class="caption t3">Opens on the DJ’s own page. Vybez doesn’t host audio.</p>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+<span hidden data-brand-marks>{{brand:spotify:18}}{{brand:applemusic:18}}</span>
