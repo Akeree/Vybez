@@ -789,7 +789,7 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: var(--
   .tabbar-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-xxs); min-height: 52px; border-radius: var(--r-sm); font: 600 11px/1.2 var(--font-body); color: var(--text-tertiary); background: none; border: 0; cursor: pointer; }
   .tabbar-item:hover { color: var(--text-primary); }
   .tabbar-item[aria-current="page"] { color: var(--accent-text); }
-  .tabbar-item.primary .i { box-sizing: content-box; padding: var(--s-xs); border-radius: 999px; background: var(--accent); color: #fff; }
+  .tabbar-item.primary .i { box-sizing: content-box; margin-top: calc(-1 * var(--s-sm)); padding: var(--s-xs); border-radius: 999px; background: var(--accent); color: #fff; }
   .tabbar-item.primary[aria-current="page"] .i { box-shadow: 0 0 0 2px var(--accent-subtle); }
   body.has-tabbar .app-main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
   body.has-tabbar .toast-host { bottom: calc(80px + env(safe-area-inset-bottom)); }
@@ -813,7 +813,7 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: var(--
   .follow-card > a.stack, .dj-row > a.stack { flex-direction: column; align-items: flex-start; justify-content: center; }
   .edit-track .input, .edit-track .row-actions .icon-btn { min-height: 40px; height: 40px; }
   .edit-track .row-actions .icon-btn { width: 40px; }
-  .crumbs a { min-width: 40px; }
+  .crumbs a, .tabs .tab { min-width: 40px; justify-content: center; }
   [data-tap-row] { cursor: pointer; }
 }
 @media (max-width: 720px) {

@@ -5,6 +5,7 @@ Vybez: **Vybez DJ** (sets, tracklists, live rooms) and **Vybez Social** (small i
 ```
 npm run dev     # build + local server with the API on http://localhost:3000 (data in .data/db.json)
 npm test        # end-to-end API checks (in-memory store)
+npm run test:mobile  # phone-width run of both products in Chromium (needs Playwright)
 npm run build   # src/ -> dist/
 ```
 
@@ -25,18 +26,26 @@ Optional environment variables:
 
 Not live yet (the UI says so): Google/Apple sign-in, payments (`/upgrade` is a prototype), streaming-service connections, the browser extension, Vybez Link.
 
+## Two products, one site
+Every account is either **Vybez DJ** (`product: 'dj'`) or **Vybez Social** (`product: 'social'`), picked at sign-up and switchable in Settings (data is kept).
+- DJ accounts see sets, library, crates, insights, live rooms, connections, Explore, following and DJ notifications. Shell: `layout: app`.
+- Social accounts see their nights, planning, guest lists, door mode, RSVP notifications and Social settings. Shell: `layout: social`.
+- The browser sends an account that opens the other product's page back to its own home (`src/js/app.js`), and the API refuses the other product's endpoints with 403 (`needProduct` in `server/domain/users.js`). Public pages (`/s/:id`, `/u/:handle`, `/live/:handle`, `/i/:code`, marketing pages) stay open to everyone. Social accounts have no public profile.
+- Accounts from before the split with `role: 'listener'` are treated as Social.
+
 ## Structure
-- `src/pages/**.html` pages, each starting with a `<!--meta {...}-->` comment (`page` picks the controller in `src/js/app.js`)
+- `src/pages/**.html` pages, each starting with a `<!--meta {...}-->` comment (`page` picks the controller, `layout` picks the shell, `app` marks the current nav item)
 - `src/pages/v/` templates for dynamic routes, mapped by `rewrites` in `vercel.json`
-- `src/layouts/`, `src/partials/`, `src/css/site.css`, `src/js/site.js` (UI behaviour), `src/js/app.js` (API-driven pages)
-- `server/api.js` routes, `server/store.js` storage (Upstash REST / file / memory), `server/auth.js` scrypt passwords and signed cookies
-- `api/index.js` the Vercel Function; `scripts/dev.mjs` local server; `scripts/test-api.mjs` API checks
+- `src/layouts/` (`site`, `bare`, `app` = Vybez DJ, `social` = Vybez Social), `src/partials/` (sidebars, top bars, phone tab bars, shared settings and notifications bodies). `{{#if:dj}}…{{/if}}` keeps markup for one product only.
+- `src/js/site.js` UI behaviour, `src/js/app.js` entry (ES module): `core/` (util, api, session, playlist, ui) and `pages/` (auth, dj, social, public, account), loaded per page
+- `server/api.js` entry; `server/lib/http.js` validation, rate limits, router; `server/domain/` users, music, live, nights, email; `server/routes/` auth, account, dj, social; `server/store.js` storage (Upstash REST / file / memory); `server/auth.js` scrypt passwords and signed cookies
+- `api/index.js` the Vercel Function; `scripts/dev.mjs` local server; `scripts/test-api.mjs` API checks; `scripts/e2e-mobile.mjs` phone run
 
 ## Design system
 Spacing and radius use one x2 scale: none 0, xxs 2, xs 4, sm 8, md 16, lg 32 (`--s-*`, `--r-*`). Grid: desktop margin 64 / gutter 32, tablet 32 / 16, mobile 16 / 16, content max 1280. Type: display 72, brand heading 44, heading-1 30, heading-2 28, heading-3 22, heading-4 16, body 14, caption 13, overline 11. Fonts: Bricolage Grotesque, Figtree, JetBrains Mono (self-hosted). Icons: Lucide outline 2px.
 
 ## Placeholders to replace before launch
 - **Photos** are real photos from Unsplash (Unsplash License). Credits are in src/img/CREDITS.md.
-- **Serato and rekordbox logos** are recreations. Swap in official press-kit files (`src/logos/w-*.svg`, `m-*.svg`). VirtualDJ, TRAKTOR, djay Pro and Engine DJ show "logo pending".
+- **DJ software logos** (Serato, rekordbox, VirtualDJ, TRAKTOR, djay Pro, Engine DJ) are recreations. Swap in official press-kit files (`src/logos/w-*.svg`, `m-*.svg`). File badges `f-*.svg` are Vybez's own.
 - **Pricing** figures are placeholders pending confirmation.
 - `/kemi`, the demo dashboard and `/i/tobi-30` are example pages and say so.
