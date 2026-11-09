@@ -1,0 +1,104 @@
+<div class="app-head">
+  <div class="stack gap-4">
+    <h1 class="h-page">Settings</h1>
+    <p class="t2" data-settings-sub>Changes save to your account.</p>
+  </div>
+</div>
+<div class="settings-cols">
+  <nav class="settings-nav" aria-label="Settings sections" data-settings-nav data-scroll-x>
+    <a href="#profile" aria-current="page">Profile</a>
+    <a href="#account">Account</a>
+    <a href="#notifications">Notifications</a>
+    <a href="#data">Your data</a>
+{{#if:dj}}
+    <a href="/dj/connections">DJ software</a>
+    <a href="/upgrade">Plan and billing</a>
+{{/if}}  </nav>
+  <div class="stack gap-32">
+    <form class="card set-card" id="profile" aria-labelledby="pf-title" data-profile-form novalidate>
+      <header><h2 class="h4" id="pf-title">Profile</h2><p class="caption t3">{{#if:dj}}What people see on your page.{{/if}}{{#if:social}}The name your guests see on invites.{{/if}}</p></header>
+      <div class="set-body stack gap-16">
+        <div class="row gap-16"><span class="avatar lg" data-avatar>?</span><span class="caption t3">Photo uploads are coming. For now we show your initials.</span></div>
+        <div class="row gap-16 wrap-row">
+          <div class="field grow" style="min-width:220px"><label for="pf-name">Name</label><input class="input" id="pf-name" name="name" maxlength="50" required></div>
+          {{#if:dj}}<div class="field grow" style="min-width:220px"><label for="pf-handle">Link</label><div class="input-prefix"><span>vybez/u/</span><input class="input" id="pf-handle" name="handle" maxlength="24" required spellcheck="false" autocomplete="off"></div></div>{{/if}}
+        </div>
+{{#if:dj}}        <div class="field"><label for="pf-bio">Bio</label><textarea class="input textarea" id="pf-bio" name="bio" maxlength="280" rows="3"></textarea></div>
+        <div class="row gap-16 wrap-row">
+          {{/if}}<div class="field grow" style="min-width:220px"><label for="pf-city">City</label><input class="input" id="pf-city" name="city" maxlength="60"></div>{{#if:dj}}
+          <div class="field grow" style="min-width:220px"><label for="pf-genres">Genres</label><input class="input" id="pf-genres" name="genres" maxlength="160" placeholder="Afrobeats, Amapiano"><span class="hint">Up to 6, separated by commas.</span></div>
+        </div>
+        <div class="row gap-16 wrap-row">
+          <div class="field grow" style="min-width:220px"><label class="row gap-8" for="pf-mixcloud">{{brand:mixcloud:16}}Mixcloud</label><input class="input" id="pf-mixcloud" name="mixcloud" type="url" placeholder="https://www.mixcloud.com/you/"></div>
+          <div class="field grow" style="min-width:220px"><label class="row gap-8" for="pf-soundcloud">{{brand:soundcloud:16}}SoundCloud</label><input class="input" id="pf-soundcloud" name="soundcloud" type="url" placeholder="https://soundcloud.com/you"></div>
+        </div>
+        <div class="row gap-16 wrap-row">
+          <div class="field grow" style="min-width:220px"><label class="row gap-8" for="pf-instagram">{{brand:instagram:16}}Instagram</label><input class="input" id="pf-instagram" name="instagram" type="url" placeholder="https://instagram.com/you"></div>
+          <div class="field grow" style="min-width:220px"><label class="row gap-8" for="pf-youtube">{{brand:youtube:16}}YouTube</label><input class="input" id="pf-youtube" name="youtube" type="url" placeholder="https://youtube.com/@you"></div>
+        </div>
+{{/if}}        <p class="form-error" data-error role="alert" hidden></p>
+        <div class="row gap-8"><button class="btn btn-primary btn-sm" type="submit">Save profile</button>{{#if:dj}}<a class="link" href="#" data-view-profile>View your page</a>{{/if}}</div>
+      </div>
+    </form>
+
+    <section class="card set-card" id="account" aria-labelledby="ac-title">
+      <header><h2 class="h4" id="ac-title">Account</h2></header>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Email</span><span class="caption t3" data-email></span></span></div>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Account type</span><span class="caption t3">Each account sees one side of Vybez. Switching keeps your data; you just see the other side.</span></span><select class="input" style="width:auto;height:40px" data-product-select aria-label="Account type"><option value="dj">Vybez DJ</option><option value="social">Vybez Social</option></select></div>
+      <form class="opt stack gap-16" style="align-items:stretch" data-password-form novalidate>
+        <span class="label">Change password</span>
+        <div class="row gap-16 wrap-row">
+          <div class="field grow" style="min-width:200px"><label for="pw-cur">Current password</label><input class="input" id="pw-cur" name="current" type="password" autocomplete="current-password" required></div>
+          <div class="field grow" style="min-width:200px"><label for="pw-new">New password</label><input class="input" id="pw-new" name="next" type="password" autocomplete="new-password" minlength="8" required></div>
+        </div>
+        <p class="form-error" data-error role="alert" hidden></p>
+        <div class="row gap-8"><button class="btn btn-outline btn-sm" type="submit">Update password</button><span class="caption t3">Signs you out on other devices.</span></div>
+      </form>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Sign out</span><span class="caption t3">On this device</span></span><button class="btn btn-outline btn-sm" type="button" data-signout>{{icon:log-out:16}}Sign out</button></div>
+    </section>
+
+    <section class="card set-card" id="notifications" aria-labelledby="nt-title">
+      <header><h2 class="h4" id="nt-title">Notifications</h2><p class="caption t3">Shown in Notifications on Vybez. Email alerts arrive later.</p></header>
+      {{#if:social}}<div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="nt-1">RSVPs to my nights</span><span class="caption t3">New requests, people who can’t make it, and people who leave the list</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="nt-1" data-notify="rsvp"></button></div>{{/if}}{{#if:dj}}
+      <div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="nt-2">New followers</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="nt-2" data-notify="follow"></button></div>
+      <div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="nt-3">Comments on my sets</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="nt-3" data-notify="comments"></button></div>{{/if}}
+      <div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="nt-4">Product news</span><span class="caption t3">A short email when something big ships</span></span><button class="switch" type="button" role="switch" aria-checked="false" aria-labelledby="nt-4" data-notify="product"></button></div>
+    </section>
+
+{{#if:dj}}
+    <section class="card set-card" id="privacy" aria-labelledby="vis-title">
+      <header><h2 class="h4" id="vis-title">Who can see your new sets</h2><p class="caption t3">You can change any single set in its editor.</p></header>
+      <div role="radiogroup" aria-labelledby="vis-title" data-visibility>
+        <button class="opt" type="button" role="radio" aria-checked="true" data-radio data-value="public" tabindex="0"><span class="radio-dot"></span><span class="stack grow gap-2"><span class="label">Everyone</span><span class="caption t3">Anyone with the link, and in Explore</span></span></button>
+        <button class="opt" type="button" role="radio" aria-checked="false" data-radio data-value="followers" tabindex="-1"><span class="radio-dot"></span><span class="stack grow gap-2"><span class="label">Followers only</span><span class="caption t3">People who follow you</span></span></button>
+        <button class="opt" type="button" role="radio" aria-checked="false" data-radio data-value="unlisted" tabindex="-1"><span class="radio-dot"></span><span class="stack grow gap-2"><span class="label">Only people I send the link to</span><span class="caption t3">Not listed on your page or Explore</span></span></button>
+      </div>
+    </section>
+    <section class="card set-card" aria-labelledby="live-title">
+      <header><h2 class="h4" id="live-title">Live rooms</h2></header>
+      <div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="sw-1">Show my live tracklist as it plays</span><span class="caption t3">Turn off to show only what’s playing now</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw-1" data-pref="liveTracklist"></button></div>
+      <div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="sw-2">Allow comments</span><span class="caption t3">On live rooms and sets. Reactions stay on either way</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw-2" data-pref="comments"></button></div>
+      <div class="opt" data-tap-row><span class="stack grow gap-2"><span class="label" id="sw-3">Show me in Explore when I’m live</span></span><button class="switch" type="button" role="switch" aria-checked="true" aria-labelledby="sw-3" data-pref="exploreLive"></button></div>
+    </section>
+{{/if}}
+    <section class="card set-card" id="data" aria-labelledby="data-title">
+      <header><h2 class="h4" id="data-title">Your data</h2><p class="caption t3">Everything you’ve added to Vybez, in one file.</p></header>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Download my data</span><span class="caption t3">{{#if:dj}}Profile, sets and crates{{/if}}{{#if:social}}Profile, nights and guest lists{{/if}} as JSON</span></span><button class="btn btn-outline btn-sm" type="button" data-export>{{icon:download:16}}Download</button></div>
+{{#if:dj}}      <div class="opt"><span class="stack grow gap-2"><span class="label">Imported files</span><span class="caption t3">Your browser reads the track names; the file itself is never uploaded</span></span><span class="chip dot success">Files not stored</span></div>{{/if}}
+    </section>
+    <section class="danger-zone" aria-labelledby="danger-title">
+      <h2 class="h4" id="danger-title">Delete account</h2>
+      <p class="small t2">This deletes your profile{{#if:dj}}, sets and crates{{/if}}{{#if:social}}, nights and guest lists{{/if}} straight away. It can’t be undone. Download your data first if you want a copy.</p>
+      <button class="btn btn-danger btn-sm" type="button" data-delete-open>Delete my account</button>
+    </section>
+  </div>
+</div>
+<dialog class="modal" data-delete-dialog aria-labelledby="del-t">
+  <form class="stack gap-16" data-delete-form novalidate>
+    <div class="row between"><h2 class="h4" id="del-t">Delete your account?</h2><button class="icon-btn ghost" type="button" data-close aria-label="Close">{{icon:x}}</button></div>
+    <p class="small t2">Type your password to confirm. Everything goes now.</p>
+    <div class="field"><label for="del-pw">Password</label><input class="input" id="del-pw" name="password" type="password" autocomplete="current-password" required></div>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" type="button" data-close>Keep my account</button><button class="btn btn-danger btn-sm" type="submit">Delete everything</button></div>
+  </form>
+</dialog>

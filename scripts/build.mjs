@@ -27,7 +27,7 @@ const walk = (dir) => readdirSync(dir).flatMap((f) => {
 const BRAND_COLOURS = {
   spotify: '#1ED760', applemusic: '#FA243C', soundcloud: '#FF5500', mixcloud: '#FFFFFF',
   tidal: '#FFFFFF', youtube: '#FF0000', beatport: '#01FF95', whatsapp: '#25D366',
-  googlechrome: '#FFFFFF', apple: '#FFFFFF', google: '#FFFFFF',
+  googlechrome: '#FFFFFF', apple: '#FFFFFF', google: '#FFFFFF', instagram: '#E4405F',
 };
 
 function icon(name, size = 20) {
@@ -74,9 +74,12 @@ function photo(name, mode, sizes = '(max-width: 720px) 100vw, 50vw') {
   return `<img src="/img/${name}.webp" srcset="/img/${name}-sm.webp ${w / 2}w, /img/${name}.webp ${w}w" sizes="${sizes}" width="${w}" height="${h}" alt="" decoding="async" ${load}>`;
 }
 
+// {{#if:dj}}...{{/if}} keeps its contents only on pages whose meta product is 'dj'
+// (the 'app' layout implies dj, the 'social' layout implies social).
 function render(html, vars = {}, depth = 0) {
   if (depth > 8) throw new Error('Partial nesting too deep');
   return html
+    .replace(/\{\{#if:(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, p, inner) => (vars.product === p ? inner : ''))
     .replace(/\{\{>\s*([\w-]+)\s*\}\}/g, (_, p) => render(read(join(src, 'partials', `${p}.html`)), vars, depth + 1))
     .replace(/\{\{icon:([\w-]+)(?::(\d+))?\}\}/g, (_, n, s) => icon(n, s ? +s : 20))
     .replace(/\{\{brand:([\w-]+)(?::(\d+))?\}\}/g, (_, n, s) => brand(n, s ? +s : 24))
@@ -103,6 +106,7 @@ for (const file of pages) {
   const rel = relative(join(src, 'pages'), file).replace(/\\/g, '/');
   const route = '/' + rel.replace(/(^|\/)index\.html$/, '').replace(/\.html$/, '');
   const layout = meta.layout || 'site';
+  meta.product = meta.product || { app: 'dj', social: 'social' }[meta.layout] || '';
   const body = render(raw.slice(m[0].length), meta);
   const shell = read(join(src, 'layouts', `${layout}.html`));
   const title = meta.title ? `${meta.title} · Vybez` : 'Vybez · Make the night more exciting';
@@ -130,7 +134,9 @@ const iconMap = Object.fromEntries(readdirSync(join(src, 'icons')).filter((f) =>
   const name = f.replace(/\.svg$/, '');
   return [name, icon(name).match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1]];
 }));
-writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(iconMap)};\n`);
+// Brand marks the client renders (profile links): window.VZ_BRANDS[name] -> full SVG markup.
+const brandMap = Object.fromEntries(['mixcloud', 'soundcloud', 'instagram', 'youtube'].map((n) => [n, brand(n, 16)]));
+writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(iconMap)};\nwindow.VZ_BRANDS=${JSON.stringify(brandMap)};\n`);
 
 writeFileSync(join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);

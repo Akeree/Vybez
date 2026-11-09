@@ -1,27 +1,20 @@
-<aside class="sidebar" aria-label="Vybez DJ">
-  <a class="brand" href="/" aria-label="Vybez home">{{lockup:dj}}</a>
+<aside class="sidebar" id="app-drawer" aria-label="Vybez DJ">
+  <div class="row between"><a class="brand" href="/dj" aria-label="Vybez DJ home">{{lockup:dj}}</a><button class="icon-btn ghost drawer-close" type="button" data-drawer-close aria-label="Close menu">{{icon:x}}</button></div>
   <nav aria-label="Vybez DJ">
-    <p class="nav-group-label">Vybez DJ</p>
+    <p class="nav-group-label">Your music</p>
     {{> app-nav}}
-  </nav>
-  <nav aria-label="Vybez Social">
-    <p class="nav-group-label">Vybez Social</p>
-    <div class="nav-list">
-      <a class="nav-item" href="/social" data-app="nights">{{icon:users}}<span>Your nights</span></a>
-      <a class="nav-item" href="/social/new" data-app="socials">{{icon:calendar-plus}}<span>Plan a night</span></a>
-    </div>
   </nav>
   <nav aria-label="Listen">
     <p class="nav-group-label">Listen</p>
     <div class="nav-list">
-      <a class="nav-item" href="/explore">{{icon:headphones}}<span>Explore</span></a>
-      <a class="nav-item" href="/me">{{icon:bookmark}}<span>Following and saved</span></a>
-      <a class="nav-item" href="/notifications">{{icon:bell}}<span class="grow">Notifications</span><span class="badge" data-unread hidden></span></a>
+      <a class="nav-item" href="/explore" data-app="explore">{{icon:headphones}}<span>Explore</span></a>
+      <a class="nav-item" href="/dj/following" data-app="following">{{icon:bookmark}}<span>Following and saved</span></a>
+      <a class="nav-item" href="/dj/notifications" data-app="notifications">{{icon:bell}}<span class="grow">Notifications</span><span class="badge" data-unread hidden></span></a>
     </div>
   </nav>
   <div class="me" data-me>
     <span class="avatar" data-me-avatar><img src="/img/kemi-sm.webp" alt="" width="40" height="40"></span>
-    <span class="stack grow"><span class="label ellipsis" data-me-name>DJ Kemi</span><span class="caption t3 ellipsis" data-me-sub>Demo account</span></span>
+    <span class="stack grow" style="min-width:0"><span class="label ellipsis" data-me-name>DJ Kemi</span><span class="caption t3 ellipsis" data-me-sub>Demo account</span></span>
     <a class="icon-btn ghost" href="/dj/settings" data-app="settings" aria-label="Settings">{{icon:settings}}</a>
   </div>
 </aside>
