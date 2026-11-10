@@ -5,11 +5,13 @@ let failures = 0;
 const jar = {};
 async function call(who, method, path, body) {
   const headers = { 'content-type': 'application/json', host: 'localhost:3000' };
-  if (jar[who]) headers.cookie = `vz_session=${jar[who]}`;
+  const mine = jar[who] || (jar[who] = {});
+  const cookie = Object.entries(mine).filter(([, v]) => v).map(([k, v]) => `${k}=${v}`).join('; ');
+  if (cookie) headers.cookie = cookie;
   const res = await handle(new Request(`http://localhost:3000/api/${path}`, { method, headers, body: method === 'GET' ? undefined : JSON.stringify(body || {}) }));
-  const c = res.headers.getSetCookie?.()[0];
-  if (c) jar[who] = c.split(';')[0].split('=')[1] || null;
-  return { status: res.status, data: await res.json() };
+  const set = res.headers.getSetCookie?.() || [];
+  for (const c of set) { const [k, v] = c.split(';')[0].split('='); mine[k] = v || null; }
+  return { status: res.status, data: await res.json(), set };
 }
 function check(name, cond, extra) {
   if (cond) console.log(`  ok  ${name}`);
@@ -42,6 +44,7 @@ check('react', r.data.count === 1);
 
 r = await call('fan', 'POST', 'auth/signup', { email: 'fan@test.dev', password: 'longenough1', name: 'Ada Fan', product: 'dj' });
 check('fan signup on Vybez DJ', r.status === 200 && r.data.user.product === 'dj');
+check('signup sets the product hint cookie', jar.fan.vz_product === 'dj' && r.set.some((c) => /^vz_product=dj;.*SameSite=Lax/.test(c) && !/HttpOnly/i.test(c)), r.set);
 r = await call('host', 'POST', 'auth/signup', { email: 'host@test.dev', password: 'longenough1', name: 'Tobi Host', product: 'social' });
 check('host signup on Vybez Social', r.status === 200 && r.data.user.product === 'social');
 r = await call('legacy', 'POST', 'auth/signup', { email: 'old@test.dev', password: 'longenough1', name: 'Old Client', role: 'listener' });
@@ -134,18 +137,25 @@ check('forgot ok', r.data.ok && !r.data.devLink);
 r = await call('dj', 'POST', 'me/password', { current: 'longenough1', next: 'newpassword2' });
 check('change password', r.data.ok);
 r = await call('dj', 'POST', 'auth/signout');
+check('sign out clears the product hint', jar.dj.vz_product === null && jar.dj.vz_session === null, jar.dj);
 r = await call('dj', 'GET', 'me');
 check('signed out', r.data.user === null);
 r = await call('dj', 'POST', 'auth/signin', { email: 'kemi@test.dev', password: 'longenough1' });
 check('old password rejected', r.status === 401);
 r = await call('dj', 'POST', 'auth/signin', { email: 'kemi@test.dev', password: 'newpassword2' });
 check('sign in', r.status === 200);
-const csrf = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'text/plain', cookie: `vz_session=${jar.dj}` }, body: '{}' }));
+const csrf = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'text/plain', cookie: `vz_session=${jar.dj.vz_session}` }, body: '{}' }));
 check('non-JSON POST blocked', csrf.status === 415);
-const cross = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://evil.example', host: 'localhost:3000', cookie: `vz_session=${jar.dj}` }, body: '{}' }));
+const cross = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://evil.example', host: 'localhost:3000', cookie: `vz_session=${jar.dj.vz_session}` }, body: '{}' }));
 check('cross-origin POST blocked', cross.status === 403);
 r = await call('legacy', 'PATCH', 'me', { product: 'dj', onboarded: true });
 check('switch product in settings', r.data.user?.product === 'dj');
+check('switching product updates the hint cookie', jar.legacy.vz_product === 'dj');
+jar.legacy.vz_product = 'social';
+r = await call('legacy', 'GET', 'me');
+check('a stale hint is corrected on the next /api/me', jar.legacy.vz_product === 'dj' && r.set.length === 1, r.set);
+r = await call('legacy', 'GET', 'me');
+check('no cookie is sent when the hint is already right', r.set.length === 0, r.set);
 r = await call('legacy', 'GET', 'sets');
 check('switched account can use DJ tools', r.status === 200);
 r = await call('dj', 'DELETE', 'me', { password: 'newpassword2' });

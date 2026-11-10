@@ -1,5 +1,5 @@
 // Account pages shared by both products: notifications and settings.
-import { $, $$, I, ago, download, esc, initials, toast } from '../core/util.js';
+import { $, $$, I, ago, download, esc, initials, store, toast } from '../core/util.js';
 import { api, onSubmit } from '../core/api.js';
 import { S, requireUser, productOf, homeFor, pathFor, PRODUCT_NAME } from '../core/session.js';
 import { ACT_ICON, emptyState } from '../core/ui.js';
@@ -51,10 +51,23 @@ pages.settings = async () => {
   $$('[data-notify]').forEach((sw) => sw.addEventListener('click', () => { const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', String(on)); patch({ prefs: { notify: { [sw.dataset.notify]: on } } }, 'Saved.'); }));
   $$('[data-pref]').forEach((sw) => sw.addEventListener('click', () => { const on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', String(on)); patch({ prefs: { [sw.dataset.pref]: on } }, 'Saved.'); }));
   $$('[data-visibility] [data-radio]').forEach((r) => r.addEventListener('click', () => patch({ prefs: { visibility: r.dataset.value } }, 'New sets will use this.')));
-  $('[data-product-select]').addEventListener('change', async (e) => {
-    const next = e.target.value;
-    if (!window.confirm(`Switch this account to ${PRODUCT_NAME[next]}? Your data stays, but you’ll only see ${PRODUCT_NAME[next]} pages.`)) { e.target.value = productOf(S.me); return; }
-    try { const r = await api('PATCH', 'me', { product: next }); S.me = r.user; location.href = homeFor(S.me); } catch (err) { toast(err.message); e.target.value = productOf(S.me); }
+  // Switching product: confirm in a dialog, save, then go straight to the new home. The API
+  // response also updates the product cookie, so the next page is served from the right side.
+  const sel = $('[data-product-select]');
+  const sw = $('[data-switch-dialog]');
+  let target = null;
+  sel.addEventListener('change', () => {
+    target = sel.value;
+    $$('[data-switch-name]', sw).forEach((x) => { x.textContent = PRODUCT_NAME[target]; });
+    sw.showModal();
+  });
+  sw.addEventListener('close', () => { if (target) sel.value = productOf(S.me); target = null; });
+  $$('[data-close]', sw).forEach((b) => b.addEventListener('click', () => sw.close()));
+  onSubmit($('[data-switch-form]'), async () => {
+    const r = await api('PATCH', 'me', { product: target });
+    S.me = r.user; target = null;
+    store.set('vybez-flash', `You’re on ${PRODUCT_NAME[productOf(S.me)]} now.`);
+    location.replace(homeFor(S.me));
   });
   onSubmit($('[data-password-form]'), async (d, f) => { await api('POST', 'me/password', d); f.reset(); toast('Password updated.'); });
   $('[data-export]').addEventListener('click', async () => {

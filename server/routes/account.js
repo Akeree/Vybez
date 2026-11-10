@@ -5,12 +5,14 @@ import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '
 import { DEFAULT_PREFS, RESERVED, slug, selfUser, saveUser, needUser, readProduct, productOf, syncDjIndex, ACTIVITY_TYPES } from '../domain/users.js';
 import { listSets, listCrates, VIS, EMOJI } from '../domain/music.js';
 import { getNight, nightGuests } from '../domain/nights.js';
-import { liveState } from '../domain/live.js';
 
 route('GET', 'me', async (ctx) => {
   if (!ctx.user) return { user: null, storage: store.kind };
-  const unread = await unreadCount(ctx.user);
-  const live = await liveState(ctx.user.id);
+  // One Redis round trip for the badges (this call runs on every signed-in page load).
+  const u = ctx.user;
+  const [items, readAt, liveRaw] = await store.pipe([['LRANGE', `u:${u.id}:activity`, 0, 49], ['GET', `u:${u.id}:readAt`], ['GET', `live:${u.id}`]]);
+  const unread = countUnread(u, items, readAt);
+  let live = null; try { live = liveRaw ? JSON.parse(liveRaw) : null; } catch { live = null; }
   return { user: selfUser(ctx.user), unread, live: !!live?.on, storage: store.kind };
 });
 
@@ -113,8 +115,7 @@ route('DELETE', 'me', async (ctx) => {
 });
 
 // Notifications
-async function unreadCount(u) {
-  const [items, readAt] = await store.pipe([['LRANGE', `u:${u.id}:activity`, 0, 49], ['GET', `u:${u.id}:readAt`]]);
+function countUnread(u, items, readAt) {
   const types = ACTIVITY_TYPES[productOf(u)];
   return (items || []).map((x) => JSON.parse(x)).filter((x) => x.at > Number(readAt || 0) && types.includes(x.type)).length;
 }

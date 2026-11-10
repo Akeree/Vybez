@@ -8,7 +8,8 @@
     "build": "node scripts/build.mjs",
     "dev": "node scripts/dev.mjs",
     "test": "node scripts/test-api.mjs",
-    "test:mobile": "node scripts/e2e-mobile.mjs"
+    "test:mobile": "node scripts/e2e-mobile.mjs",
+    "perf": "node scripts/perf-mobile.mjs"
   },
   "engines": {
     "node": ">=18"

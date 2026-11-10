@@ -16,6 +16,102 @@
       "source": "/login",
       "destination": "/signin",
       "permanent": true
+    },
+    {
+      "source": "/dj",
+      "destination": "/social?from=dj",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "social"
+        }
+      ]
+    },
+    {
+      "source": "/dj/:path*",
+      "destination": "/social?from=dj",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "social"
+        }
+      ]
+    },
+    {
+      "source": "/me",
+      "destination": "/social",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "social"
+        }
+      ]
+    },
+    {
+      "source": "/notifications",
+      "destination": "/social/notifications",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "social"
+        }
+      ]
+    },
+    {
+      "source": "/social",
+      "destination": "/dj?from=social",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "dj"
+        }
+      ]
+    },
+    {
+      "source": "/social/:path*",
+      "destination": "/dj?from=social",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "dj"
+        }
+      ]
+    },
+    {
+      "source": "/me",
+      "destination": "/dj/following",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "dj"
+        }
+      ]
+    },
+    {
+      "source": "/notifications",
+      "destination": "/dj/notifications",
+      "permanent": false,
+      "has": [
+        {
+          "type": "cookie",
+          "key": "vz_product",
+          "value": "dj"
+        }
+      ]
     }
   ],
   "headers": [

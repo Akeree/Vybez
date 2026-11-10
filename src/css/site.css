@@ -823,3 +823,20 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: var(--
 }
 .fmt-row { display: flex; gap: var(--s-sm); justify-content: center; flex-wrap: wrap; }
 .fmt-row svg { width: 32px; height: 40px; }
+
+/* ---------- Page transitions ---------- */
+/* Cross-document View Transitions (Chrome, Edge, Safari 18.2+; others just navigate).
+   Only the page content fades; the sidebar, top bar and phone tab bar stay still, so moving
+   around one product feels like one app. Nothing animates for people who ask for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  .sidebar { view-transition-name: vz-sidebar; }
+  .app-topbar { view-transition-name: vz-topbar; }
+  .tabbar { view-transition-name: vz-tabbar; }
+  .site-nav { view-transition-name: vz-sitenav; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 160ms; animation-timing-function: cubic-bezier(.2, 0, 0, 1); }
+  ::view-transition-group(vz-sidebar), ::view-transition-group(vz-topbar), ::view-transition-group(vz-tabbar), ::view-transition-group(vz-sitenav) { animation: none; }
+}
+
+/* Signed in (hint cookie seen by app.js): skip the signed-out sample content entirely. */
+html[data-signed-in] [data-demo] { display: none !important; }

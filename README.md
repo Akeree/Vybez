@@ -6,6 +6,7 @@ Vybez: **Vybez DJ** (sets, tracklists, live rooms) and **Vybez Social** (small i
 npm run dev     # build + local server with the API on http://localhost:3000 (data in .data/db.json)
 npm test        # end-to-end API checks (in-memory store)
 npm run test:mobile  # phone-width run of both products in Chromium (needs Playwright)
+npm run perf    # load times on a simulated slow-4G phone; VYBEZ_ROOT=<other checkout> to compare
 npm run build   # src/ -> dist/
 ```
 
@@ -30,8 +31,16 @@ Not live yet (the UI says so): Google/Apple sign-in, payments (`/upgrade` is a p
 Every account is either **Vybez DJ** (`product: 'dj'`) or **Vybez Social** (`product: 'social'`), picked at sign-up and switchable in Settings (data is kept).
 - DJ accounts see sets, library, crates, insights, live rooms, connections, Explore, following and DJ notifications. Shell: `layout: app`.
 - Social accounts see their nights, planning, guest lists, door mode, RSVP notifications and Social settings. Shell: `layout: social`.
+- Moving between the two: every API answer that names the account also sets a small `vz_product` cookie (not HttpOnly, no secrets, just `dj` or `social`). `vercel.json` redirects use it, so a Social account that opens a `/dj` link is sent to `/social?from=dj` by Vercel before any DJ page loads (no flash), and gets a one-line explanation. Sign-in and sign-up pages are never redirected, so a stale cookie can't loop. If the cookie is missing, `src/js/app.js` does the same redirect after `/api/me`.
+- Switching product in Settings asks in a dialog, saves, and goes straight to the new home. Page changes inside a product cross-fade (View Transitions) with the sidebar and tab bar held still; nothing animates with reduced motion.
 - The browser sends an account that opens the other product's page back to its own home (`src/js/app.js`), and the API refuses the other product's endpoints with 403 (`needProduct` in `server/domain/users.js`). Public pages (`/s/:id`, `/u/:handle`, `/live/:handle`, `/i/:code`, marketing pages) stay open to everyone. Social accounts have no public profile.
 - Accounts from before the split with `role: 'listener'` are treated as Social.
+
+## Load time
+- Every page preloads `/api/me` and `<link rel="modulepreload">`s all the JS it will run (the build reads the import graph), so nothing waits on a chain of downloads.
+- `src/js/app.js` downloads the page's module while `/api/me` is in flight. `GET /api/me` is one Redis round trip after the session lookup.
+- Signed-in visitors never get the signed-out sample content or its photos. Small thumbnails use `*-xs.webp` (about 3 KB) instead of the 30 to 80 KB card images.
+- `npm run perf` measures it. `scripts/dev.mjs` with `PROD_LIKE=1` serves files with Vercel's cache headers and gzip so repeat visits behave like the live site.
 
 ## Structure
 - `src/pages/**.html` pages, each starting with a `<!--meta {...}-->` comment (`page` picks the controller, `layout` picks the shell, `app` marks the current nav item)

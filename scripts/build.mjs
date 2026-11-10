@@ -96,6 +96,32 @@ mkdirSync(out, { recursive: true });
 for (const dir of ['img', 'fonts', 'css', 'js']) cpSync(join(src, dir), join(out, dir), { recursive: true });
 cpSync(join(src, 'logos', 'mark.svg'), join(out, 'favicon.svg'));
 
+// Module preloads. Without them the browser finds the JS one level at a time
+// (app.js -> session.js -> api.js -> page module), costing a network round trip per level
+// before the page can ask /api/me or render. The build knows the whole import graph, so each
+// page lists every module it will run up front and they all download in parallel.
+const jsDir = join(src, 'js');
+const importsOf = (rel) => [...read(join(jsDir, rel)).matchAll(/^import\s[^;]*?from\s+'(\.{1,2}\/[^']+)'/gm)].map((m) => relative(jsDir, join(dirname(join(jsDir, rel)), m[1])).replace(/\\/g, '/'));
+function closure(entry, seen = new Set()) {
+  if (seen.has(entry)) return seen;
+  seen.add(entry);
+  for (const d of importsOf(entry)) closure(d, seen);
+  return seen;
+}
+// Same page -> module table app.js uses (MODULES), read from its source so there is one copy.
+const MODULE_OF = {};
+for (const m of read(join(jsDir, 'app.js')).matchAll(/^\s+([a-z]+): \[([^\]]*)\],?$/gm)) {
+  for (const p of m[2].matchAll(/'([^']+)'/g)) MODULE_OF[p[1]] = m[1];
+}
+if (!MODULE_OF.dashboard || !MODULE_OF.nights) throw new Error('Could not read MODULES from src/js/app.js');
+function modulePreloads(html) {
+  const page = (html.match(/<main[^>]*\sdata-page="([^"]+)"/) || [])[1];
+  const set = closure('app.js');
+  if (page && MODULE_OF[page]) closure(`pages/${MODULE_OF[page]}.js`, set);
+  set.delete('app.js');
+  return [...set].map((f) => `<link rel="modulepreload" href="/js/${f}">`).join('\n');
+}
+
 const pages = walk(join(src, 'pages')).filter((p) => p.endsWith('.html'));
 const urls = [];
 for (const file of pages) {
@@ -122,6 +148,7 @@ for (const file of pages) {
   // Mark the current navigation item.
   if (meta.nav) html = html.replace(new RegExp(`data-nav="${meta.nav}"`, 'g'), `data-nav="${meta.nav}" aria-current="page"`);
   if (meta.app) html = html.replace(new RegExp(`data-app="${meta.app}"`, 'g'), `data-app="${meta.app}" aria-current="page"`);
+  html = html.replace('<script type="module" src="/js/app.js"></script>', (t) => `${t}\n${modulePreloads(html)}`);
   if (/\{\{|\}\}/.test(html)) throw new Error(`Unrendered template tag in ${file}`);
   const dest = join(out, rel === '404.html' ? '404.html' : rel);
   mkdirSync(dirname(dest), { recursive: true });

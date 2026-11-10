@@ -4,7 +4,7 @@
 //   domain/*.js      data and rules (users, music, live, nights, email)
 //   routes/*.js      endpoints, grouped by product: auth, account, dj, social
 import { routes, HttpError, fail, json, clientIp } from './lib/http.js';
-import { sessionCookie } from './auth.js';
+import { sessionCookie, productCookie, getCookie, PRODUCT_COOKIE } from './auth.js';
 import { currentUser } from './domain/users.js';
 import './routes/auth.js';
 import './routes/account.js';
@@ -49,6 +49,16 @@ export async function handle(req) {
       const params = Object.fromEntries(r.keys.map((k, i) => [k, decodeURIComponent(m[i + 1])]));
       const data = await r.fn(ctx, params);
       const res = json(data);
+      // Keep the product hint cookie in step with the account: set it whenever a response
+      // carries the signed-in user (sign-up, sign-in, reset, /me, profile or product change),
+      // clear it on sign-out, deletion, or when /me finds no session.
+      const hint = getCookie(req, PRODUCT_COOKIE) || '';
+      const signedOut = cookies.some((c) => c.startsWith('vz_session=;'));
+      // Only for the caller's own account (never another user's profile).
+      if (data && 'user' in data && (!data.user || !ctx.user || data.user.id === ctx.user.id)) {
+        const want = data.user?.product || '';
+        if (want !== hint) cookies.push(productCookie(want, secure));
+      } else if (signedOut && hint) cookies.push(productCookie('', secure));
       cookies.forEach((c) => res.headers.append('Set-Cookie', c));
       return res;
     }

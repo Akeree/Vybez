@@ -93,6 +93,14 @@
     </section>
   </div>
 </div>
+<dialog class="modal" data-switch-dialog aria-labelledby="sw-t" aria-describedby="sw-d">
+  <form class="stack gap-16" data-switch-form novalidate>
+    <div class="row between"><h2 class="h4" id="sw-t">Switch to <span data-switch-name></span>?</h2><button class="icon-btn ghost" type="button" data-close aria-label="Close">{{icon:x}}</button></div>
+    <p class="small t2" id="sw-d">Everything you’ve made stays saved. You’ll see <span data-switch-name></span> pages only, and you can switch back here any time.</p>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" type="button" data-close>Stay here</button><button class="btn btn-primary btn-sm" type="submit">Switch</button></div>
+  </form>
+</dialog>
 <dialog class="modal" data-delete-dialog aria-labelledby="del-t">
   <form class="stack gap-16" data-delete-form novalidate>
     <div class="row between"><h2 class="h4" id="del-t">Delete your account?</h2><button class="icon-btn ghost" type="button" data-close aria-label="Close">{{icon:x}}</button></div>
