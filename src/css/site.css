@@ -842,21 +842,50 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: var(--
 html[data-signed-in] [data-demo] { display: none !important; }
 
 /* ---------- Quote slideshow (home) ---------- */
-/* A swipeable scroll-snap row: works with touch, trackpad and keyboard without JS.
-   site.js adds auto-play (paused on hover, focus, touch, hidden tab, and for reduced motion),
-   dots, previous/next and a pause button. */
-.carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; border-radius: var(--r-lg); }
-.carousel-track::-webkit-scrollbar { display: none; }
-.carousel-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.carousel .slide { scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; }
-.carousel-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-md); margin-top: var(--s-lg); }
-.carousel-dots { display: flex; align-items: center; }
-.carousel-dot { width: 32px; height: 40px; display: grid; place-items: center; }
-.carousel-dot::before { content: ""; width: 8px; height: 8px; border-radius: var(--r-full); background: var(--border-strong); transition: width .25s, background-color .25s; }
-.carousel-dot:hover::before { background: var(--text-tertiary); }
-.carousel-dot[aria-current="true"]::before { width: 22px; background: var(--accent); }
-.carousel-cta { margin-top: var(--s-lg); }
-@media (prefers-reduced-motion: reduce) { .carousel-dot::before { transition: none; } }
-@media (pointer: coarse) { .carousel-dot { width: 40px; } }
-/* Phones swipe; the dots and pause stay, the arrows go to save room. */
-@media (max-width: 560px) { .carousel-bar [data-prev], .carousel-bar [data-next] { display: none; } }
+/* One big card at a time: photo with the night it's from, the quote in display type with a
+   pink quote mark, and who said it. A native scroll-snap row, so swiping works without JS.
+   site.js adds: story-style progress bars that fill while it plays and move it on when full
+   (so the bar and the slide never drift apart), pause on hover, focus, touch or when it's off
+   screen, a pause button, and no auto-play with reduced motion. */
+.quotes-track { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; gap: var(--s-md); overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; }
+.quotes-track::-webkit-scrollbar { display: none; }
+.quotes-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: var(--r-lg); }
+.qcard { scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; display: grid; grid-template-columns: 5fr 7fr; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--r-lg); overflow: hidden; }
+.qcard-photo { min-height: 440px; }
+.qcard-photo > img { transform: scale(1.06); transition: transform 1.2s cubic-bezier(.2, 0, 0, 1); }
+.qcard:not([aria-hidden]) .qcard-photo > img { transform: scale(1); }
+.qcard-tag { position: absolute; left: var(--s-md); bottom: var(--s-md); z-index: 2; display: inline-flex; align-items: center; height: 32px; padding: 0 var(--s-md); border-radius: var(--r-full); background: rgba(20, 17, 24, .72); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); font: 600 13px/1 var(--font-body); color: var(--text-primary); }
+.qcard-body { display: flex; flex-direction: column; justify-content: center; gap: var(--s-lg); padding: calc(2 * var(--s-lg)); }
+.qcard-mark { font: 800 96px/.6 var(--font-display); color: var(--accent); height: 40px; }
+.qcard-quote { font: 700 30px/1.2 var(--font-display); letter-spacing: -0.02em; text-wrap: pretty; }
+.qcard-who { display: flex; align-items: center; gap: var(--s-md); padding-top: var(--s-lg); border-top: 1px solid var(--border-subtle); }
+.qcard-who img { width: 40px; height: 40px; border-radius: var(--r-full); object-fit: cover; flex: none; }
+.quotes-bar { display: flex; align-items: center; gap: var(--s-md); margin-top: var(--s-md); }
+.qsegs { flex: 1; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-sm); }
+.qseg { display: flex; flex-direction: column; justify-content: center; gap: var(--s-sm); min-height: 40px; text-align: left; color: var(--text-tertiary); }
+.qseg:hover, .qseg[aria-current="true"] { color: var(--text-primary); }
+.qseg-bar { position: relative; display: block; height: 3px; border-radius: var(--r-full); background: var(--border-strong); overflow: hidden; }
+.qseg-fill { position: absolute; inset: 0; background: var(--accent); transform: scaleX(0); transform-origin: left; }
+.qseg.done .qseg-fill, [data-state="paused"] .qseg[aria-current="true"] .qseg-fill { transform: scaleX(1); }
+.qseg.done .qseg-fill { background: var(--text-tertiary); }
+[data-state="playing"] .qseg[aria-current="true"] .qseg-fill { animation: qseg-fill 6.5s linear forwards; }
+[data-state="playing"][data-held] .qseg[aria-current="true"] .qseg-fill { animation-play-state: paused; }
+@keyframes qseg-fill { to { transform: scaleX(1); } }
+.qseg-name { font: 600 13px/1.2 var(--font-body); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 1023px) {
+  .qcard-body { padding: var(--s-lg); }
+  .qcard-quote { font-size: 24px; }
+}
+@media (max-width: 720px) {
+  .qcard { grid-template-columns: minmax(0, 1fr); }
+  .qcard-photo { min-height: 0; aspect-ratio: 4 / 3; }
+  .qcard-body { justify-content: flex-start; gap: var(--s-md); padding: var(--s-lg) var(--s-md) var(--s-md); }
+  .qcard-mark { font-size: 72px; height: 28px; }
+  .qcard-quote { font-size: 22px; }
+  .qcard-who { padding-top: var(--s-md); }
+  .qseg-name { display: none; }
+  .qnav { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qcard-photo > img { transition: none; transform: none; }
+}

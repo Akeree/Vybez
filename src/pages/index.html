@@ -125,83 +125,87 @@
   </div>
 </section>
 
-<section class="wrap sec" aria-label="What people say">
-  <div class="carousel" data-carousel aria-roledescription="carousel" aria-label="What hosts, DJs and guests say">
-  <div class="carousel-track" data-track data-scroll-x aria-live="off" tabindex="0">
-    <figure class="proof slide" role="group" aria-roledescription="slide" aria-label="1 of 5: Ada O." data-slide>
-      <div class="photo">{{photo:rooftop}}</div>
-      <div class="stack gap-32">
-        {{icon:message-square-quote:32}}
-        <blockquote class="quote">“We planned Tolu’s 30th in ten minutes. Nobody had to download anything, and DJ Kemi had our song requests before we arrived.”</blockquote>
-        <figcaption class="row gap-16">
-          <span class="faces"><img src="/img/face-2.webp" alt="" width="30" height="30" loading="lazy"></span>
-          <span class="stack"><span class="label">Ada O.</span><span class="caption t3">Host, Lagos · illustrative quote</span></span>
-        </figcaption>
-      </div>
-    </figure>
-    <figure class="proof slide" role="group" aria-roledescription="slide" aria-label="2 of 5: DJ Kemi" data-slide aria-hidden="true">
-      <div class="photo">{{photo:kemi}}</div>
-      <div class="stack gap-32">
-        {{icon:message-square-quote:32}}
-        <blockquote class="quote">“My whole crowd follows me here now. They see the tracklist before the set even ends.”</blockquote>
-        <figcaption class="row gap-16">
-          <span class="faces"><img src="/img/kemi-xs.webp" alt="" width="30" height="30" loading="lazy"></span>
-          <span class="stack"><span class="label">DJ Kemi</span><span class="caption t3">DJ, Lagos · illustrative quote</span></span>
-        </figcaption>
-      </div>
-    </figure>
-    <figure class="proof slide" role="group" aria-roledescription="slide" aria-label="3 of 5: Tunde A." data-slide aria-hidden="true">
-      <div class="photo">{{photo:dinner}}</div>
-      <div class="stack gap-32">
-        {{icon:message-square-quote:32}}
-        <blockquote class="quote">“I RSVP’d from a WhatsApp link, got my pass, and requested Ayra Starr before I’d even left the house.”</blockquote>
-        <figcaption class="row gap-16">
-          <span class="faces"><img src="/img/face-1.webp" alt="" width="30" height="30" loading="lazy"></span>
-          <span class="stack"><span class="label">Tunde A.</span><span class="caption t3">Guest, Abuja · illustrative quote</span></span>
-        </figcaption>
-      </div>
-    </figure>
-    <figure class="proof slide" role="group" aria-roledescription="slide" aria-label="4 of 5: DJ Femi" data-slide aria-hidden="true">
-      <div class="photo">{{photo:crowd}}</div>
-      <div class="stack gap-32">
-        {{icon:message-square-quote:32}}
-        <blockquote class="quote">“Importing my rekordbox playlist took a minute. Now every set I play has its tracklist up by the morning.”</blockquote>
-        <figcaption class="row gap-16">
-          <span class="faces"><img src="/img/face-3.webp" alt="" width="30" height="30" loading="lazy"></span>
-          <span class="stack"><span class="label">DJ Femi</span><span class="caption t3">DJ, Ibadan · illustrative quote</span></span>
-        </figcaption>
-      </div>
-    </figure>
-    <figure class="proof slide" role="group" aria-roledescription="slide" aria-label="5 of 5: Zainab M." data-slide aria-hidden="true">
-      <div class="photo">{{photo:living}}</div>
-      <div class="stack gap-32">
-        {{icon:message-square-quote:32}}
-        <blockquote class="quote">“Door mode saved the night. Passes checked in seconds, and only the people we invited ever saw the address.”</blockquote>
-        <figcaption class="row gap-16">
-          <span class="faces"><img src="/img/face-4.webp" alt="" width="30" height="30" loading="lazy"></span>
-          <span class="stack"><span class="label">Zainab M.</span><span class="caption t3">Host, Accra · illustrative quote</span></span>
-        </figcaption>
-      </div>
-    </figure>
-  </div>
-  <div class="carousel-bar">
-    <div class="row gap-8">
-      <button class="icon-btn carousel-play" type="button" data-play aria-label="Pause the quotes" hidden><span data-when-playing>{{icon:pause:18}}</span><span data-when-paused hidden>{{icon:play:18}}</span></button>
-      <div class="carousel-dots" role="group" aria-label="Choose a quote">
-        <button class="carousel-dot" type="button" data-go="0" aria-label="Show quote 1: Ada O." aria-current="true"></button>
-        <button class="carousel-dot" type="button" data-go="1" aria-label="Show quote 2: DJ Kemi"></button>
-        <button class="carousel-dot" type="button" data-go="2" aria-label="Show quote 3: Tunde A."></button>
-        <button class="carousel-dot" type="button" data-go="3" aria-label="Show quote 4: DJ Femi"></button>
-        <button class="carousel-dot" type="button" data-go="4" aria-label="Show quote 5: Zainab M."></button>
-      </div>
+<section class="wrap sec stack gap-32" aria-labelledby="quotes-title">
+  <div class="sec-head">
+    <div class="stack">
+      <p class="overline">From the night</p>
+      <h2 class="h2" id="quotes-title">Hosts, DJs and guests on Vybez</h2>
     </div>
-    <div class="row gap-8">
-      <button class="icon-btn ghost" type="button" data-prev aria-label="Previous quote">{{icon:chevron-left:20}}</button>
-      <button class="icon-btn ghost" type="button" data-next aria-label="Next quote">{{icon:chevron-right:20}}</button>
+    <div class="row gap-8 qnav">
+      <button class="icon-btn" type="button" data-prev aria-label="Previous quote">{{icon:chevron-left:20}}</button>
+      <button class="icon-btn" type="button" data-next aria-label="Next quote">{{icon:chevron-right:20}}</button>
     </div>
   </div>
+  <div class="quotes" data-carousel data-state="paused" aria-roledescription="carousel" aria-label="What hosts, DJs and guests say">
+    <div class="quotes-track" data-track data-scroll-x aria-live="polite" tabindex="0">
+      <figure class="qcard" role="group" aria-roledescription="slide" aria-label="1 of 5: Ada O." data-slide>
+        <div class="qcard-photo photo">{{photo:rooftop}}<div class="scrim soft"></div><span class="qcard-tag">Vybez Social · Tolu’s 30th</span></div>
+        <div class="qcard-body">
+          <span class="qcard-mark" aria-hidden="true">“</span>
+          <blockquote class="qcard-quote">We planned Tolu’s 30th in ten minutes. Nobody had to download anything, and DJ Kemi had our song requests before we arrived.</blockquote>
+          <figcaption class="qcard-who">
+            <img src="/img/face-2.webp" alt="" width="40" height="40" loading="lazy">
+            <span class="stack"><span class="label">Ada O.</span><span class="caption t3">Host, Lagos · illustrative quote</span></span>
+          </figcaption>
+        </div>
+      </figure>
+      <figure class="qcard" role="group" aria-roledescription="slide" aria-label="2 of 5: DJ Kemi" data-slide aria-hidden="true">
+        <div class="qcard-photo photo">{{photo:kemi}}<div class="scrim soft"></div><span class="qcard-tag">Vybez DJ · Rooftop Sunday</span></div>
+        <div class="qcard-body">
+          <span class="qcard-mark" aria-hidden="true">“</span>
+          <blockquote class="qcard-quote">My whole crowd follows me here now. They see the tracklist before the set even ends.</blockquote>
+          <figcaption class="qcard-who">
+            <img src="/img/kemi-xs.webp" alt="" width="40" height="40" loading="lazy">
+            <span class="stack"><span class="label">DJ Kemi</span><span class="caption t3">DJ, Lagos · illustrative quote</span></span>
+          </figcaption>
+        </div>
+      </figure>
+      <figure class="qcard" role="group" aria-roledescription="slide" aria-label="3 of 5: Tunde A." data-slide aria-hidden="true">
+        <div class="qcard-photo photo">{{photo:dinner}}<div class="scrim soft"></div><span class="qcard-tag">Vybez Social · Supper club</span></div>
+        <div class="qcard-body">
+          <span class="qcard-mark" aria-hidden="true">“</span>
+          <blockquote class="qcard-quote">I RSVP’d from a WhatsApp link, got my pass, and requested Ayra Starr before I’d even left the house.</blockquote>
+          <figcaption class="qcard-who">
+            <img src="/img/face-1.webp" alt="" width="40" height="40" loading="lazy">
+            <span class="stack"><span class="label">Tunde A.</span><span class="caption t3">Guest, Abuja · illustrative quote</span></span>
+          </figcaption>
+        </div>
+      </figure>
+      <figure class="qcard" role="group" aria-roledescription="slide" aria-label="4 of 5: DJ Femi" data-slide aria-hidden="true">
+        <div class="qcard-photo photo">{{photo:crowd}}<div class="scrim soft"></div><span class="qcard-tag">Vybez DJ · Saturday set</span></div>
+        <div class="qcard-body">
+          <span class="qcard-mark" aria-hidden="true">“</span>
+          <blockquote class="qcard-quote">Importing my rekordbox playlist took a minute. Now every set I play has its tracklist up by the morning.</blockquote>
+          <figcaption class="qcard-who">
+            <img src="/img/face-3.webp" alt="" width="40" height="40" loading="lazy">
+            <span class="stack"><span class="label">DJ Femi</span><span class="caption t3">DJ, Ibadan · illustrative quote</span></span>
+          </figcaption>
+        </div>
+      </figure>
+      <figure class="qcard" role="group" aria-roledescription="slide" aria-label="5 of 5: Zainab M." data-slide aria-hidden="true">
+        <div class="qcard-photo photo">{{photo:living}}<div class="scrim soft"></div><span class="qcard-tag">Vybez Social · House party</span></div>
+        <div class="qcard-body">
+          <span class="qcard-mark" aria-hidden="true">“</span>
+          <blockquote class="qcard-quote">Door mode saved the night. Passes checked in seconds, and only the people we invited ever saw the address.</blockquote>
+          <figcaption class="qcard-who">
+            <img src="/img/face-4.webp" alt="" width="40" height="40" loading="lazy">
+            <span class="stack"><span class="label">Zainab M.</span><span class="caption t3">Host, Accra · illustrative quote</span></span>
+          </figcaption>
+        </div>
+      </figure>
+    </div>
+    <div class="quotes-bar">
+      <button class="icon-btn ghost" type="button" data-play aria-label="Play the quotes" hidden><span data-when-playing hidden>{{icon:pause:18}}</span><span data-when-paused>{{icon:play:18}}</span></button>
+      <div class="qsegs" role="group" aria-label="Choose a quote">
+        <button class="qseg" type="button" data-go="0" aria-label="Show quote 1: Ada O." aria-current="true"><span class="qseg-bar"><span class="qseg-fill"></span></span><span class="qseg-name">Ada O.</span></button>
+        <button class="qseg" type="button" data-go="1" aria-label="Show quote 2: DJ Kemi"><span class="qseg-bar"><span class="qseg-fill"></span></span><span class="qseg-name">DJ Kemi</span></button>
+        <button class="qseg" type="button" data-go="2" aria-label="Show quote 3: Tunde A."><span class="qseg-bar"><span class="qseg-fill"></span></span><span class="qseg-name">Tunde A.</span></button>
+        <button class="qseg" type="button" data-go="3" aria-label="Show quote 4: DJ Femi"><span class="qseg-bar"><span class="qseg-fill"></span></span><span class="qseg-name">DJ Femi</span></button>
+        <button class="qseg" type="button" data-go="4" aria-label="Show quote 5: Zainab M."><span class="qseg-bar"><span class="qseg-fill"></span></span><span class="qseg-name">Zainab M.</span></button>
+      </div>
+    </div>
   </div>
-  <div class="row gap-16 wrap-row carousel-cta">
+  <div class="row gap-16 wrap-row">
     <a class="btn btn-primary" href="/signup">Get started free</a>
     <a class="btn btn-outline" href="/guides">How it works</a>
   </div>
