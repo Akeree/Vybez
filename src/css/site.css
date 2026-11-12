@@ -840,23 +840,3 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: var(--
 
 /* Signed in (hint cookie seen by app.js): skip the signed-out sample content entirely. */
 html[data-signed-in] [data-demo] { display: none !important; }
-
-/* ---------- Quote slideshow (home) ---------- */
-/* A swipeable scroll-snap row: works with touch, trackpad and keyboard without JS.
-   site.js adds auto-play (paused on hover, focus, touch, hidden tab, and for reduced motion),
-   dots, previous/next and a pause button. */
-.carousel-track { display: grid; grid-auto-flow: column; grid-auto-columns: 100%; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; scrollbar-width: none; border-radius: var(--r-lg); }
-.carousel-track::-webkit-scrollbar { display: none; }
-.carousel-track:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.carousel .slide { scroll-snap-align: start; scroll-snap-stop: always; min-width: 0; }
-.carousel-bar { display: flex; align-items: center; justify-content: space-between; gap: var(--s-md); margin-top: var(--s-lg); }
-.carousel-dots { display: flex; align-items: center; }
-.carousel-dot { width: 32px; height: 40px; display: grid; place-items: center; }
-.carousel-dot::before { content: ""; width: 8px; height: 8px; border-radius: var(--r-full); background: var(--border-strong); transition: width .25s, background-color .25s; }
-.carousel-dot:hover::before { background: var(--text-tertiary); }
-.carousel-dot[aria-current="true"]::before { width: 22px; background: var(--accent); }
-.carousel-cta { margin-top: var(--s-lg); }
-@media (prefers-reduced-motion: reduce) { .carousel-dot::before { transition: none; } }
-@media (pointer: coarse) { .carousel-dot { width: 40px; } }
-/* Phones swipe; the dots and pause stay, the arrows go to save room. */
-@media (max-width: 560px) { .carousel-bar [data-prev], .carousel-bar [data-next] { display: none; } }
