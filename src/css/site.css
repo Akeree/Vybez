@@ -777,3 +777,66 @@ select.input { appearance: none; -webkit-appearance: none; padding-right: var(--
   .hbar { grid-template-columns: minmax(0, 110px) minmax(0, 1fr) 28px; }
   .room-head .actions { margin-left: 0; width: 100%; }
 }
+
+/* ---------- Product split: mobile bottom tab bar and drawer (Nov 2026) ---------- */
+/* Phones and small tablets get a bottom tab bar with the product's 4-5 core places and
+   the main action in the middle (Mobbin: Venmo, Insight Timer). Vybez DJ's "More" opens
+   the sidebar as a drawer for the rest. */
+.tabbar, .drawer-close, .dot-badge { display: none; }
+@media (max-width: 960px) {
+  .app-tabs { display: none; }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--s-xxs); padding: var(--s-xs) var(--s-sm) calc(var(--s-xs) + env(safe-area-inset-bottom)); background: rgba(30,26,35,.96); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-top: 1px solid var(--border-subtle); }
+  .tabbar-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-xxs); min-height: 52px; border-radius: var(--r-sm); font: 600 11px/1.2 var(--font-body); color: var(--text-tertiary); background: none; border: 0; cursor: pointer; }
+  .tabbar-item:hover { color: var(--text-primary); }
+  .tabbar-item[aria-current="page"] { color: var(--accent-text); }
+  .tabbar-item.primary .i { box-sizing: content-box; margin-top: calc(-1 * var(--s-sm)); padding: var(--s-xs); border-radius: 999px; background: var(--accent); color: #fff; }
+  .tabbar-item.primary[aria-current="page"] .i { box-shadow: 0 0 0 2px var(--accent-subtle); }
+  body.has-tabbar .app-main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+  body.has-tabbar .toast-host { bottom: calc(80px + env(safe-area-inset-bottom)); }
+  .app-topbar { padding-bottom: var(--s-md); }
+  .app-topbar .icon-btn { position: relative; }
+  .dot-badge:not([hidden]) { display: block; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
+  body.drawer-open { overflow: hidden; }
+  body.drawer-open .sidebar { display: flex; position: fixed; top: 0; left: 0; bottom: 0; width: min(320px, 86vw); height: 100%; z-index: 70; box-shadow: 0 0 0 100vmax rgba(0,0,0,.55); }
+  body.drawer-open .drawer-close { display: inline-flex; }
+}
+.redirect { min-height: 60vh; display: grid; place-items: center; padding: var(--s-lg) var(--s-md); text-align: center; }
+
+/* Touch screens: every control is at least 40px tall (icon buttons are already 40).
+   Inline text links are exempt, as in WCAG 2.5.8. */
+@media (pointer: coarse) {
+  .btn-sm, .pill, .emoji-react, .settings-nav a { min-height: 40px; }
+  .btn-sm, .pill { height: 40px; }
+  a:has(> .lockup) { display: inline-flex; align-items: center; min-height: 40px; }
+  .preview-bar .icon-btn { width: 40px !important; height: 40px !important; }
+  [data-gs-list] a, .crumbs a, [data-dj-row], .follow-card > a.stack, .dj-row > a.stack, .night-row a.h4, .tabs .tab { display: inline-flex; align-items: center; min-height: 40px; }
+  .follow-card > a.stack, .dj-row > a.stack { flex-direction: column; align-items: flex-start; justify-content: center; }
+  .edit-track .input, .edit-track .row-actions .icon-btn { min-height: 40px; height: 40px; }
+  .edit-track .row-actions .icon-btn { width: 40px; }
+  .crumbs a, .tabs .tab { min-width: 40px; justify-content: center; }
+  [data-tap-row] { cursor: pointer; }
+}
+@media (max-width: 720px) {
+  /* Set editor on phones: artist and title side by side, the move/remove buttons on their own line. */
+  .edit-track { grid-template-columns: 20px minmax(0, 1fr) minmax(0, 1fr); row-gap: var(--s-xs); }
+  .edit-track .row-actions { grid-column: 2 / -1; display: flex; justify-content: flex-end; gap: var(--s-xs); }
+}
+.fmt-row { display: flex; gap: var(--s-sm); justify-content: center; flex-wrap: wrap; }
+.fmt-row svg { width: 32px; height: 40px; }
+
+/* ---------- Page transitions ---------- */
+/* Cross-document View Transitions (Chrome, Edge, Safari 18.2+; others just navigate).
+   Only the page content fades; the sidebar, top bar and phone tab bar stay still, so moving
+   around one product feels like one app. Nothing animates for people who ask for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition { navigation: auto; }
+  .sidebar { view-transition-name: vz-sidebar; }
+  .app-topbar { view-transition-name: vz-topbar; }
+  .tabbar { view-transition-name: vz-tabbar; }
+  .site-nav { view-transition-name: vz-sitenav; }
+  ::view-transition-old(root), ::view-transition-new(root) { animation-duration: 160ms; animation-timing-function: cubic-bezier(.2, 0, 0, 1); }
+  ::view-transition-group(vz-sidebar), ::view-transition-group(vz-topbar), ::view-transition-group(vz-tabbar), ::view-transition-group(vz-sitenav) { animation: none; }
+}
+
+/* Signed in (hint cookie seen by app.js): skip the signed-out sample content entirely. */
+html[data-signed-in] [data-demo] { display: none !important; }

@@ -27,7 +27,7 @@ const walk = (dir) => readdirSync(dir).flatMap((f) => {
 const BRAND_COLOURS = {
   spotify: '#1ED760', applemusic: '#FA243C', soundcloud: '#FF5500', mixcloud: '#FFFFFF',
   tidal: '#FFFFFF', youtube: '#FF0000', beatport: '#01FF95', whatsapp: '#25D366',
-  googlechrome: '#FFFFFF', apple: '#FFFFFF', google: '#FFFFFF',
+  googlechrome: '#FFFFFF', apple: '#FFFFFF', google: '#FFFFFF', instagram: '#E4405F',
 };
 
 function icon(name, size = 20) {
@@ -74,9 +74,12 @@ function photo(name, mode, sizes = '(max-width: 720px) 100vw, 50vw') {
   return `<img src="/img/${name}.webp" srcset="/img/${name}-sm.webp ${w / 2}w, /img/${name}.webp ${w}w" sizes="${sizes}" width="${w}" height="${h}" alt="" decoding="async" ${load}>`;
 }
 
+// {{#if:dj}}...{{/if}} keeps its contents only on pages whose meta product is 'dj'
+// (the 'app' layout implies dj, the 'social' layout implies social).
 function render(html, vars = {}, depth = 0) {
   if (depth > 8) throw new Error('Partial nesting too deep');
   return html
+    .replace(/\{\{#if:(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, p, inner) => (vars.product === p ? inner : ''))
     .replace(/\{\{>\s*([\w-]+)\s*\}\}/g, (_, p) => render(read(join(src, 'partials', `${p}.html`)), vars, depth + 1))
     .replace(/\{\{icon:([\w-]+)(?::(\d+))?\}\}/g, (_, n, s) => icon(n, s ? +s : 20))
     .replace(/\{\{brand:([\w-]+)(?::(\d+))?\}\}/g, (_, n, s) => brand(n, s ? +s : 24))
@@ -93,6 +96,32 @@ mkdirSync(out, { recursive: true });
 for (const dir of ['img', 'fonts', 'css', 'js']) cpSync(join(src, dir), join(out, dir), { recursive: true });
 cpSync(join(src, 'logos', 'mark.svg'), join(out, 'favicon.svg'));
 
+// Module preloads. Without them the browser finds the JS one level at a time
+// (app.js -> session.js -> api.js -> page module), costing a network round trip per level
+// before the page can ask /api/me or render. The build knows the whole import graph, so each
+// page lists every module it will run up front and they all download in parallel.
+const jsDir = join(src, 'js');
+const importsOf = (rel) => [...read(join(jsDir, rel)).matchAll(/^import\s[^;]*?from\s+'(\.{1,2}\/[^']+)'/gm)].map((m) => relative(jsDir, join(dirname(join(jsDir, rel)), m[1])).replace(/\\/g, '/'));
+function closure(entry, seen = new Set()) {
+  if (seen.has(entry)) return seen;
+  seen.add(entry);
+  for (const d of importsOf(entry)) closure(d, seen);
+  return seen;
+}
+// Same page -> module table app.js uses (MODULES), read from its source so there is one copy.
+const MODULE_OF = {};
+for (const m of read(join(jsDir, 'app.js')).matchAll(/^\s+([a-z]+): \[([^\]]*)\],?$/gm)) {
+  for (const p of m[2].matchAll(/'([^']+)'/g)) MODULE_OF[p[1]] = m[1];
+}
+if (!MODULE_OF.dashboard || !MODULE_OF.nights) throw new Error('Could not read MODULES from src/js/app.js');
+function modulePreloads(html) {
+  const page = (html.match(/<main[^>]*\sdata-page="([^"]+)"/) || [])[1];
+  const set = closure('app.js');
+  if (page && MODULE_OF[page]) closure(`pages/${MODULE_OF[page]}.js`, set);
+  set.delete('app.js');
+  return [...set].map((f) => `<link rel="modulepreload" href="/js/${f}">`).join('\n');
+}
+
 const pages = walk(join(src, 'pages')).filter((p) => p.endsWith('.html'));
 const urls = [];
 for (const file of pages) {
@@ -103,6 +132,7 @@ for (const file of pages) {
   const rel = relative(join(src, 'pages'), file).replace(/\\/g, '/');
   const route = '/' + rel.replace(/(^|\/)index\.html$/, '').replace(/\.html$/, '');
   const layout = meta.layout || 'site';
+  meta.product = meta.product || { app: 'dj', social: 'social' }[meta.layout] || '';
   const body = render(raw.slice(m[0].length), meta);
   const shell = read(join(src, 'layouts', `${layout}.html`));
   const title = meta.title ? `${meta.title} · Vybez` : 'Vybez · Make the night more exciting';
@@ -118,6 +148,7 @@ for (const file of pages) {
   // Mark the current navigation item.
   if (meta.nav) html = html.replace(new RegExp(`data-nav="${meta.nav}"`, 'g'), `data-nav="${meta.nav}" aria-current="page"`);
   if (meta.app) html = html.replace(new RegExp(`data-app="${meta.app}"`, 'g'), `data-app="${meta.app}" aria-current="page"`);
+  html = html.replace('<script type="module" src="/js/app.js"></script>', (t) => `${t}\n${modulePreloads(html)}`);
   if (/\{\{|\}\}/.test(html)) throw new Error(`Unrendered template tag in ${file}`);
   const dest = join(out, rel === '404.html' ? '404.html' : rel);
   mkdirSync(dirname(dest), { recursive: true });
@@ -130,7 +161,9 @@ const iconMap = Object.fromEntries(readdirSync(join(src, 'icons')).filter((f) =>
   const name = f.replace(/\.svg$/, '');
   return [name, icon(name).match(/<svg[^>]*>([\s\S]*)<\/svg>/)[1]];
 }));
-writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(iconMap)};\n`);
+// Brand marks the client renders (profile links): window.VZ_BRANDS[name] -> full SVG markup.
+const brandMap = Object.fromEntries(['mixcloud', 'soundcloud', 'instagram', 'youtube'].map((n) => [n, brand(n, 16)]));
+writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(iconMap)};\nwindow.VZ_BRANDS=${JSON.stringify(brandMap)};\n`);
 
 writeFileSync(join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
