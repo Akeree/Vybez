@@ -205,24 +205,24 @@
   });
 
   // Quote slideshow (home). The track is a native scroll-snap row, so swiping works without
-  // this. While playing, the current progress bar fills (CSS) and the slide moves on when it is
-  // full, so timing and bar can't drift. It holds while hovered, focused, off screen or the tab
-  // is hidden; stops for good once someone swipes, picks a quote or presses pause; and never
-  // auto-plays for people who ask for reduced motion.
+  // this. Adds: auto-advance every 6.5s while it's on screen; holds while hovered, focused or
+  // the tab is hidden; stops for good once someone swipes, taps a dot or an arrow, or presses
+  // pause; never auto-plays for people who ask for reduced motion.
   $$('[data-carousel]').forEach((root) => {
     const track = $('[data-track]', root);
     const slides = $$('[data-slide]', root);
-    const segs = $$('[data-go]', root);
+    const dots = $$('[data-go]', root);
     const playBtn = $('[data-play]', root);
-    const section = root.closest('section') || root;
     if (!track || slides.length < 2) return;
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
     let i = 0;
-    const holds = new Set();
-    const hold = (why, on) => { if (on) holds.add(why); else holds.delete(why); root.toggleAttribute('data-held', holds.size > 0); };
+    let playing = !reduce.matches;
+    let held = false;
+    let onScreen = false;
+    let timer = null;
     const show = (n) => {
       i = (n + slides.length) % slides.length;
-      segs.forEach((d, k) => { d.setAttribute('aria-current', String(k === i)); d.classList.toggle('done', k < i); });
+      dots.forEach((d, k) => d.setAttribute('aria-current', String(k === i)));
       slides.forEach((sl, k) => { if (k === i) sl.removeAttribute('aria-hidden'); else sl.setAttribute('aria-hidden', 'true'); });
     };
     const go = (n) => {
@@ -230,45 +230,46 @@
       track.scrollTo({ left: slides[k].offsetLeft - slides[0].offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
       show(k);
     };
+    const tick = () => {
+      clearTimeout(timer);
+      if (playing && !held && onScreen && !document.hidden) timer = setTimeout(() => { go(i + 1); tick(); }, 6500);
+    };
     const setPlaying = (on) => {
-      root.dataset.state = on ? 'playing' : 'paused';
+      playing = on;
       playBtn.setAttribute('aria-label', on ? 'Pause the quotes' : 'Play the quotes');
       $('[data-when-playing]', playBtn).hidden = !on;
       $('[data-when-paused]', playBtn).hidden = on;
-      // Screen readers hear a new quote only when it changes because someone asked.
+      // Screen readers hear each new quote only when it changes because someone asked.
       track.setAttribute('aria-live', on ? 'off' : 'polite');
+      tick();
     };
-    const stop = () => setPlaying(false);
-    root.addEventListener('animationend', (e) => { if (e.animationName === 'qseg-fill' && root.dataset.state === 'playing') go(i + 1); });
     playBtn.hidden = false;
-    playBtn.addEventListener('click', () => setPlaying(root.dataset.state !== 'playing'));
-    segs.forEach((d) => d.addEventListener('click', () => { stop(); go(Number(d.dataset.go)); }));
-    $('[data-prev]', section)?.addEventListener('click', () => { stop(); go(i - 1); });
-    $('[data-next]', section)?.addEventListener('click', () => { stop(); go(i + 1); });
+    playBtn.addEventListener('click', () => setPlaying(!playing));
+    dots.forEach((d) => d.addEventListener('click', () => { setPlaying(false); go(Number(d.dataset.go)); }));
+    $('[data-prev]', root)?.addEventListener('click', () => { setPlaying(false); go(i - 1); });
+    $('[data-next]', root)?.addEventListener('click', () => { setPlaying(false); go(i + 1); });
     track.addEventListener('keydown', (e) => {
       if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
-      e.preventDefault(); stop(); go(i + (e.key === 'ArrowRight' ? 1 : -1));
+      e.preventDefault(); setPlaying(false); go(i + (e.key === 'ArrowRight' ? 1 : -1));
     });
     // A swipe: follow the slide it settles on, and stop auto-play.
-    track.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') stop(); });
-    track.addEventListener('wheel', (e) => { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) stop(); }, { passive: true });
+    track.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') setPlaying(false); });
+    track.addEventListener('wheel', (e) => { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) setPlaying(false); }, { passive: true });
     let settle = null;
     track.addEventListener('scroll', () => {
       clearTimeout(settle);
-      settle = setTimeout(() => { const n = Math.round(track.scrollLeft / (slides[1].offsetLeft - slides[0].offsetLeft)); if (n !== i) show(n); }, 80);
+      settle = setTimeout(() => { const n = Math.round(track.scrollLeft / track.clientWidth); if (n !== i) show(n); }, 80);
     }, { passive: true });
-    track.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') hold('hover', true); });
-    track.addEventListener('pointerleave', () => hold('hover', false));
-    root.addEventListener('focusin', () => hold('focus', true));
-    root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget)) hold('focus', false); });
-    document.addEventListener('visibilitychange', () => hold('tab', document.hidden));
-    reduce.addEventListener?.('change', () => { if (reduce.matches) stop(); });
-    if ('IntersectionObserver' in window) {
-      hold('offscreen', true);
-      new IntersectionObserver(([en]) => hold('offscreen', !en.isIntersecting), { threshold: 0.5 }).observe(root);
-    }
+    root.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { held = true; tick(); } });
+    root.addEventListener('pointerleave', () => { held = false; tick(); });
+    root.addEventListener('focusin', () => { held = true; tick(); });
+    root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget)) { held = false; tick(); } });
+    document.addEventListener('visibilitychange', tick);
+    reduce.addEventListener?.('change', () => { if (reduce.matches) setPlaying(false); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(([en]) => { onScreen = en.isIntersecting; tick(); }, { threshold: 0.5 }).observe(root);
+    else onScreen = true;
     show(0);
-    setPlaying(!reduce.matches);
+    setPlaying(playing);
   });
 
   // Settings rows with a switch: tapping anywhere on the row flips it (bigger touch target,
