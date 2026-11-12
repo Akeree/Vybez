@@ -204,6 +204,74 @@
     input.addEventListener('input', () => targets.forEach((t, i) => { t.textContent = input.value.trim() || fallback[i]; }));
   });
 
+  // Quote slideshow (home). The track is a native scroll-snap row, so swiping works without
+  // this. Adds: auto-advance every 6.5s while it's on screen; holds while hovered, focused or
+  // the tab is hidden; stops for good once someone swipes, taps a dot or an arrow, or presses
+  // pause; never auto-plays for people who ask for reduced motion.
+  $$('[data-carousel]').forEach((root) => {
+    const track = $('[data-track]', root);
+    const slides = $$('[data-slide]', root);
+    const dots = $$('[data-go]', root);
+    const playBtn = $('[data-play]', root);
+    if (!track || slides.length < 2) return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let i = 0;
+    let playing = !reduce.matches;
+    let held = false;
+    let onScreen = false;
+    let timer = null;
+    const show = (n) => {
+      i = (n + slides.length) % slides.length;
+      dots.forEach((d, k) => d.setAttribute('aria-current', String(k === i)));
+      slides.forEach((sl, k) => { if (k === i) sl.removeAttribute('aria-hidden'); else sl.setAttribute('aria-hidden', 'true'); });
+    };
+    const go = (n) => {
+      const k = (n + slides.length) % slides.length;
+      track.scrollTo({ left: slides[k].offsetLeft - slides[0].offsetLeft, behavior: reduce.matches ? 'auto' : 'smooth' });
+      show(k);
+    };
+    const tick = () => {
+      clearTimeout(timer);
+      if (playing && !held && onScreen && !document.hidden) timer = setTimeout(() => { go(i + 1); tick(); }, 6500);
+    };
+    const setPlaying = (on) => {
+      playing = on;
+      playBtn.setAttribute('aria-label', on ? 'Pause the quotes' : 'Play the quotes');
+      $('[data-when-playing]', playBtn).hidden = !on;
+      $('[data-when-paused]', playBtn).hidden = on;
+      // Screen readers hear each new quote only when it changes because someone asked.
+      track.setAttribute('aria-live', on ? 'off' : 'polite');
+      tick();
+    };
+    playBtn.hidden = false;
+    playBtn.addEventListener('click', () => setPlaying(!playing));
+    dots.forEach((d) => d.addEventListener('click', () => { setPlaying(false); go(Number(d.dataset.go)); }));
+    $('[data-prev]', root)?.addEventListener('click', () => { setPlaying(false); go(i - 1); });
+    $('[data-next]', root)?.addEventListener('click', () => { setPlaying(false); go(i + 1); });
+    track.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+      e.preventDefault(); setPlaying(false); go(i + (e.key === 'ArrowRight' ? 1 : -1));
+    });
+    // A swipe: follow the slide it settles on, and stop auto-play.
+    track.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') setPlaying(false); });
+    track.addEventListener('wheel', (e) => { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) setPlaying(false); }, { passive: true });
+    let settle = null;
+    track.addEventListener('scroll', () => {
+      clearTimeout(settle);
+      settle = setTimeout(() => { const n = Math.round(track.scrollLeft / track.clientWidth); if (n !== i) show(n); }, 80);
+    }, { passive: true });
+    root.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { held = true; tick(); } });
+    root.addEventListener('pointerleave', () => { held = false; tick(); });
+    root.addEventListener('focusin', () => { held = true; tick(); });
+    root.addEventListener('focusout', (e) => { if (!root.contains(e.relatedTarget)) { held = false; tick(); } });
+    document.addEventListener('visibilitychange', tick);
+    reduce.addEventListener?.('change', () => { if (reduce.matches) setPlaying(false); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(([en]) => { onScreen = en.isIntersecting; tick(); }, { threshold: 0.5 }).observe(root);
+    else onScreen = true;
+    show(0);
+    setPlaying(playing);
+  });
+
   // Settings rows with a switch: tapping anywhere on the row flips it (bigger touch target,
   // like iOS Settings). The switch keeps its own click handler.
   document.addEventListener('click', (e) => {

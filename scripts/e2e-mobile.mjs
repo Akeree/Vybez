@@ -275,6 +275,11 @@ for (const W of WIDTHS) {
   // Public pages signed out
   const anon = await phone(W);
   for (const path of ['/', '/pricing', '/help', '/guides', '/signin', '/explore', '/kemi', '/i/tobi-30', '/upgrade', '/forgot']) { await go(anon.page, path); await layoutAudit(anon.page, `${tag} ${path}`); }
+  await go(anon.page, '/');
+  check(`${tag} home quotes slide (5 quotes, all marked illustrative)`, (await anon.page.$$eval('[data-carousel] [data-slide]', (l) => l.filter((x) => /illustrative quote/.test(x.textContent)).length)) === 5);
+  await anon.page.tap('[data-go="2"]');
+  await anon.page.waitForFunction(() => document.querySelector('[data-go="2"]').getAttribute('aria-current') === 'true' && document.querySelector('[data-track]').scrollLeft > 0);
+  check(`${tag} tapping a dot shows that quote and stops auto-play`, (await anon.page.getAttribute('[data-play]', 'aria-label')) === 'Play the quotes');
   await anon.ctx.close();
 }
 
