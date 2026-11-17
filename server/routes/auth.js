@@ -2,7 +2,7 @@
 import { store } from '../store.js';
 import { route, fail, str, int, bool, now, EMAIL_RE, rateLimit } from '../lib/http.js';
 import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '../auth.js';
-import { DEFAULT_PREFS, selfUser, getUser, saveUser, claimHandle, readProduct, syncDjIndex } from '../domain/users.js';
+import { DEFAULT_PREFS, selfUser, getUser, saveUser, claimHandle, readProduct, syncDjIndex, djOpen, DJ_CLOSED_MESSAGE } from '../domain/users.js';
 import { sendEmail } from '../domain/email.js';
 
 route('GET', 'health', async () => ({
@@ -11,6 +11,7 @@ route('GET', 'health', async () => ({
   persistent: store.kind !== 'memory',
   email: !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM),
   sessionSecret: !!process.env.SESSION_SECRET,
+  djOpen: djOpen(),
 }));
 
 // Auth
@@ -23,7 +24,9 @@ route('POST', 'auth/signup', async (ctx) => {
   if (password.length > 200) fail(400, 'That password is too long.');
   const name = str(b.name, { max: 50, name: 'Name', required: true });
   // Which Vybez this account is for. 'role' is the pre-split field name, still accepted.
-  const product = readProduct(b.product ?? b.role);
+  const asked = b.product ?? b.role;
+  const product = asked ? readProduct(asked) : djOpen() ? 'dj' : 'social';
+  if (product === 'dj' && !djOpen()) fail(403, DJ_CLOSED_MESSAGE, { djOpen: false });
   await rateLimit(`signup:${ctx.ip}`, 10, 3600);
   const id = randomId();
   const taken = !(await store.cmd('SET', `email:${email}`, id, 'NX'));
@@ -60,7 +63,7 @@ route('POST', 'auth/forgot', async (ctx) => {
   if (id) {
     const token = randomId(24);
     await store.cmd('SET', `reset:${token}`, id, 'EX', 3600);
-    const link = `${ctx.origin}/reset?token=${token}`;
+    const link = `${(process.env.SITE_URL || ctx.origin).replace(/\/$/, '')}/reset?token=${token}`;
     out.emailSent = await sendEmail(email, 'Reset your Vybez password', `Someone asked to reset the password for your Vybez account.\n\nReset it here (the link works for 1 hour):\n${link}\n\nIf this wasn’t you, ignore this email.`);
     // Local development only: there is no email service, so hand the link back.
     if (store.kind === 'file') out.devLink = link;

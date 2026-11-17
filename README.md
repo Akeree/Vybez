@@ -10,6 +10,19 @@ npm run perf    # load times on a simulated slow-4G phone; VYBEZ_ROOT=<other che
 npm run build   # src/ -> dist/
 ```
 
+## Launch: Vybez Social first
+Vybez Social is open; Vybez DJ shows as **coming soon** until the project has `DJ_OPEN=1`. One switch, read by the build (pages) and the API (accounts):
+- Home, nav, footer, pricing, help and sign-up lead with Social; DJ options say “Coming soon”. `/explore`, `/guides` and the `/kemi` examples stay reachable but are left out of search.
+- The API refuses new Vybez DJ accounts and switches to DJ (403). Accounts that are already Vybez DJ keep working.
+- Templates: `{{#djopen}}…{{/djopen}}` and `{{#djsoon}}…{{/djsoon}}`. `<html data-dj="open|soon">` tells scripts which mode the page was built in. `/api/health` reports `djOpen`.
+- To open Vybez DJ: add `DJ_OPEN=1` in Vercel (Production and Preview) and redeploy.
+
+## Before launch (Vercel → Settings → Environment Variables, then redeploy)
+- `LEGAL_NAME` and `CONTACT_EMAIL`: who runs Vybez and where to write. Privacy and Terms show highlighted gaps until both are set. `LEGAL_UPDATED` overrides the “last updated” date.
+- `SESSION_SECRET`: a long random value (`openssl rand -hex 32`). Setting it signs everyone out once.
+- `RESEND_API_KEY` + `EMAIL_FROM` (e.g. `Vybez <hello@yourdomain>`): password-reset emails through Resend. The sending domain must be verified in Resend.
+- `SITE_URL`: your custom domain, used for canonical links, the sitemap and reset links.
+
 ## Going live on Vercel (one step)
 Accounts and data need storage. In the Vercel project: **Storage → Connect a store → Upstash for Redis** (free tier is fine) and connect it to the project, then redeploy. Vercel adds `KV_REST_API_URL` and `KV_REST_API_TOKEN`; the API picks them up. Until then the site still works, but data lives in memory and can disappear, and the app shows a warning bar. Check `/api/health`: `"storage":"redis"` means it's connected.
 

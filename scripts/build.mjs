@@ -17,6 +17,21 @@ const out = join(root, 'dist');
 // Vercel sets VERCEL_PROJECT_PRODUCTION_URL during builds; SITE_URL overrides it for a custom domain.
 const SITE = (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://vybez.vercel.app')).replace(/\/$/, '');
 
+// Launch switch. Vybez Social launches first: until DJ_OPEN=1 is set in the Vercel project,
+// Vybez DJ is shown as coming soon and new DJ accounts are refused (server/domain/users.js djOpen).
+// {{#djopen}}...{{/djopen}} renders only when DJ is open, {{#djsoon}}...{{/djsoon}} only while it isn't.
+const DJ_OPEN = /^(1|true|yes|on)$/i.test(process.env.DJ_OPEN || '');
+
+// Legal pages: who runs Vybez and where to write. Set LEGAL_NAME and CONTACT_EMAIL in the
+// Vercel project (or edit the fallbacks here). Until then the pages show a highlighted gap.
+const gap = (what) => `<mark class="legal-gap">[${what}]</mark>`;
+const LEGAL = {
+  name: process.env.LEGAL_NAME || gap('service name'),
+  email: process.env.CONTACT_EMAIL ? `<a class="link" href="mailto:${process.env.CONTACT_EMAIL}">${process.env.CONTACT_EMAIL}</a>` : gap('contact email'),
+  updated: process.env.LEGAL_UPDATED || '17 November 2026',
+};
+if (!process.env.LEGAL_NAME || !process.env.CONTACT_EMAIL) console.warn('Privacy and Terms: LEGAL_NAME or CONTACT_EMAIL is not set, so those pages show placeholders.');
+
 const read = (p) => readFileSync(p, 'utf8');
 const walk = (dir) => readdirSync(dir).flatMap((f) => {
   const p = join(dir, f);
@@ -79,6 +94,8 @@ function photo(name, mode, sizes = '(max-width: 720px) 100vw, 50vw') {
 function render(html, vars = {}, depth = 0) {
   if (depth > 8) throw new Error('Partial nesting too deep');
   return html
+    .replace(/\{\{#djopen\}\}([\s\S]*?)\{\{\/djopen\}\}/g, (_, inner) => (DJ_OPEN ? inner : ''))
+    .replace(/\{\{#djsoon\}\}([\s\S]*?)\{\{\/djsoon\}\}/g, (_, inner) => (DJ_OPEN ? '' : inner))
     .replace(/\{\{#if:(\w+)\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, p, inner) => (vars.product === p ? inner : ''))
     .replace(/\{\{>\s*([\w-]+)\s*\}\}/g, (_, p) => render(read(join(src, 'partials', `${p}.html`)), vars, depth + 1))
     .replace(/\{\{icon:([\w-]+)(?::(\d+))?\}\}/g, (_, n, s) => icon(n, s ? +s : 20))
@@ -86,6 +103,7 @@ function render(html, vars = {}, depth = 0) {
     .replace(/\{\{svg:([\w-]+)(?::(\d+))?\}\}/g, (_, n, s) => svgFile(n, s ? +s : undefined))
     .replace(/\{\{photo:([\w-]+)(?::(eager|small))?\}\}/g, (_, n, m) => photo(n, m, m === 'small' ? '(max-width: 720px) 50vw, 25vw' : undefined))
     .replace(/\{\{lockup(?::(\w+))?\}\}/g, (_, p) => lockup(p))
+    .replace(/\{\{legal:(\w+)\}\}/g, (_, k) => LEGAL[k] ?? '')
     .replace(/\{\{var:(\w+)\}\}/g, (_, k) => vars[k] ?? '');
 }
 
@@ -132,6 +150,8 @@ for (const file of pages) {
   const rel = relative(join(src, 'pages'), file).replace(/\\/g, '/');
   const route = '/' + rel.replace(/(^|\/)index\.html$/, '').replace(/\.html$/, '');
   const layout = meta.layout || 'site';
+  // DJ-only marketing pages stay reachable but out of search while Vybez DJ is coming soon.
+  if (meta.djOnly && !DJ_OPEN) meta.noindex = true;
   meta.product = meta.product || { app: 'dj', social: 'social' }[meta.layout] || '';
   const body = render(raw.slice(m[0].length), meta);
   const shell = read(join(src, 'layouts', `${layout}.html`));
@@ -144,6 +164,7 @@ for (const file of pages) {
     site: SITE,
     content: '@@CONTENT@@',
     robots: meta.noindex ? 'noindex' : 'index,follow',
+    dj: DJ_OPEN ? 'open' : 'soon',
   }).replace('@@CONTENT@@', body);
   // Mark the current navigation item.
   if (meta.nav) html = html.replace(new RegExp(`data-nav="${meta.nav}"`, 'g'), `data-nav="${meta.nav}" aria-current="page"`);
@@ -167,4 +188,4 @@ writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(ico
 
 writeFileSync(join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`);
 writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
-console.log(`Built ${pages.length} pages into dist/`);
+console.log(`Built ${pages.length} pages into dist/ (Vybez DJ ${DJ_OPEN ? 'open' : 'coming soon'})`);

@@ -8,7 +8,7 @@
       <button type="button" aria-pressed="false" data-billing="monthly">Monthly</button>
       <button type="button" aria-pressed="true" data-billing="yearly">Yearly <span class="chip success">2 months free</span></button>
     </div>
-    <p class="caption t3">Early access prices. Final prices are confirmed before accounts open.</p>
+    <p class="caption t3">Vybez is free during early access. These are planned prices; nothing is charged until payments open.</p>
   </div>
 
   <div class="plans">
@@ -19,12 +19,12 @@
     </section>
     <section class="plan" aria-labelledby="pl-2">
       <div class="stack gap-8"><h2 class="h4" id="pl-2">DJ</h2><p class="caption t2">For DJs getting started</p><p class="price">₦0</p><p class="caption t3">Free forever</p></div>
-      <a class="btn btn-outline btn-block" href="/signup">Create DJ profile</a>
+      {{#djopen}}<a class="btn btn-outline btn-block" href="/signup?product=dj">Create DJ profile</a>{{/djopen}}{{#djsoon}}<span class="btn btn-outline btn-block" aria-disabled="true">Coming soon</span>{{/djsoon}}
       <ul class="checks"><li>{{icon:check:16}}<span>Public DJ profile and share link</span></li><li>{{icon:check:16}}<span>Import 5 sets a month from your DJ software</span></li><li>{{icon:check:16}}<span>1 live room a month for followers</span></li><li>{{icon:check:16}}<span>Basic insights: saves and followers</span></li></ul>
     </section>
     <section class="plan featured" aria-labelledby="pl-3">
-      <div class="stack gap-8"><div class="row between"><h2 class="h4" id="pl-3">DJ Pro</h2><span class="badge">Most popular</span></div><p class="caption t2">For working DJs who want bookings</p><p class="price" data-price-monthly="₦4,500" data-price-yearly="₦3,750">₦3,750</p><p class="caption t2" data-price-note="a month, billed ₦45,000 yearly · save ₦9,000" data-note-monthly="a month, billed monthly">a month, billed ₦45,000 yearly · save ₦9,000</p></div>
-      <a class="btn btn-primary btn-block" href="/upgrade">Go Pro</a>
+      <div class="stack gap-8"><div class="row between"><h2 class="h4" id="pl-3">DJ Pro</h2>{{#djopen}}<span class="badge">Most popular</span>{{/djopen}}{{#djsoon}}<span class="chip">Coming soon</span>{{/djsoon}}</div><p class="caption t2">For working DJs who want bookings</p><p class="price" data-price-monthly="₦4,500" data-price-yearly="₦3,750">₦3,750</p><p class="caption t2" data-price-note="a month, billed ₦45,000 yearly · save ₦9,000" data-note-monthly="a month, billed monthly">a month, billed ₦45,000 yearly · save ₦9,000</p></div>
+      {{#djopen}}<a class="btn btn-primary btn-block" href="/upgrade">Go Pro</a>{{/djopen}}{{#djsoon}}<span class="btn btn-outline btn-block" aria-disabled="true">Coming soon</span>{{/djsoon}}
       <ul class="checks"><li class="label">Everything in DJ, plus</li><li>{{icon:check:16}}<span>Unlimited set imports and drafts</span></li><li>{{icon:check:16}}<span>Unlimited live rooms with guest list</span></li><li>{{icon:check:16}}<span>Full insights: top tracks, cities, peak moments</span></li><li>{{icon:check:16}}<span>Booking enquiry button on your profile</span></li><li>{{icon:check:16}}<span>Custom profile link</span></li></ul>
     </section>
     <section class="plan" aria-labelledby="pl-4">

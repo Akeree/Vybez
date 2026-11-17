@@ -18,6 +18,12 @@ export const PRODUCTS = ['dj', 'social'];
 export const productOf = (u) => (u?.product === 'social' || u?.product === 'dj' ? u.product : u?.role === 'dj' ? 'dj' : 'social');
 export const readProduct = (v) => (v === 'social' || v === 'listener' ? 'social' : 'dj');
 export const PRODUCT_NAME = { dj: 'Vybez DJ', social: 'Vybez Social' };
+
+// Launch switch. Vybez Social launches first; new Vybez DJ accounts open when the
+// DJ_OPEN environment variable is set to 1 (the build reads the same variable).
+// Accounts that are already Vybez DJ keep working while it's closed.
+export const djOpen = () => /^(1|true|yes|on)$/i.test(process.env.DJ_OPEN || '');
+export const DJ_CLOSED_MESSAGE = 'Vybez DJ isn’t open yet. Vybez Social is open now.';
 // Activity types each product shows. Anything else stays in storage but isn't listed.
 export const ACTIVITY_TYPES = { dj: ['follow', 'save', 'comment', 'live'], social: ['rsvp'] };
 

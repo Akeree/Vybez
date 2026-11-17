@@ -1,5 +1,6 @@
 // End-to-end API check against the in-memory store: node scripts/test-api.mjs
 process.env.VYBEZ_STORE = 'memory';
+process.env.DJ_OPEN = '1'; // most checks cover Vybez DJ; the Social-first launch is checked at the end
 const { handle } = await import('../server/api.js');
 let failures = 0;
 const jar = {};
@@ -162,6 +163,19 @@ r = await call('dj', 'DELETE', 'me', { password: 'newpassword2' });
 check('delete account', r.data.ok);
 r = await call('anon', 'GET', 'users/kemi-lagos');
 check('profile gone', r.status === 404);
+
+// Social-first launch: with DJ_OPEN unset, new accounts can't be Vybez DJ.
+process.env.DJ_OPEN = '';
+r = await call('anon', 'GET', 'health');
+check('health reports DJ closed', r.data.djOpen === false, r.data);
+r = await call('late', 'POST', 'auth/signup', { email: 'late@test.dev', password: 'longenough1', name: 'Late DJ', product: 'dj' });
+check('DJ sign-up refused while DJ is closed', r.status === 403 && r.data.djOpen === false, r.data);
+r = await call('late', 'POST', 'auth/signup', { email: 'late@test.dev', password: 'longenough1', name: 'Late Host' });
+check('sign-up without a product becomes Social while DJ is closed', r.status === 200 && r.data.user.product === 'social', r.data);
+r = await call('late', 'PATCH', 'me', { product: 'dj' });
+check('Social account cannot switch to DJ while DJ is closed', r.status === 403, r.data);
+r = await call('legacy', 'GET', 'sets');
+check('existing DJ accounts keep working while DJ is closed', r.status === 200);
 
 console.log(failures ? `\n${failures} failed` : '\nAll API checks passed');
 process.exit(failures ? 1 : 0);

@@ -2,7 +2,7 @@
 import { store } from '../store.js';
 import { route, fail, str, int, bool, now, EMAIL_RE, rateLimit } from '../lib/http.js';
 import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '../auth.js';
-import { DEFAULT_PREFS, RESERVED, slug, selfUser, saveUser, needUser, readProduct, productOf, syncDjIndex, ACTIVITY_TYPES } from '../domain/users.js';
+import { DEFAULT_PREFS, RESERVED, slug, selfUser, saveUser, needUser, readProduct, productOf, djOpen, DJ_CLOSED_MESSAGE, syncDjIndex, ACTIVITY_TYPES } from '../domain/users.js';
 import { listSets, listCrates, VIS, EMOJI } from '../domain/music.js';
 import { getNight, nightGuests } from '../domain/nights.js';
 
@@ -36,7 +36,9 @@ route('PATCH', 'me', async (ctx) => {
   if ('onboarded' in b) u.onboarded = !!b.onboarded;
   if ('product' in b || 'role' in b) {
     // Switching keeps all data; each side only shows its own.
-    u.product = readProduct(b.product ?? b.role);
+    const next = readProduct(b.product ?? b.role);
+    if (next === 'dj' && productOf(u) !== 'dj' && !djOpen()) fail(403, DJ_CLOSED_MESSAGE, { djOpen: false });
+    u.product = next;
     delete u.role;
     await syncDjIndex(u);
   }

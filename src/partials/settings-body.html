@@ -44,7 +44,7 @@
     <section class="card set-card" id="account" aria-labelledby="ac-title">
       <header><h2 class="h4" id="ac-title">Account</h2></header>
       <div class="opt"><span class="stack grow gap-2"><span class="label">Email</span><span class="caption t3" data-email></span></span></div>
-      <div class="opt"><span class="stack grow gap-2"><span class="label">Account type</span><span class="caption t3">Each account sees one side of Vybez. Switching keeps your data; you just see the other side.</span></span><select class="input" style="width:auto;height:40px" data-product-select aria-label="Account type"><option value="dj">Vybez DJ</option><option value="social">Vybez Social</option></select></div>
+      <div class="opt"><span class="stack grow gap-2"><span class="label">Account type</span><span class="caption t3">Each account sees one side of Vybez. Switching keeps your data; you just see the other side.</span></span><select class="input" style="width:auto;height:40px" data-product-select aria-label="Account type">{{#djopen}}<option value="dj">Vybez DJ</option>{{/djopen}}{{#djsoon}}{{#if:dj}}<option value="dj">Vybez DJ</option>{{/if}}{{#if:social}}<option value="dj" disabled>Vybez DJ (coming soon)</option>{{/if}}{{/djsoon}}<option value="social">Vybez Social</option></select></div>
       <form class="opt stack gap-16" style="align-items:stretch" data-password-form novalidate>
         <span class="label">Change password</span>
         <div class="row gap-16 wrap-row">

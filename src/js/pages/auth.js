@@ -9,10 +9,11 @@ pages.signup = () => {
   // Preselect the product from ?product=social or a link back into Vybez Social.
   const nx = nextUrl() || '';
   const want = params.get('product') === 'social' || nx.startsWith('/social') ? 'social' : params.get('product') === 'dj' ? 'dj' : null;
-  if (want) $$('[data-role-group] [data-radio]').forEach((x) => { const on = x.dataset.value === want; x.setAttribute('aria-checked', String(on)); x.tabIndex = on ? 0 : -1; });
+  // While Vybez DJ is coming soon its option isn't selectable, so a ?product=dj link keeps Social.
+  if (want && $(`[data-role-group] [data-radio][data-value="${want}"]`)) $$('[data-role-group] [data-radio]').forEach((x) => { const on = x.dataset.value === want; x.setAttribute('aria-checked', String(on)); x.tabIndex = on ? 0 : -1; });
   $$('[data-keep-next]').forEach((a) => { if (nextUrl()) a.href += `?next=${encodeURIComponent(nextUrl())}`; });
   onSubmit($('[data-form="signup"]'), async (d) => {
-    const product = $('[data-role-group] [aria-checked="true"]')?.dataset.value || 'dj';
+    const product = $('[data-role-group] [data-radio][aria-checked="true"]')?.dataset.value || 'social';
     await api('POST', 'auth/signup', { ...d, product });
     location.href = `/welcome${nextUrl() ? `?next=${encodeURIComponent(nextUrl())}` : ''}`;
   });

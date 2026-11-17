@@ -3,28 +3,11 @@
   <div class="hero-copy">
     <p class="overline">No app to download</p>
     <h1 class="display">Make the night more exciting.</h1>
-    <p class="lead">Two ways in, one Vybez. Follow the DJs you love, or throw a small night for the people you love. Everything runs in the browser.</p>
+    {{#djopen}}<p class="lead">Two ways in, one Vybez. Follow the DJs you love, or throw a small night for the people you love. Everything runs in the browser.</p>{{/djopen}}{{#djsoon}}<p class="lead">Throw a small night for the people you love: invites, RSVPs and the guest list, all in the browser. Vybez DJ is coming soon.</p>{{/djsoon}}
   </div>
 
   <div class="doors">
-    <section class="photo door" id="dj" aria-labelledby="door-dj">
-      {{photo:bucket:eager}}
-      <div class="scrim"></div>
-      <div class="over"><span class="lockup lg">{{svg:mark}}<span class="lockup-words"><span>vybez</span><span class="lockup-sub">dj</span></span></span></div>
-      <div class="over door-body">
-        <h2 class="h-card" id="door-dj">Your sets, your crowd, one link.</h2>
-        <ul class="checks">
-          <li>{{icon:check:18}}<span>Bring in sets you've posted on Mixcloud and SoundCloud</span></li>
-          <li>{{icon:check:18}}<span>Import history from Serato and rekordbox, with more DJ software on the way</span></li>
-          <li>{{icon:check:18}}<span>Go live: the room reacts while you play</span></li>
-        </ul>
-        <div class="row gap-16 wrap-row">
-          <a class="btn btn-primary" href="/dj">Start Vybez DJ</a>
-          <a class="btn btn-outline" href="/kemi">See a DJ page</a>
-        </div>
-      </div>
-    </section>
-
+{{#djsoon}}
     <section class="photo door" id="social" aria-labelledby="door-social">
       {{photo:dinner:eager}}
       <div class="scrim"></div>
@@ -42,9 +25,48 @@
         </div>
       </div>
     </section>
+{{/djsoon}}
+    <section class="photo door" id="dj" aria-labelledby="door-dj">
+      {{photo:bucket:eager}}
+      <div class="scrim"></div>
+      <div class="over row gap-8 wrap-row"><span class="lockup lg">{{svg:mark}}<span class="lockup-words"><span>vybez</span><span class="lockup-sub">dj</span></span></span>{{#djsoon}}<span class="glass glass-chip">Coming soon</span>{{/djsoon}}</div>
+      <div class="over door-body">
+        <h2 class="h-card" id="door-dj">Your sets, your crowd, one link.</h2>
+        <ul class="checks">
+          <li>{{icon:check:18}}<span>Bring in sets you've posted on Mixcloud and SoundCloud</span></li>
+          <li>{{icon:check:18}}<span>Import history from Serato and rekordbox, with more DJ software on the way</span></li>
+          <li>{{icon:check:18}}<span>Go live: the room reacts while you play</span></li>
+        </ul>
+        <div class="row gap-16 wrap-row">
+          {{#djopen}}<a class="btn btn-primary" href="/signup?product=dj">Start Vybez DJ</a>{{/djopen}}
+          <a class="btn btn-outline" href="/kemi">See a DJ page</a>
+        </div>
+      </div>
+    </section>
+
+{{#djopen}}
+    <section class="photo door" id="social" aria-labelledby="door-social">
+      {{photo:dinner:eager}}
+      <div class="scrim"></div>
+      <div class="over"><span class="lockup lg">{{svg:mark}}<span class="lockup-words"><span>vybez</span><span class="lockup-sub">social</span></span></span></div>
+      <div class="over door-body">
+        <h2 class="h-card" id="door-social">Small nights. Real people.</h2>
+        <ul class="checks">
+          <li>{{icon:check:18}}<span>Beautiful invites, one link on WhatsApp</span></li>
+          <li>{{icon:check:18}}<span>RSVP and plus-ones without an account</span></li>
+          <li>{{icon:check:18}}<span>Private moments only guests can see</span></li>
+        </ul>
+        <div class="row gap-16 wrap-row">
+          <a class="btn btn-primary" href="/social/new">Plan a night</a>
+          <a class="btn btn-outline" href="/i/tobi-30">See an invite</a>
+        </div>
+      </div>
+    </section>
+{{/djopen}}
   </div>
 </div>
 
+{{#djopen}}
 <section class="works" aria-labelledby="works-title" style="margin-top:64px">
   <div class="wrap">
     <h2 class="overline muted" id="works-title">Built around the music you already use</h2>
@@ -106,6 +128,7 @@
   </div>
 </section>
 
+{{/djopen}}
 <section class="social-band" aria-labelledby="nights-title">
   <div class="wrap sec stack gap-32">
     <div class="sec-head">
@@ -137,7 +160,7 @@
       </figcaption>
       <div class="row gap-16 wrap-row" style="margin-top:8px">
         <a class="btn btn-primary" href="/signup">Get started free</a>
-        <a class="btn btn-outline" href="/guides">How it works</a>
+        {{#djopen}}<a class="btn btn-outline" href="/guides">How it works</a>{{/djopen}}{{#djsoon}}<a class="btn btn-outline" href="/i/tobi-30">See an invite</a>{{/djsoon}}
       </div>
     </div>
   </figure>
