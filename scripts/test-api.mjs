@@ -80,7 +80,7 @@ check('explore shows live room', r.data.live.length === 1);
 r = await call('dj', 'POST', 'live/end', { saveAsSet: true });
 check('end live saves draft set', r.data.set?.tracks.length === 2, r.data);
 
-r = await call('dj', 'POST', 'nights', { title: 'x', when: '2026-11-14T19:00', place: 'a', area: 'b' });
+r = await call('dj', 'POST', 'nights', { title: 'x', when: '2030-11-16T19:00', place: 'a', area: 'b' });
 check('DJ account cannot create nights', r.status === 403 && r.data.product === 'dj', r.data);
 r = await call('host', 'GET', 'sets');
 check('Social account cannot list sets', r.status === 403);
@@ -90,14 +90,18 @@ r = await call('host', 'POST', 'live/start', { title: 'x' });
 check('Social account cannot go live', r.status === 403);
 r = await call('anon', 'GET', 'users/tobi-host');
 check('Social accounts have no public profile', r.status === 404);
-r = await call('host', 'POST', 'nights', { title: 'Tobi’s Birthday', when: '2026-11-14T19:00', place: '12 Admiralty Way', area: 'Lekki', cap: 2, approve: true, plusOnes: true });
+r = await call('host', 'POST', 'nights', { title: 'Tobi’s Birthday', when: '2030-11-16T19:00', place: '12 Admiralty Way', area: 'Lekki', cap: 2, approve: true, plusOnes: true });
 check('create night', !!r.data.night?.code, r.data);
+{
+  const old = await call('host', 'POST', 'nights', { title: 'Old', when: '2020-01-01T19:00', place: 'a', area: 'b' });
+  check('night in the past is refused', old.status === 400, old.data);
+}
 const night = r.data.night;
 {
   // Link previews: /i/:code is served with the night's title and picture, never the address.
   const res = await handle(new Request(`http://localhost:3000/api?route=page/invite/${night.code}`, { headers: { host: 'localhost:3000' } }));
   const html = await res.text();
-  check('invite page preview names the night', res.status === 200 && /<title>Tobi’s Birthday · You’re invited<\/title>/.test(html) && /og:description" content="Tobi Host invited you: Sat 14 Nov, 7:00 pm · Lekki/.test(html), html.match(/<title>.*<\/title>|og:description" content="[^"]*"/g));
+  check('invite page preview names the night', res.status === 200 && /<title>Tobi’s Birthday · You’re invited<\/title>/.test(html) && /og:description" content="Tobi Host invited you: Sat 16 Nov, 7:00 pm · Lekki/.test(html), html.match(/<title>.*<\/title>|og:description" content="[^"]*"/g));
   check('invite page preview hides the address', !html.includes('Admiralty'));
 }
 r = await call('anon', 'GET', `invites/${night.code}`);

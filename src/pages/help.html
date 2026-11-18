@@ -23,10 +23,9 @@
     </section>{{/djopen}}
     <aside class="card p-32 stack gap-16" aria-labelledby="stuck-t">
       <h2 class="h4" id="stuck-t">Still stuck?</h2>
-      <p class="small t2">A real person replies within a day, Monday to Saturday, 9am to 7pm WAT.</p>
-      <button class="btn btn-inverse btn-block" type="button" data-toast="WhatsApp support opens with accounts.">{{brand:whatsapp:18}}Message us on WhatsApp</button>
-      <button class="btn btn-outline btn-block" type="button" data-toast="Support email is published when accounts open.">{{icon:mail:18}}Email support</button>
-      <p class="caption t3">Vybez is independent. For problems inside Serato, rekordbox or other DJ apps, contact their own support.</p>
+      <p class="small t2">Email us and a real person will reply. Forgot your password? Write from the email on your account.</p>
+      <a class="btn btn-inverse btn-block" href="mailto:{{legal:contact}}">{{icon:mail:18}}Email support</a>
+      {{#djopen}}<p class="caption t3">Vybez is independent. For problems inside Serato, rekordbox or other DJ apps, contact their own support.</p>{{/djopen}}
     </aside>
   </div>
 </div>

@@ -15,6 +15,9 @@ export function readNightInput(b, existing = {}) {
   if ('when' in b || !existing.id) {
     n.when = str(b.when, { max: 16, name: 'Date and time', required: true });
     if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(n.when)) fail(400, 'Pick a date and time.');
+    // Times are typed in Lagos time (UTC+1). A new or moved night can't start in the past
+    // (a few hours' grace for a night that's already under way).
+    if (n.when !== existing.when && Date.parse(`${n.when}:00+01:00`) < Date.now() - 6 * 3600 * 1000) fail(400, 'That date has passed. Pick a date that’s still to come.');
   }
   if ('until' in b) n.until = str(b.until, { max: 40, name: 'Until' });
   if ('place' in b || !existing.id) n.place = str(b.place, { max: 160, name: 'Address', required: true });
