@@ -200,7 +200,7 @@
     },
     {
       "source": "/i/:code",
-      "destination": "/v/invite"
+      "destination": "/api?route=page/invite/:code"
     },
     {
       "source": "/dj/sets/:id",

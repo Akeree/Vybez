@@ -93,6 +93,13 @@ check('Social accounts have no public profile', r.status === 404);
 r = await call('host', 'POST', 'nights', { title: 'Tobi’s Birthday', when: '2026-11-14T19:00', place: '12 Admiralty Way', area: 'Lekki', cap: 2, approve: true, plusOnes: true });
 check('create night', !!r.data.night?.code, r.data);
 const night = r.data.night;
+{
+  // Link previews: /i/:code is served with the night's title and picture, never the address.
+  const res = await handle(new Request(`http://localhost:3000/api?route=page/invite/${night.code}`, { headers: { host: 'localhost:3000' } }));
+  const html = await res.text();
+  check('invite page preview names the night', res.status === 200 && /<title>Tobi’s Birthday · You’re invited<\/title>/.test(html) && /og:description" content="Tobi Host invited you: Sat 14 Nov, 7:00 pm · Lekki/.test(html), html.match(/<title>.*<\/title>|og:description" content="[^"]*"/g));
+  check('invite page preview hides the address', !html.includes('Admiralty'));
+}
 r = await call('anon', 'GET', `invites/${night.code}`);
 check('invite hides address', r.status === 200 && !r.data.invite.place);
 r = await call('anon', 'POST', `invites/${night.code}/rsvp`, { name: 'Bisi', plus: true });
