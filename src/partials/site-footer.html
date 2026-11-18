@@ -2,11 +2,13 @@
   <div class="wrap">
     <a href="/" aria-label="Vybez home">{{lockup}}</a>
     <nav class="foot-links" aria-label="Footer">
-      <a href="/#dj">Vybez DJ</a>
+      {{#djsoon}}<a href="/#social">Vybez Social</a>
+      <a href="/#dj">Vybez DJ (coming soon)</a>
+      <a href="/pricing">Pricing</a>{{/djsoon}}{{#djopen}}<a href="/#dj">Vybez DJ</a>
       <a href="/#social">Vybez Social</a>
       <a href="/explore">Live now</a>
       <a href="/pricing">Pricing</a>
-      <a href="/guides">Guides</a>
+      <a href="/guides">Guides</a>{{/djopen}}
       <a href="/help">Help</a>
       <a href="/privacy">Privacy</a>
       <a href="/terms">Terms</a>

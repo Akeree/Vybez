@@ -1,12 +1,13 @@
 <!--meta {"title":"Create your account","description":"Create your Vybez account. No app to download. It works in your browser, on any phone or laptop.","layout":"bare","page":"signup"}-->
 <div class="auth">
   <div class="photo auth-photo">
-    {{photo:crowd:eager}}
+    {{#djopen}}{{photo:crowd:eager}}{{/djopen}}{{#djsoon}}{{photo:dinner:eager}}{{/djsoon}}
     <div class="scrim"></div>
     <a class="over" href="/" aria-label="Vybez home" style="left:32px;top:32px;right:auto;bottom:auto">{{lockup}}</a>
     <figure class="over">
-      <blockquote class="quote">“My whole crowd follows me here now. They see the tracklist before the set even ends.”</blockquote>
-      <figcaption class="caption t2">DJ Kemi · Lagos · illustrative quote</figcaption>
+      {{#djopen}}<blockquote class="quote">“My whole crowd follows me here now. They see the tracklist before the set even ends.”</blockquote>
+      <figcaption class="caption t2">DJ Kemi · Lagos · illustrative quote</figcaption>{{/djopen}}{{#djsoon}}<blockquote class="quote">“We planned Tolu’s 30th in ten minutes. Nobody had to download anything.”</blockquote>
+      <figcaption class="caption t2">Ada O. · Host, Lagos · illustrative quote</figcaption>{{/djsoon}}
     </figure>
   </div>
   <div class="auth-form">
@@ -18,13 +19,18 @@
       <div class="stack gap-8">
         <p class="overline muted" id="role-l">Which Vybez is this account for?</p>
         <div class="role-choice" role="radiogroup" aria-labelledby="role-l" data-role-group>
+{{#djopen}}
           <button class="role" type="button" role="radio" aria-checked="true" data-radio data-value="dj" tabindex="0"><span class="row">{{icon:disc-3:22}}<span class="tick">{{icon:circle-check:20}}</span></span><span class="label">Vybez DJ</span><span class="caption t3">Share sets and tracklists, go live, follow DJs</span></button>
           <button class="role" type="button" role="radio" aria-checked="false" data-radio data-value="social" tabindex="-1"><span class="row">{{icon:users:22}}<span class="tick">{{icon:circle-check:20}}</span></span><span class="label">Vybez Social</span><span class="caption t3">Host small nights, invites and the guest list</span></button>
+          {{/djopen}}{{#djsoon}}
+          <button class="role" type="button" role="radio" aria-checked="true" data-radio data-value="social" tabindex="0"><span class="row">{{icon:users:22}}<span class="tick">{{icon:circle-check:20}}</span></span><span class="label">Vybez Social</span><span class="caption t3">Host small nights, invites and the guest list</span></button>
+          <button class="role" type="button" role="radio" aria-checked="false" aria-disabled="true" disabled data-value="dj" tabindex="-1"><span class="row">{{icon:disc-3:22}}<span class="chip">Coming soon</span></span><span class="label">Vybez DJ</span><span class="caption t3">Share sets and tracklists, go live, follow DJs</span></button>
+          {{/djsoon}}
         </div>
-        <p class="caption t3">Each account sees only its own side. You can switch later in Settings.</p>
+        {{#djopen}}<p class="caption t3">Each account sees only its own side. You can switch later in Settings.</p>{{/djopen}}{{#djsoon}}<p class="caption t3">Vybez Social is open now. Vybez DJ opens soon.</p>{{/djsoon}}
       </div>
-      <div class="field"><label for="name">Your name or DJ name</label><input class="input" id="name" name="name" placeholder="DJ Kemi" autocomplete="nickname" required maxlength="50"></div>
-      <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" placeholder="kemi@example.com" autocomplete="email" required></div>
+      <div class="field"><label for="name">Your name{{#djopen}} or DJ name{{/djopen}}</label><input class="input" id="name" name="name" placeholder="{{#djopen}}DJ Kemi{{/djopen}}{{#djsoon}}Tobi Adeyemi{{/djsoon}}" autocomplete="nickname" required maxlength="50"></div>
+      <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" placeholder="{{#djopen}}kemi{{/djopen}}{{#djsoon}}tobi{{/djsoon}}@example.com" autocomplete="email" required></div>
       <div class="field"><label for="password">Password</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" minlength="8" required><span class="hint">At least 8 characters.</span></div>
       <p class="form-error" data-error role="alert" hidden></p>
       <button class="btn btn-primary btn-block" type="submit">Create account</button>
@@ -34,7 +40,7 @@
         <button class="btn btn-outline grow" type="button" data-toast="Apple sign-in isn’t switched on yet. Use email for now.">{{brand:apple:18}}Apple</button>
       </div>
       <p class="caption t3" style="text-align:center">Already on Vybez? <a class="link" href="/signin" data-keep-next>Sign in</a></p>
-      <p class="caption t3" style="text-align:center">By continuing you agree to the <a class="link" href="/terms">Terms</a> and <a class="link" href="/privacy">Privacy Policy</a>. Free for listeners and DJs.</p>
+      <p class="caption t3" style="text-align:center">By continuing you agree to the <a class="link" href="/terms">Terms</a> and <a class="link" href="/privacy">Privacy Policy</a>. </p>
     </form>
   </div>
 </div>
