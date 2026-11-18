@@ -459,7 +459,6 @@ button.opt:hover { background: rgba(255,255,255,.02); }
 .prose h2 { font: 700 22px/1.2 var(--font-display); color: var(--text-primary); margin-top: var(--s-md); }
 .prose strong { color: var(--text-primary); }
 .prose ul { display: flex; flex-direction: column; gap: var(--s-sm); padding-left: var(--s-md); list-style: disc; }
-.legal-gap { background: var(--pink-soft, rgba(255, 79, 154, .18)); color: var(--text-primary); border-radius: var(--r-xs); padding: 0 var(--s-xs); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1280px) {

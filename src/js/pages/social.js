@@ -38,6 +38,8 @@ pages.plan = async () => {
   };
   $$('[data-cover]').forEach((b) => b.addEventListener('click', () => setCover(b.dataset.cover)));
   const when = form.when;
+  // No dates in the past (the server refuses them too). Today in Lagos time.
+  when.min = `${new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' })}T00:00`;
   const updWhen = () => { $('[data-ev-when]').textContent = when.value ? fmtWhen(when.value) : 'Pick a date'; };
   when.addEventListener('input', updWhen);
   $('[data-mirror-cap]').addEventListener('input', (e) => { $('[data-ev-cap]').textContent = e.target.value || '24'; });

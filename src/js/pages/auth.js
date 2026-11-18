@@ -34,7 +34,7 @@ pages.forgot = () => {
     const done = $('[data-done]', form);
     const text = $('[data-done-text]', form);
     if (r.devLink) text.innerHTML = `Local development: there’s no email service, so here’s the link. <a class="link" href="${esc(r.devLink)}">Reset your password</a>`;
-    else if (!r.emailConfigured) text.textContent = 'Email isn’t switched on for Vybez yet, so we can’t send reset links. Ask the Vybez team on WhatsApp to reset it for you.';
+    else if (!r.emailConfigured) text.innerHTML = `We can’t email reset links yet. Email <a class="link" href="mailto:${esc(form.dataset.contact)}">${esc(form.dataset.contact)}</a> from the address on your account and we’ll send you one.`;
     done.hidden = false; done.focus();
   });
 };

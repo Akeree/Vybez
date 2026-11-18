@@ -23,15 +23,17 @@ const SITE = (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL
 const DJ_OPEN = /^(1|true|yes|on)$/i.test(process.env.DJ_OPEN || '');
 
 // Legal pages: who runs Vybez and where to write. LEGAL_NAME (and optionally CONTACT_EMAIL) in the
-// Vercel project (or edit the fallbacks here). Until then the pages show a highlighted gap.
-const gap = (what) => `<mark class="legal-gap">[${what}]</mark>`;
+// Vercel project, or edit the fallbacks here.
 const CONTACT = process.env.CONTACT_EMAIL || 'akeredayo@gmail.com';
 const LEGAL = {
-  name: process.env.LEGAL_NAME || gap('service name'),
+  name: process.env.LEGAL_NAME || 'Vybez',
   email: `<a class="link" href="mailto:${CONTACT}">${CONTACT}</a>`,
   updated: process.env.LEGAL_UPDATED || '17 November 2026',
 };
-if (!process.env.LEGAL_NAME) console.warn('Privacy and Terms: LEGAL_NAME is not set, so those pages show a placeholder for the service name.');
+// "Vybez (“we”)" when Vybez runs itself, "Vybez is run by X (“we”)" for a person or company.
+LEGAL.contact = CONTACT;
+LEGAL.intro = LEGAL.name === 'Vybez' ? 'Vybez (“we”) runs this service.' : `Vybez is run by ${LEGAL.name} (“we”).`;
+LEGAL.party = LEGAL.name === 'Vybez' ? 'Vybez (“we”)' : `${LEGAL.name} (“we”), who run Vybez`;
 
 const read = (p) => readFileSync(p, 'utf8');
 const walk = (dir) => readdirSync(dir).flatMap((f) => {

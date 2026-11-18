@@ -18,7 +18,7 @@ Vybez Social is open; Vybez DJ shows as **coming soon** until the project has `D
 - To open Vybez DJ: add `DJ_OPEN=1` in Vercel (Production and Preview) and redeploy.
 
 ## Before launch (Vercel → Settings → Environment Variables, then redeploy)
-- `LEGAL_NAME` and `CONTACT_EMAIL`: who runs Vybez and where to write. The contact email defaults to the one in scripts/build.mjs; the service name shows a highlighted gap until LEGAL_NAME is set. `LEGAL_UPDATED` overrides the “last updated” date.
+- `LEGAL_NAME` and `CONTACT_EMAIL`: who runs Vybez and where to write. Both have defaults in scripts/build.mjs (the service name defaults to Vybez). `LEGAL_UPDATED` overrides the “last updated” date.
 - `SESSION_SECRET`: a long random value (`openssl rand -hex 32`). Setting it signs everyone out once.
 - `RESEND_API_KEY` + `EMAIL_FROM` (e.g. `Vybez <hello@yourdomain>`): password-reset emails through Resend. The sending domain must be verified in Resend.
 - `SITE_URL`: your custom domain, used for canonical links, the sitemap and reset links.
