@@ -104,7 +104,7 @@ route('DELETE', 'me', async (ctx) => {
     const n = await getNight(id);
     const guests = await nightGuests(id);
     for (const g of guests) cmds.push(['DEL', `guest:${g.id}`, `gtok:${g.token}`, `pass:${id}:${g.pass}`]);
-    cmds.push(['DEL', `night:${id}`, `night:${id}:g`]);
+    cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `photo:${id}`]);
     if (n) cmds.push(['DEL', `code:${n.code}`]);
   }
   for (const f of following) cmds.push(['SREM', `u:${f}:followers`, u.id]);

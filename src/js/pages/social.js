@@ -3,6 +3,7 @@ import { $, $$, I, ago, copy, esc, fmtWhen, initials, lagos, params, plural, seg
 import { api, onSubmit } from '../core/api.js';
 import { S, mePromise, requireUser } from '../core/session.js';
 import { emptyState, nightRow } from '../core/ui.js';
+import { loadImage, cropDialog } from '../core/photo.js';
 const pages = {};
 
 pages.nights = async () => {
@@ -29,14 +30,66 @@ pages.plan = async () => {
     sw.setAttribute('aria-checked', String(on)); fields[sw.dataset.field] = on;
   }));
   const previewCover = $('[data-preview-cover]');
+  // The host's own photo: `saved` is the URL already on the server, `pending` a new data URL
+  // that uploads when the form is sent, `removed` asks the server to delete the saved one.
+  const photo = { saved: '', pending: '', removed: false, source: null };
+  const ownThumb = $('[data-own-thumb]');
+  const ownSrc = () => photo.pending || (!photo.removed && photo.saved) || '';
   const setCover = (c) => {
+    if (c === 'photo' && !ownSrc()) c = 'rings';
     cover = c;
     $$('[data-cover]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.cover === c)));
-    const img = $(`[data-cover="${c}"] img`);
+    ownThumb.setAttribute('aria-pressed', String(c === 'photo'));
     previewCover.className = c === 'rings' ? 'cover rings' : 'cover photo-cover';
-    previewCover.innerHTML = img ? img.outerHTML : '';
+    if (c === 'photo') previewCover.innerHTML = `<img src="${esc(ownSrc())}" alt="" width="1200" height="630">`;
+    else { const img = $(`[data-cover="${c}"] img`); previewCover.innerHTML = img ? img.outerHTML : ''; }
   };
   $$('[data-cover]').forEach((b) => b.addEventListener('click', () => setCover(b.dataset.cover)));
+  const status = $('[data-photo-status]');
+  const renderOwn = () => {
+    const src = ownSrc();
+    ownThumb.hidden = !src; $('[data-own-empty]').hidden = !!src;
+    if (src && $('[data-own-img]').getAttribute('src') !== src) $('[data-own-img]').src = src;
+    $('[data-photo-remove]').hidden = !src;
+    $('[data-photo-adjust]').hidden = !(src && photo.source);
+    $('[data-pick-label]').textContent = src ? 'Choose another' : 'Choose a photo';
+  };
+  ownThumb.addEventListener('click', () => setCover('photo'));
+  // "Take a photo" opens the camera straight away on phones; computers just get "Choose".
+  if (matchMedia('(pointer: coarse)').matches) $('[data-photo-take]').hidden = false;
+  const frame = async (img) => {
+    const out = await cropDialog(img);
+    if (out instanceof Error) { status.textContent = out.message; return; }
+    if (!out) return;
+    photo.pending = out; photo.removed = false;
+    status.textContent = editId ? 'Photo ready. Save changes to use it.' : 'Photo ready. It uploads when you create the invite.';
+    renderOwn(); setCover('photo');
+  };
+  const onFile = async (e) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    status.textContent = 'Opening your photo…';
+    try {
+      const loaded = await loadImage(file);
+      if (photo.source) URL.revokeObjectURL(photo.source.url);
+      photo.source = loaded;
+      status.textContent = '';
+      await frame(loaded.img);
+    } catch (err) { status.textContent = err.message; }
+  };
+  $('[data-photo-camera]').addEventListener('change', onFile);
+  $('[data-photo-file]').addEventListener('change', onFile);
+  $('[data-photo-take]').addEventListener('click', () => $('[data-photo-camera]').click());
+  $('[data-photo-pick]').addEventListener('click', () => $('[data-photo-file]').click());
+  $('[data-photo-adjust]').addEventListener('click', () => photo.source && frame(photo.source.img));
+  $('[data-photo-remove]').addEventListener('click', () => {
+    photo.pending = ''; photo.removed = !!photo.saved;
+    if (photo.source) { URL.revokeObjectURL(photo.source.url); photo.source = null; }
+    status.textContent = photo.removed ? 'Photo removed. Save changes to confirm.' : 'Photo removed.';
+    renderOwn(); if (cover === 'photo') setCover('rings');
+    $('[data-photo-pick]').focus();
+  });
   const when = form.when;
   // No dates in the past (the server refuses them too). Today in Lagos time.
   when.min = `${new Date().toLocaleDateString('en-CA', { timeZone: 'Africa/Lagos' })}T00:00`;
@@ -59,6 +112,8 @@ pages.plan = async () => {
       const d = JSON.parse(draft);
       for (const k of ['title', 'when', 'until', 'area', 'place', 'note', 'music', 'cap']) if (d[k] !== undefined && form[k]) { form[k].value = d[k]; form[k].dispatchEvent(new Event('input', { bubbles: true })); }
       Object.assign(fields, d.fields || {}); $$('[data-field]').forEach((sw) => sw.setAttribute('aria-checked', String(!!fields[sw.dataset.field])));
+      const p = store.get('vybez-night-photo');
+      if (p && p.startsWith('data:image/jpeg')) { photo.pending = p; renderOwn(); }
       if (d.cover) setCover(d.cover);
     } catch { /* ignore */ }
   }
@@ -69,25 +124,41 @@ pages.plan = async () => {
       for (const k of ['title', 'when', 'until', 'area', 'place', 'note', 'music', 'cap']) if (form[k]) { form[k].value = night[k] ?? ''; form[k].dispatchEvent(new Event('input', { bubbles: true })); }
       for (const k of Object.keys(fields)) fields[k] = !!night[k];
       $$('[data-field]').forEach((sw) => sw.setAttribute('aria-checked', String(fields[sw.dataset.field])));
+      photo.saved = night.photoUrl || ''; renderOwn();
       setCover(night.cover || 'rings');
       $('[data-submit]').textContent = 'Save changes';
     } catch (err) { toast(err.message); }
   }
+  // Uploads a new photo after the night is saved. Returns a note for the next page if it failed.
+  const uploadPhoto = async (id) => {
+    if (photo.removed && !photo.pending) { try { await api('DELETE', `nights/${id}/photo`); } catch { /* keep going */ } }
+    if (!photo.pending) return '';
+    const btn = $('[data-submit]');
+    btn.textContent = 'Uploading your photo…';
+    try { await api('PUT', `nights/${id}/photo`, { image: photo.pending }); return ''; } catch (err) { return ` Your photo didn’t upload (${err.message.replace(/\.$/, '')}). Edit the night to try again.`; }
+  };
   onSubmit(form, async (d) => {
-    const body = { ...d, cap: Number(d.cap), cover, ...fields };
+    // 'photo' is set by the upload itself, so the night saves with its previous cover first.
+    const body = { ...d, cap: Number(d.cap), ...fields, cover: cover === 'photo' && photo.pending ? undefined : cover };
+    if (body.cover === undefined) delete body.cover;
     if (!S.me) {
       store.set('vybez-night-draft', JSON.stringify({ ...d, cover, fields }));
+      if (photo.pending) store.set('vybez-night-photo', photo.pending); else store.del('vybez-night-photo');
       location.href = `/signup?product=social&next=${encodeURIComponent('/social/new')}`;
       return;
     }
     if (editId) {
       await api('PATCH', `nights/${editId}`, body);
-      store.set('vybez-flash', 'Night updated.');
+      const note = await uploadPhoto(editId);
+      store.set('vybez-flash', `Night updated.${note}`);
       location.href = `/social/${editId}`;
       return;
     }
     const { night } = await api('POST', 'nights', body);
     store.del('vybez-night-draft');
+    const note = await uploadPhoto(night.id);
+    store.del('vybez-night-photo');
+    if (note) store.set('vybez-flash', `Invite created.${note}`);
     location.href = `/social/${night.id}?created=1`;
   });
 };
