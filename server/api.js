@@ -6,6 +6,7 @@
 import { routes, HttpError, fail, json, clientIp } from './lib/http.js';
 import { sessionCookie, productCookie, getCookie, PRODUCT_COOKIE } from './auth.js';
 import { currentUser } from './domain/users.js';
+import { invitePage } from './pages.js';
 import './routes/auth.js';
 import './routes/account.js';
 import './routes/dj.js';
@@ -19,6 +20,13 @@ export async function handle(req) {
   const method = req.method.toUpperCase();
   const cookies = [];
   const secure = url.protocol === 'https:' || (req.headers.get('x-forwarded-proto') || '').includes('https');
+  // Invite pages (/i/:code) come through here so link previews show the night (server/pages.js).
+  const invite = (method === 'GET' || method === 'HEAD') && /^(?:page\/invite|i)\/([\w-]{1,40})$/.exec(path);
+  if (invite) {
+    const site = (process.env.SITE_URL || `${secure ? 'https' : 'http'}://${req.headers.get('x-forwarded-host') || req.headers.get('host') || url.host}`).replace(/\/$/, '');
+    const page = await invitePage(invite[1], site);
+    if (page) return page;
+  }
   try {
     if (method !== 'GET' && method !== 'HEAD') {
       // CSRF: mutating requests must be same-origin JSON.
