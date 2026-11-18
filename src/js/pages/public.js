@@ -200,7 +200,12 @@ pages.invite = async () => {
   try { await load(); } catch { $('[data-loading]').hidden = true; $('[data-missing]').hidden = false; return; }
   $('[data-loading]').hidden = true; $('[data-content]').hidden = false;
   const coverEl = $('[data-cover]');
-  if (inv.cover && inv.cover !== 'rings') {
+  if (inv.cover === 'photo' && inv.photo) {
+    coverEl.className = 'cover photo-cover';
+    coverEl.insertAdjacentHTML('afterbegin', `<img src="${esc(inv.photo)}" alt="" width="1200" height="630" decoding="async">`);
+    // If the photo can't load, fall back to the default cover rather than a black box.
+    coverEl.querySelector('img').addEventListener('error', (e) => { e.target.remove(); coverEl.className = 'cover rings'; }, { once: true });
+  } else if (inv.cover && inv.cover !== 'rings' && inv.cover !== 'photo') {
     coverEl.className = 'cover photo-cover';
     coverEl.insertAdjacentHTML('afterbegin', `<img src="/img/${esc(inv.cover)}.webp" alt="" width="1264" height="848">`);
   }

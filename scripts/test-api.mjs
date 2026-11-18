@@ -104,6 +104,31 @@ const night = r.data.night;
   check('invite page preview names the night', res.status === 200 && /<title>Tobi’s Birthday · You’re invited<\/title>/.test(html) && /og:description" content="Tobi Host invited you: Sat 16 Nov, 7:00 pm · Lekki/.test(html), html.match(/<title>.*<\/title>|og:description" content="[^"]*"/g));
   check('invite page preview hides the address', !html.includes('Admiralty'));
 }
+{
+  // The host's own cover photo: upload, serve, preview, guards, remove.
+  const jpeg = `data:image/jpeg;base64,${Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(2000, 7)]).toString('base64')}`;
+  let p = await call('host', 'PUT', `nights/${night.id}/photo`, { image: jpeg });
+  check('host uploads a cover photo', p.status === 200 && p.data.night.cover === 'photo' && /^\/photo\/[\w-]+\/\w+\.jpg$/.test(p.data.night.photoUrl), p.data);
+  const url = p.data.night.photoUrl;
+  const img = await handle(new Request(`http://localhost:3000/api?route=${url.slice(1)}`, { headers: { host: 'localhost:3000' } }));
+  check('cover photo is served as a cacheable JPEG', img.status === 200 && img.headers.get('content-type') === 'image/jpeg' && /immutable/.test(img.headers.get('cache-control')) && (await img.arrayBuffer()).byteLength === 2004);
+  const stale = await handle(new Request(`http://localhost:3000/api?route=photo/${night.id}/oldversion.jpg`, { headers: { host: 'localhost:3000' } }));
+  check('an old photo version is a 404', stale.status === 404);
+  const html = await (await handle(new Request(`http://localhost:3000/api?route=page/invite/${night.code}`, { headers: { host: 'localhost:3000' } }))).text();
+  check('WhatsApp preview uses the host’s photo', html.includes(`og:image" content="http://localhost:3000${url}"`), html.match(/og:image" content="[^"]*"/)?.[0]);
+  const inv = await call('anon', 'GET', `invites/${night.code}`);
+  check('guests see the host’s photo', inv.data.invite.cover === 'photo' && inv.data.invite.photo === url, inv.data.invite);
+  check('a PNG or other file is refused', (await call('host', 'PUT', `nights/${night.id}/photo`, { image: 'data:image/png;base64,iVBORw0KGgo=' })).status === 400);
+  check('a fake JPEG is refused', (await call('host', 'PUT', `nights/${night.id}/photo`, { image: `data:image/jpeg;base64,${Buffer.alloc(2000, 1).toString('base64')}` })).status === 400);
+  check('a huge photo is refused', [413].includes((await call('host', 'PUT', `nights/${night.id}/photo`, { image: `data:image/jpeg;base64,${Buffer.concat([Buffer.from([0xff, 0xd8, 0xff]), Buffer.alloc(640 * 1024)]).toString('base64')}` })).status));
+  check('another account can’t change the photo', (await call('anon', 'PUT', `nights/${night.id}/photo`, { image: jpeg })).status >= 400);
+  check('editing the night keeps the photo', (await call('host', 'PATCH', `nights/${night.id}`, { cover: 'photo', note: 'x' })).data.night.cover === 'photo');
+  p = await call('host', 'DELETE', `nights/${night.id}/photo`);
+  check('host removes the photo, cover goes back to default', p.status === 200 && p.data.night.cover === 'rings' && !p.data.night.photoUrl, p.data);
+  const gone = await handle(new Request(`http://localhost:3000/api?route=${url.slice(1)}`, { headers: { host: 'localhost:3000' } }));
+  check('removed photo is no longer served', gone.status === 404);
+  check('cover can’t be set to photo without one', (await call('host', 'PATCH', `nights/${night.id}`, { cover: 'photo' })).data.night.cover === 'rings');
+}
 r = await call('anon', 'GET', `invites/${night.code}`);
 check('invite hides address', r.status === 200 && !r.data.invite.place);
 r = await call('anon', 'POST', `invites/${night.code}/rsvp`, { name: 'Bisi', plus: true });

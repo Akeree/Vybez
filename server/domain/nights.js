@@ -9,6 +9,24 @@ export async function nightGuests(id) {
 }
 export const headcount = (guests) => guests.filter((g) => g.status === 'going').reduce((n, g) => n + 1 + (g.plus ? 1 : 0), 0);
 
+// The host's own cover photo: a 1200x630 JPEG made on their phone, kept in the store under
+// photo:<nightId>. night.photo is a version that changes on every upload, so the URL can be
+// cached forever.
+export const COVERS = ['rings', 'rooftop', 'dinner', 'living', 'beach', 'owambe', 'crowd'];
+export const PHOTO_MAX_BYTES = 600 * 1024;
+export const photoUrl = (night) => (night?.photo ? `/photo/${night.id}/${night.photo}.jpg` : '');
+export const coverOf = (night) => (night?.cover === 'photo' ? (night.photo ? 'photo' : 'rings') : COVERS.includes(night?.cover) ? night.cover : 'rings');
+
+// Checks a data URL from the browser and returns the JPEG bytes.
+export function readPhoto(dataUrl) {
+  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(typeof dataUrl === 'string' ? dataUrl : '');
+  if (!m) fail(400, 'That photo didn’t come through. Try choosing it again.');
+  const buf = Buffer.from(m[1], 'base64');
+  if (buf.length > PHOTO_MAX_BYTES) fail(413, 'That photo is too big. Try a different one.');
+  if (buf.length < 500 || buf[0] !== 0xff || buf[1] !== 0xd8 || buf[2] !== 0xff) fail(400, 'That doesn’t look like a photo. Try a JPEG or a photo from your camera.');
+  return buf;
+}
+
 export function readNightInput(b, existing = {}) {
   const n = { ...existing };
   if ('title' in b || !existing.id) n.title = str(b.title, { max: 60, name: 'Name', required: true });
@@ -28,7 +46,8 @@ export function readNightInput(b, existing = {}) {
   if ('approve' in b || !existing.id) n.approve = bool(b.approve, true);
   if ('plusOnes' in b || !existing.id) n.plusOnes = bool(b.plusOnes, false);
   if ('songs' in b || !existing.id) n.songs = bool(b.songs, true);
-  if ('cover' in b) n.cover = ['rings', 'rooftop', 'dinner', 'living', 'beach', 'owambe', 'crowd'].includes(b.cover) ? b.cover : 'rings';
+  // 'photo' only sticks once a photo has been uploaded (PUT nights/:id/photo sets it too).
+  if ('cover' in b) n.cover = COVERS.includes(b.cover) || (b.cover === 'photo' && existing.photo) ? b.cover : 'rings';
   if ('status' in b) n.status = b.status === 'cancelled' ? 'cancelled' : 'on';
   return n;
 }
@@ -38,7 +57,7 @@ export function inviteView(night, host, guests, guest) {
   const count = headcount(guests);
   const view = {
     code: night.code, title: night.title, when: night.when, until: night.until || '', area: night.area, note: night.note || '',
-    music: night.music || '', cover: night.cover || 'rings', cap: night.cap, spotsLeft: Math.max(0, night.cap - count),
+    music: night.music || '', cover: coverOf(night), photo: coverOf(night) === 'photo' ? photoUrl(night) : '', cap: night.cap, spotsLeft: Math.max(0, night.cap - count),
     approve: night.approve, plusOnes: night.plusOnes, songs: night.songs, status: night.status || 'on',
     host: { name: host?.name || 'Your host', handle: host?.handle },
     going: going.length + going.filter((g) => g.plus).length,

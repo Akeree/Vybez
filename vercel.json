@@ -176,7 +176,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+          "value": "default-src 'self'; img-src 'self' data: blob:; style-src 'self' 'unsafe-inline'; script-src 'self'; font-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
         }
       ]
     }
@@ -201,6 +201,10 @@
     {
       "source": "/i/:code",
       "destination": "/api?route=page/invite/:code"
+    },
+    {
+      "source": "/photo/:id/:file",
+      "destination": "/api?route=photo/:id/:file"
     },
     {
       "source": "/dj/sets/:id",
