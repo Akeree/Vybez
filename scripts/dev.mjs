@@ -5,6 +5,7 @@ import { readFileSync, existsSync, statSync } from 'node:fs';
 import { join, extname, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+import { gzipSync } from 'node:zlib';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 if (!process.argv.includes('--no-build')) execFileSync(process.execPath, [join(root, 'scripts/build.mjs')], { stdio: 'inherit' });
@@ -19,6 +20,31 @@ function toRegex(source) {
   return { re: new RegExp(`^${re}$`), keys };
 }
 const rewrites = (vercel.rewrites || []).map((r) => ({ ...r, ...toRegex(r.source) }));
+// Redirects, including Vercel's `has: [{ type: 'cookie' }]` conditions (the product hint).
+const redirects = (vercel.redirects || []).map((r) => ({ ...r, ...toRegex(r.source) }));
+const cookieOf = (req, name) => (req.headers.cookie || '').split(';').map((x) => x.trim().split('=')).find(([k]) => k === name)?.[1];
+function redirectFor(req, url) {
+  for (const r of redirects) {
+    const m = url.pathname.match(r.re);
+    if (!m) continue;
+    if ((r.has || []).some((h) => h.type === 'cookie' && cookieOf(req, h.key) !== h.value)) continue;
+    let dest = r.destination;
+    r.keys.forEach((k, i) => { dest = dest.replace(new RegExp(`:${k}\\*?`, 'g'), m[i + 1] || ''); });
+    return { status: r.permanent ? 308 : 307, location: dest };
+  }
+  return null;
+}
+
+// PROD_LIKE=1 serves files the way Vercel does: vercel.json headers (so the browser caches
+// CSS, JS, fonts and images) and gzip. Used by the load-time check (scripts/perf-mobile.mjs).
+const PROD_LIKE = process.env.PROD_LIKE === '1';
+const headerRules = (vercel.headers || []).map((h) => ({ ...h, ...toRegex(h.source) }));
+function staticHeaders(pathname) {
+  const out = { 'Cache-Control': 'no-store' };
+  if (!PROD_LIKE) return out;
+  for (const h of headerRules) if (h.re.test(pathname)) for (const { key, value } of h.headers) out[key] = value;
+  return out;
+}
 
 function fileFor(path) {
   const p = join(dist, decodeURIComponent(path));
@@ -47,6 +73,8 @@ http.createServer(async (req, res) => {
   try {
     const url = new URL(req.url, `http://${req.headers.host}`);
     if (url.pathname === '/api' || url.pathname.startsWith('/api/')) return await api(req, res, url);
+    const redir = redirectFor(req, url);
+    if (redir) { res.writeHead(redir.status, { Location: redir.location, 'Cache-Control': 'no-store' }); return res.end(); }
     let file = fileFor(url.pathname);
     if (!file) {
       for (const r of rewrites) {
@@ -62,8 +90,12 @@ http.createServer(async (req, res) => {
     }
     const status = file ? 200 : 404;
     file = file || join(dist, '404.html');
-    res.writeHead(status, { 'Content-Type': TYPES[extname(file)] || 'application/octet-stream', 'Cache-Control': 'no-store' });
-    res.end(readFileSync(file));
+    const type = TYPES[extname(file)] || 'application/octet-stream';
+    const head = { ...staticHeaders(url.pathname), 'Content-Type': type };
+    let body = readFileSync(file);
+    if (PROD_LIKE && /text|javascript|svg|json|xml/.test(type) && /gzip/.test(req.headers['accept-encoding'] || '')) { body = gzipSync(body); head['Content-Encoding'] = 'gzip'; head.Vary = 'Accept-Encoding'; }
+    res.writeHead(status, head);
+    res.end(body);
   } catch (e) {
     console.error(e);
     res.writeHead(500); res.end('Server error');

@@ -203,4 +203,12 @@
     const fallback = targets.map((t) => t.textContent);
     input.addEventListener('input', () => targets.forEach((t, i) => { t.textContent = input.value.trim() || fallback[i]; }));
   });
+
+  // Settings rows with a switch: tapping anywhere on the row flips it (bigger touch target,
+  // like iOS Settings). The switch keeps its own click handler.
+  document.addEventListener('click', (e) => {
+    const row = e.target.closest('[data-tap-row]');
+    if (!row || e.target.closest('button, a, input, select, textarea, label')) return;
+    row.querySelector('.switch')?.click();
+  });
 })();

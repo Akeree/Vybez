@@ -3,18 +3,19 @@
 <head>
 {{> head}}
 </head>
-<body>
+<body class="has-tabbar">
 <a class="skip" href="#main">Skip to content</a>
 {{> preview-bar}}
 <div class="app">
 {{> app-sidebar}}
 <div class="app-col">
 {{> app-topbar}}
-<main id="main" class="app-main" data-page="{{var:page}}">
+<main id="main" class="app-main" data-page="{{var:page}}" data-product="dj">
 {{var:content}}
 </main>
 </div>
 </div>
+{{> tabbar-dj}}
 <div class="toast-host" data-toast-host aria-live="polite" role="status"></div>
 </body>
 </html>

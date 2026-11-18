@@ -47,6 +47,18 @@ export function sessionCookie(value, secure) {
   return parts.join('; ');
 }
 
+// Product hint: which Vybez the signed-in account belongs to ('dj' or 'social'). Readable,
+// not secret: vercel.json uses it to redirect at the edge before the wrong shell is sent,
+// so a Social account never sees a flash of DJ pages (and the other way round). It grants
+// nothing; the API still checks the signed session for every request.
+export const PRODUCT_COOKIE = 'vz_product';
+export function productCookie(product, secure) {
+  const v = product === 'dj' || product === 'social' ? product : '';
+  const parts = [`${PRODUCT_COOKIE}=${v}`, 'Path=/', 'SameSite=Lax', `Max-Age=${v ? MAX_AGE : 0}`];
+  if (secure) parts.push('Secure');
+  return parts.join('; ');
+}
+
 export function getCookie(req, name) {
   const raw = req.headers.get('cookie') || '';
   for (const part of raw.split(';')) {

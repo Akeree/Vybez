@@ -1,0 +1,11 @@
+<div class="app-head end">
+  <div class="stack gap-4"><h1 class="h-page">Notifications</h1><p class="t2">{{#if:dj}}Follows, saves, comments and live rooms from DJs you follow.{{/if}}{{#if:social}}RSVPs to your nights: new requests, people who can’t make it, and people who leave the list.{{/if}}</p></div>
+  <div class="actions"><a class="btn btn-outline btn-pad-sm" href="/{{var:product}}/settings#notifications">{{icon:sliders-horizontal:18}}Choose what you get</a></div>
+</div>
+{{#if:dj}}<div class="pills" role="group" aria-label="Filter" data-notif-filter>
+  <button class="pill" type="button" aria-pressed="true" data-k="all">All</button>
+  <button class="pill" type="button" aria-pressed="false" data-k="follow">Follows</button>
+  <button class="pill" type="button" aria-pressed="false" data-k="comment">Comments and saves</button>
+  <button class="pill" type="button" aria-pressed="false" data-k="live">Live</button>
+</div>{{/if}}
+<ol class="card notif-list" data-notifs><li class="p-16 caption t3">Loading…</li></ol>
