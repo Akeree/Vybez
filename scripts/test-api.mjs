@@ -182,8 +182,8 @@ check('host export has nights', r.data.nights.length === 1);
   q = await call('anon', 'GET', `invites/${gn.code}/chat/all?guest=${tunde}`);
   check('others read the chat', q.data.messages.length === 2 && q.data.messages[0].text.startsWith('Who'), q.data);
   q = await call('anon', 'GET', `invites/${gn.code}/chat/all?guest=${tunde}&after=${firstAt}`);
-  check('chat polls only newer messages', q.data.messages.length === 1);
-  const hostMsg = q.data.messages[0].id;
+  check('chat polls from a time, never older', q.data.messages.length >= 1 && q.data.messages.every((m) => m.at >= firstAt) && q.data.messages.some((m) => m.host), q.data);
+  const hostMsg = q.data.messages.find((m) => m.host).id;
   check('guests can’t remove others’ messages', (await call('anon', 'DELETE', `invites/${gn.code}/chat/all/${hostMsg}`, { guest: tunde })).status === 403);
   // Rides
   q = await call('anon', 'POST', `invites/${gn.code}/rides`, { guest: tunde, dir: 'there', kind: 'driving', from: 'Yaba', time: '19:30', seats: 1, note: 'Can stop at Sabo' });
@@ -225,6 +225,11 @@ check('host export has nights', r.data.nights.length === 1);
   check('a PNG moment is refused', (await call('anon', 'POST', `invites/${gn.code}/moments`, { guest: kola, image: 'data:image/png;base64,iVBORw0KGgo=' })).status === 400);
   check('moments are closed to people off the list', (await call('anon', 'GET', `invites/${gn.code}/moments?guest=${tunde}`)).status === 403);
   check('guests can’t remove others’ moments', (await call('anon', 'DELETE', `invites/${gn.code}/moments/${mid}`, { guest: ada })).status === 403);
+  check('host can’t report (they remove)', (await call('host', 'POST', `invites/${gn.code}/report`, { what: 'moment', id: mid })).status === 400);
+  check('you can’t report your own photo', (await call('anon', 'POST', `invites/${gn.code}/report`, { guest: kola, what: 'moment', id: mid })).status === 400);
+  q = await call('anon', 'POST', `invites/${gn.code}/report`, { guest: ada, what: 'moment', id: mid });
+  check('a guest reports a photo to the host', q.data.ok && (await call('host', 'GET', 'notifications')).data.items.some((i) => /reported a photo/.test(i.text) && /#moments$/.test(i.link)));
+  check('a guest reports a message', (await call('anon', 'POST', `invites/${gn.code}/report`, { guest: ada, what: 'message', room: 'all', id: hostMsg })).data.ok === true);
   q = await call('anon', 'GET', `invites/${gn.code}/moments?guest=${ada}`);
   check('the list sees moments', q.data.moments.length === 1 && q.data.moments[0].caption === 'First dance' && !q.data.moments[0].mine);
   // Cancelled nights are read-only; deleting the night removes everything.

@@ -47,7 +47,8 @@ export function canPost(night) {
 export async function readRoom(nid, room, after = 0) {
   const raw = await store.cmd('LRANGE', chatKey(nid, room), 0, 99);
   const list = raw.map((s) => { try { return JSON.parse(s); } catch { return null; } }).filter(Boolean).reverse();
-  return after ? list.filter((m) => m.at > after) : list;
+  // >= so two messages in the same millisecond are never skipped; the browser drops ids it already has.
+  return after ? list.filter((m) => m.at >= after) : list;
 }
 
 export async function postMessage(nid, room, me, text, kind = 'text') {

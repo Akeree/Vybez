@@ -4,6 +4,7 @@ import { store } from '../store.js';
 import { route, fail, str, int, now, rateLimit } from '../lib/http.js';
 import { randomId } from '../auth.js';
 import { getNight, nightGuests } from '../domain/nights.js';
+import { getUser, activity } from '../domain/users.js';
 import {
   memberOf, canPost, readRoom, postMessage, removeMessage, roomStats, shortName, hostName,
   getRide, nightRides, readRideInput, rideView, canReadRide, ridesKey, chatKey, MAX_RIDES,
@@ -166,5 +167,31 @@ route('DELETE', 'invites/:code/moments/:mid', async (ctx, { code, mid }) => {
   if (!hit) fail(404, 'That moment is already gone.');
   if (!me.host && JSON.parse(hit).by !== me.id) fail(403, 'You can only remove your own moments.');
   await store.pipe([['LREM', momentsKey(n.id), 1, hit], ['DEL', momentImgKey(n.id, mid)]]);
+  return { ok: true };
+});
+
+// ---------- reports ----------
+// A guest flags a photo or message to the host, who can remove it from the group.
+route('POST', 'invites/:code/report', async (ctx, { code }) => {
+  const { n, me } = await enter(ctx, code);
+  if (me.host) fail(400, 'You’re the host: remove it instead.');
+  await rateLimit(`report:${n.id}:${me.id}`, 10, 3600);
+  const what = ctx.body.what === 'message' ? 'message' : 'moment';
+  const id = str(ctx.body.id, { max: 40, name: 'Item', required: true });
+  let by = null;
+  if (what === 'moment') {
+    const m = (await nightMoments(n.id)).find((x) => x.id === id);
+    if (!m) fail(404, 'That photo is already gone.');
+    by = m.by;
+  } else {
+    const room = str(ctx.body.room, { max: 20, name: 'Chat', required: true });
+    await openRoom(n, me, room);
+    const m = (await readRoom(n.id, room)).find((x) => x.id === id);
+    if (!m) fail(404, 'That message is already gone.');
+    by = m.by;
+  }
+  if (by === me.id) fail(400, 'That’s yours. Remove it instead.');
+  const host = await getUser(n.host);
+  if (host) await activity(n.host, { type: 'rsvp', text: `${me.name} reported a ${what === 'moment' ? 'photo' : 'message'} in the group for ${n.title}. Have a look and remove it if needed.`, link: `/i/${n.code}/group${what === 'moment' ? '#moments' : ''}` });
   return { ok: true };
 });

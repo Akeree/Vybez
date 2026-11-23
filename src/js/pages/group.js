@@ -121,7 +121,7 @@ pages.group = async () => {
         ${grouped ? '' : `<span class="msg-meta caption"><span class="label">${mine ? 'You' : esc(m.name)}</span>${m.host ? '<span class="chip accent">Host</span>' : ''}<span class="t3">${timeOf(m.at)}</span></span>`}
         <span class="msg-text">${esc(m.text)}</span>
       </div>
-      ${canRemove ? `<button class="icon-btn ghost msg-remove" type="button" data-remove-msg="${esc(m.id)}" aria-label="Remove message">${I('trash-2', 14)}</button>` : ''}
+      ${canRemove ? `<button class="icon-btn ghost msg-remove" type="button" data-remove-msg="${esc(m.id)}" aria-label="Remove message">${I('trash-2', 14)}</button>` : m.kind === 'text' && !m.host ? `<button class="icon-btn ghost msg-remove" type="button" data-report-msg="${esc(m.id)}" aria-label="Report message to the host" title="Report">${I('flag', 14)}</button>` : ''}
     </li>`;
   };
   const renderLog = (force) => {
@@ -178,6 +178,8 @@ pages.group = async () => {
   });
   $('[data-log]').addEventListener('click', async (e) => {
     if (e.target.closest('[data-go-rides]')) { setTab('rides'); return; }
+    const rp = e.target.closest('[data-report-msg]');
+    if (rp) { report('message', rp.dataset.reportMsg); return; }
     const b = e.target.closest('[data-remove-msg]'); if (!b) return;
     if (!window.confirm('Remove this message for everyone?')) return;
     try { await api('DELETE', `invites/${code}/chat/${encodeURIComponent(room)}/${b.dataset.removeMsg}`, body()); messages = messages.filter((m) => m.id !== b.dataset.removeMsg); renderLog(); toast('Message removed.'); } catch (err) { toast(err.message); }
@@ -278,7 +280,7 @@ pages.group = async () => {
   const momentCard = (m) => `<figure class="moment">
       <img src="${esc(m.url)}" alt="${esc(m.caption ? `${m.caption}, from ${m.name}` : `Photo from ${m.name}`)}" width="${m.w}" height="${m.h}" loading="lazy" decoding="async" style="aspect-ratio:${m.w} / ${m.h}">
       <figcaption class="stack gap-2"><span class="small">${esc(m.caption || '')}</span><span class="caption t3">${m.mine ? 'You' : esc(m.name)} · ${timeOf(m.at)}</span></figcaption>
-      ${m.canRemove ? `<button class="icon-btn moment-remove" type="button" data-remove-moment="${esc(m.id)}" aria-label="Remove photo">${I('trash-2', 14)}</button>` : ''}
+      ${m.canRemove ? `<button class="icon-btn moment-remove" type="button" data-remove-moment="${esc(m.id)}" aria-label="Remove photo">${I('trash-2', 14)}</button>` : `<button class="icon-btn moment-remove" type="button" data-report-moment="${esc(m.id)}" aria-label="Report photo to the host" title="Report">${I('flag', 14)}</button>`}
     </figure>`;
   const renderMoments = () => {
     $('[data-moment-add]').hidden = readOnly();
@@ -312,10 +314,18 @@ pages.group = async () => {
     mdlg.close(); renderMoments(); renderHead(); toast('Shared with the list.');
   });
   $('[data-moments]').addEventListener('click', async (e) => {
+    const rp = e.target.closest('[data-report-moment]');
+    if (rp) { report('moment', rp.dataset.reportMoment); return; }
     const b = e.target.closest('[data-remove-moment]'); if (!b) return;
     if (!window.confirm('Remove this photo for everyone?')) return;
     try { await api('DELETE', `invites/${code}/moments/${b.dataset.removeMoment}`, body()); moments = moments.filter((m) => m.id !== b.dataset.removeMoment); g.moments = moments.length; renderMoments(); renderHead(); toast('Photo removed.'); } catch (err) { showError(mform, err); toast(err.message); }
   });
+
+  // Reports go to the host, who can remove the photo or message.
+  async function report(what, id) {
+    if (!window.confirm(`Report this ${what === 'moment' ? 'photo' : 'message'} to the host? They’ll see it was you and can remove it.`)) return;
+    try { await api('POST', `invites/${code}/report`, body({ what, id, room })); toast('Thanks. The host has been told.'); } catch (err) { toast(err.message); }
+  }
 
   // ---------- start ----------
   renderHead();
