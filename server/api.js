@@ -6,7 +6,7 @@
 import { routes, HttpError, fail, json, clientIp } from './lib/http.js';
 import { sessionCookie, productCookie, getCookie, PRODUCT_COOKIE } from './auth.js';
 import { currentUser } from './domain/users.js';
-import { invitePage } from './pages.js';
+import { invitePage, photoResponse } from './pages.js';
 import './routes/auth.js';
 import './routes/account.js';
 import './routes/dj.js';
@@ -27,6 +27,9 @@ export async function handle(req) {
     const page = await invitePage(invite[1], site);
     if (page) return page;
   }
+  // Hosts' cover photos (/photo/:night/:version.jpg), public like the invite itself.
+  const photo = (method === 'GET' || method === 'HEAD') && /^photo\/([\w-]{1,20})\/(\w{1,20})\.jpg$/.exec(path);
+  if (photo) return photoResponse(photo[1], photo[2]);
   try {
     if (method !== 'GET' && method !== 'HEAD') {
       // CSRF: mutating requests must be same-origin JSON.
@@ -37,7 +40,8 @@ export async function handle(req) {
     let body = {};
     if (method !== 'GET' && method !== 'HEAD') {
       const text = await req.text();
-      if (text.length > 300000) fail(413, 'That’s too much data in one go.');
+      // Cover photos arrive as a data URL (about 4/3 of the JPEG's size); everything else is small.
+      if (text.length > (/^nights\/[\w-]+\/photo$/.test(path) ? 900000 : 300000)) fail(413, 'That’s too much data in one go.');
       try { body = text ? JSON.parse(text) : {}; } catch { fail(400, 'Invalid JSON.'); }
       if (!body || typeof body !== 'object') body = {};
     }

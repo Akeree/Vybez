@@ -4,7 +4,7 @@ import { route, fail, str, int, bool, now, EMAIL_RE, rateLimit } from '../lib/ht
 import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '../auth.js';
 import { getUser, needProduct, activity, slug } from '../domain/users.js';
 import { cleanTracks } from '../domain/music.js';
-import { getNight, nightGuests, headcount, readNightInput, inviteView, guestFor } from '../domain/nights.js';
+import { getNight, nightGuests, headcount, readNightInput, inviteView, guestFor, readPhoto, photoUrl, coverOf } from '../domain/nights.js';
 
 // Nights (host)
 route('GET', 'nights', async (ctx) => {
@@ -14,7 +14,7 @@ route('GET', 'nights', async (ctx) => {
   const out = [];
   for (const n of nights) {
     const guests = await nightGuests(n.id);
-    out.push({ ...n, going: headcount(guests), asking: guests.filter((g) => g.status === 'asking').length, faces: guests.filter((g) => g.status === 'going').slice(0, 3).map((g) => g.name) });
+    out.push({ ...n, cover: coverOf(n), photoUrl: photoUrl(n), going: headcount(guests), asking: guests.filter((g) => g.status === 'asking').length, faces: guests.filter((g) => g.status === 'going').slice(0, 3).map((g) => g.name) });
   }
   return { nights: out.sort((a, b) => a.when.localeCompare(b.when)) };
 });
@@ -46,21 +46,42 @@ async function hostNight(ctx, id) {
 route('GET', 'nights/:id', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
   const guests = (await nightGuests(id)).map(({ token, ...g }) => g);
-  return { night: n, guests, going: headcount(guests) };
+  return { night: { ...n, cover: coverOf(n), photoUrl: photoUrl(n) }, guests, going: headcount(guests) };
+});
+
+// The host's own cover photo. The browser crops and shrinks it to a 1200x630 JPEG first.
+route('PUT', 'nights/:id/photo', async (ctx, { id }) => {
+  const n = await hostNight(ctx, id);
+  await rateLimit(`photo:${n.host}`, 30, 3600);
+  const buf = readPhoto(ctx.body.image);
+  n.photo = randomCode(8);
+  n.cover = 'photo';
+  await store.cmd('SET', `photo:${id}`, buf.toString('base64'));
+  await store.setJSON(`night:${id}`, n);
+  return { night: { ...n, photoUrl: photoUrl(n) } };
+});
+
+route('DELETE', 'nights/:id/photo', async (ctx, { id }) => {
+  const n = await hostNight(ctx, id);
+  await store.cmd('DEL', `photo:${id}`);
+  delete n.photo;
+  if (n.cover === 'photo') n.cover = 'rings';
+  await store.setJSON(`night:${id}`, n);
+  return { night: { ...n, photoUrl: '' } };
 });
 
 route('PATCH', 'nights/:id', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
   const next = readNightInput(ctx.body, n);
   await store.setJSON(`night:${id}`, next);
-  return { night: next };
+  return { night: { ...next, cover: coverOf(next), photoUrl: photoUrl(next) } };
 });
 
 route('DELETE', 'nights/:id', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
   const guests = await nightGuests(id);
   const cmds = guests.map((g) => ['DEL', `guest:${g.id}`, `gtok:${g.token}`, `pass:${id}:${g.pass}`]);
-  cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `code:${n.code}`], ['SREM', `u:${n.host}:nights`, id]);
+  cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `code:${n.code}`, `photo:${id}`], ['SREM', `u:${n.host}:nights`, id]);
   await store.pipe(cmds);
   return { ok: true };
 });

@@ -5,8 +5,8 @@
 // until the host lets a guest in.
 import { store } from './store.js';
 import { getUser } from './domain/users.js';
+import { coverOf, photoUrl } from './domain/nights.js';
 
-const COVERS = ['rings', 'rooftop', 'dinner', 'living', 'beach', 'owambe', 'crowd'];
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 let template = null;
@@ -34,8 +34,8 @@ export function fillInvite(html, night, host, origin) {
   const desc = night.status === 'cancelled'
     ? `${host?.name || 'The host'} cancelled this night.`
     : `${host?.name || 'Your host'} invited you${bits ? `: ${bits}` : ''}. RSVP on Vybez Social, no app needed.`;
-  const cover = COVERS.includes(night.cover) ? night.cover : 'rings';
-  const image = `${origin}/img/${cover === 'rings' ? 'og' : `og-${cover}`}.jpg`;
+  const cover = coverOf(night);
+  const image = cover === 'photo' ? `${origin}${photoUrl(night)}` : `${origin}/img/${cover === 'rings' ? 'og' : `og-${cover}`}.jpg`;
   const url = `${origin}/i/${night.code}`;
   return html
     .replace(/<title>[^<]*<\/title>/, `<title>${esc(title)}</title>`)
@@ -44,6 +44,22 @@ export function fillInvite(html, night, host, origin) {
     .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${esc(url)}"`)
     .replace(/(<link rel="canonical" href=")[^"]*"/, `$1${esc(url)}"`)
     .replace(/(<meta property="og:image" content=")[^"]*"/, `$1${esc(image)}"`);
+}
+
+// Serves a host's cover photo. The version in the URL changes with every upload, so browsers,
+// WhatsApp and the CDN can keep it for a year.
+export async function photoResponse(id, version) {
+  let b64 = null;
+  try {
+    const night = await store.getJSON(`night:${id}`);
+    if (night?.photo === version) b64 = await store.cmd('GET', `photo:${id}`);
+  } catch { /* treat as missing */ }
+  if (!b64) return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'public, max-age=60' } });
+  const buf = Buffer.from(b64, 'base64');
+  return new Response(buf, {
+    status: 200,
+    headers: { 'Content-Type': 'image/jpeg', 'Content-Length': String(buf.length), 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' },
+  });
 }
 
 export async function invitePage(code, origin) {
