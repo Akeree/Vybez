@@ -11,6 +11,8 @@ import './routes/auth.js';
 import './routes/account.js';
 import './routes/dj.js';
 import './routes/social.js';
+import './routes/group.js';
+import { momentResponse } from './domain/group.js';
 
 export async function handle(req) {
   const url = new URL(req.url);
@@ -30,6 +32,9 @@ export async function handle(req) {
   // Hosts' cover photos (/photo/:night/:version.jpg), public like the invite itself.
   const photo = (method === 'GET' || method === 'HEAD') && /^photo\/([\w-]{1,20})\/(\w{1,20})\.jpg$/.exec(path);
   if (photo) return photoResponse(photo[1], photo[2]);
+  // Moments (/moment/:night/:id.jpg): only the list is ever given these long random URLs.
+  const moment = (method === 'GET' || method === 'HEAD') && /^moment\/([\w-]{1,20})\/([\w-]{8,32})\.jpg$/.exec(path);
+  if (moment) return momentResponse(moment[1], moment[2]);
   try {
     if (method !== 'GET' && method !== 'HEAD') {
       // CSRF: mutating requests must be same-origin JSON.
@@ -41,7 +46,7 @@ export async function handle(req) {
     if (method !== 'GET' && method !== 'HEAD') {
       const text = await req.text();
       // Cover photos arrive as a data URL (about 4/3 of the JPEG's size); everything else is small.
-      if (text.length > (/^nights\/[\w-]+\/photo$/.test(path) ? 900000 : 300000)) fail(413, 'That’s too much data in one go.');
+      if (text.length > (/^nights\/[\w-]+\/photo$|^invites\/[\w-]+\/moments$/.test(path) ? 900000 : 300000)) fail(413, 'That’s too much data in one go.');
       try { body = text ? JSON.parse(text) : {}; } catch { fail(400, 'Invalid JSON.'); }
       if (!body || typeof body !== 'object') body = {};
     }

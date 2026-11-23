@@ -22,8 +22,8 @@
       <p class="small t2" data-going></p>
 
       <form class="card p-16 stack gap-16" data-rsvp hidden novalidate>
-        <div class="field"><label for="first">Your name</label><input class="input" id="first" name="name" required autocomplete="name" maxlength="40"><span class="hint">No account needed. Only the host sees it.</span></div>
-        <div class="field"><label for="contact">Phone or email <span class="t3">(optional)</span></label><input class="input" id="contact" name="contact" autocomplete="tel" maxlength="80"><span class="hint">So the host can reach you if plans change.</span></div>
+        <div class="field"><label for="first">Your name</label><input class="input" id="first" name="name" required autocomplete="name" maxlength="40"><span class="hint">No account needed. The host sees your full name; other guests see your first name.</span></div>
+        <div class="field"><label for="contact">Phone or email <span class="t3">(optional)</span></label><input class="input" id="contact" name="contact" autocomplete="tel" maxlength="80"><span class="hint">Only the host sees it, so they can reach you if plans change.</span></div>
         <label class="row gap-8 check-row" data-plus-row hidden><input type="checkbox" name="plus"> <span class="small">I’m bringing a plus-one</span></label>
         <p class="form-error" data-error role="alert" hidden></p>
         <button class="btn btn-primary btn-block" type="submit">I’m in</button>
@@ -46,6 +46,12 @@
           <button class="btn btn-outline btn-sm grow" type="button" data-ics>{{icon:calendar:16}}Add to calendar</button>
         </div>
       </div>
+
+      <a class="card p-16 group-link" href="#" data-group hidden>
+        <span class="tile">{{icon:messages-square}}</span>
+        <span class="stack grow gap-2"><span class="h4">The group</span><span class="small t2" data-group-sub>Chat with everyone going, car hop with guests near you, and share moments from the night.</span></span>
+        {{icon:chevron-right}}
+      </a>
 
       <div class="card p-16 stack gap-16" data-songs hidden>
         <div class="row between"><h2 class="h4">Bring a song</h2><span class="chip" data-songs-left></span></div>

@@ -160,6 +160,82 @@ check('DJ sees no RSVPs', r.data.items.every((i) => i.type !== 'rsvp'));
 r = await call('host', 'GET', 'me/export');
 check('host export has nights', r.data.nights.length === 1);
 
+// The group: chat, rides (car hop) and moments, only for people on the list.
+{
+  const g0 = await call('host', 'POST', 'nights', { title: 'Car hop test', when: '2031-05-03T20:00', place: '4 Bourdillon Rd', area: 'Ikoyi', cap: 20, approve: false });
+  const gn = g0.data.night;
+  const rs = async (name) => (await call('anon', 'POST', `invites/${gn.code}/rsvp`, { name })).data.guest;
+  const ada = await rs('Ada Okafor'); const tunde = await rs('Tunde Bakare'); const kola = await rs('Kola');
+  const asker = (await call('anon', 'POST', `invites/${night.code}/rsvp`, { name: 'Waiting Wale' })).data.guest;
+  let q = await call('anon', 'GET', `invites/${gn.code}/group`);
+  check('group is closed without an RSVP', q.status === 403);
+  q = await call('anon', 'GET', `invites/${night.code}/group?guest=${asker}`);
+  check('group is closed while waiting for approval', q.status === 403 && /approves/.test(q.data.error), q.data);
+  q = await call('anon', 'GET', `invites/${gn.code}/group?guest=${ada}`);
+  check('approved guest opens the group', q.status === 200 && q.data.me.name === 'Ada O.' && q.data.people.length === 4, q.data);
+  check('group never shows contacts or full names', !JSON.stringify(q.data).includes('Okafor') && !JSON.stringify(q.data).includes('Bourdillon'));
+  q = await call('anon', 'POST', `invites/${gn.code}/chat/all`, { guest: ada, text: 'Who’s coming from the mainland?' });
+  check('guest posts in the night chat', q.status === 200 && q.data.message.name === 'Ada O.');
+  const firstAt = q.data.message.at;
+  q = await call('host', 'POST', `invites/${gn.code}/chat/all`, { text: 'Gate code is 1234' });
+  check('host posts as host', q.data.message.host === true);
+  q = await call('anon', 'GET', `invites/${gn.code}/chat/all?guest=${tunde}`);
+  check('others read the chat', q.data.messages.length === 2 && q.data.messages[0].text.startsWith('Who'), q.data);
+  q = await call('anon', 'GET', `invites/${gn.code}/chat/all?guest=${tunde}&after=${firstAt}`);
+  check('chat polls only newer messages', q.data.messages.length === 1);
+  const hostMsg = q.data.messages[0].id;
+  check('guests can’t remove others’ messages', (await call('anon', 'DELETE', `invites/${gn.code}/chat/all/${hostMsg}`, { guest: tunde })).status === 403);
+  // Rides
+  q = await call('anon', 'POST', `invites/${gn.code}/rides`, { guest: tunde, dir: 'there', kind: 'driving', from: 'Yaba', time: '19:30', seats: 1, note: 'Can stop at Sabo' });
+  check('guest offers a ride', q.status === 200 && q.data.ride.left === 1 && q.data.ride.joined, q.data);
+  const rid = q.data.ride.id;
+  check('one ride there per person', (await call('anon', 'POST', `invites/${gn.code}/rides`, { guest: tunde, dir: 'there', kind: 'cab', from: 'Yaba', time: '19:45' })).status === 409);
+  check('ride needs a valid time', (await call('anon', 'POST', `invites/${gn.code}/rides`, { guest: ada, dir: 'home', from: 'Lekki', time: '25:00' })).status === 400);
+  q = await call('anon', 'GET', `invites/${gn.code}/chat/all?guest=${ada}`);
+  check('a new ride is announced in the night chat', q.data.messages.some((m) => m.kind === 'ride' && /driving from Yaba at 7:30 pm/.test(m.text)), q.data.messages);
+  check('ride chat is closed until you join', (await call('anon', 'GET', `invites/${gn.code}/chat/${rid}?guest=${ada}`)).status === 403);
+  q = await call('anon', 'POST', `invites/${gn.code}/rides/${rid}/join`, { guest: ada });
+  check('guest joins a ride', q.data.ride?.joined && q.data.ride.left === 0, q.data);
+  check('a full ride refuses more', (await call('anon', 'POST', `invites/${gn.code}/rides/${rid}/join`, { guest: kola })).status === 409);
+  q = await call('anon', 'POST', `invites/${gn.code}/chat/${rid}`, { guest: ada, text: 'I’ll be at Tejuosho' });
+  check('riders chat in the ride', q.status === 200);
+  q = await call('host', 'GET', `invites/${gn.code}/chat/${rid}`);
+  check('host can read ride chats', q.status === 200 && q.data.messages.some((m) => m.text === 'I’ll be at Tejuosho'));
+  check('kola can’t read the ride chat', (await call('anon', 'GET', `invites/${gn.code}/chat/${rid}?guest=${kola}`)).status === 403);
+  check('only the poster can change a ride', (await call('anon', 'PATCH', `invites/${gn.code}/rides/${rid}`, { guest: ada, seats: 4 })).status === 403);
+  q = await call('anon', 'PATCH', `invites/${gn.code}/rides/${rid}`, { guest: tunde, time: '19:45', seats: 2 });
+  check('poster updates time and seats', q.data.ride?.time === '19:45' && q.data.ride.left === 1, q.data);
+  q = await call('anon', 'POST', `invites/${gn.code}/rides/${rid}/leave`, { guest: ada });
+  q = await call('anon', 'GET', `invites/${gn.code}/group?guest=${kola}`);
+  check('leaving frees the seat', q.data.rides[0].left === 2 && !q.data.rides[0].joined, q.data.rides);
+  // Removing a guest closes the group to them and drops their rides.
+  const hostView = await call('host', 'GET', `nights/${gn.id}`);
+  const tid = hostView.data.guests.find((x) => x.name === 'Tunde Bakare').id;
+  await call('host', 'PATCH', `nights/${gn.id}/guests/${tid}`, { status: 'declined' });
+  check('removed guest loses the group', (await call('anon', 'GET', `invites/${gn.code}/group?guest=${tunde}`)).status === 403);
+  q = await call('anon', 'GET', `invites/${gn.code}/group?guest=${kola}`);
+  check('removed guest’s ride is hidden', q.data.rides.length === 0 && q.data.people.length === 3, q.data);
+  // Moments
+  const jpeg = `data:image/jpeg;base64,${Buffer.concat([Buffer.from([0xff, 0xd8, 0xff, 0xe0]), Buffer.alloc(1500, 7)]).toString('base64')}`;
+  q = await call('anon', 'POST', `invites/${gn.code}/moments`, { guest: kola, image: jpeg, caption: 'First dance', w: 1080, h: 1350 });
+  check('guest shares a moment', q.status === 200 && /^\/moment\/[\w-]+\/[\w-]{16,32}\.jpg$/.test(q.data.moment.url), q.data);
+  const murl = q.data.moment.url; const mid = q.data.moment.id;
+  const img = await handle(new Request(`http://localhost:3000/api?route=${murl.slice(1)}`, { headers: { host: 'localhost:3000' } }));
+  check('moment photo is served privately', img.status === 200 && img.headers.get('content-type') === 'image/jpeg' && /private/.test(img.headers.get('cache-control')));
+  check('a PNG moment is refused', (await call('anon', 'POST', `invites/${gn.code}/moments`, { guest: kola, image: 'data:image/png;base64,iVBORw0KGgo=' })).status === 400);
+  check('moments are closed to people off the list', (await call('anon', 'GET', `invites/${gn.code}/moments?guest=${tunde}`)).status === 403);
+  check('guests can’t remove others’ moments', (await call('anon', 'DELETE', `invites/${gn.code}/moments/${mid}`, { guest: ada })).status === 403);
+  q = await call('anon', 'GET', `invites/${gn.code}/moments?guest=${ada}`);
+  check('the list sees moments', q.data.moments.length === 1 && q.data.moments[0].caption === 'First dance' && !q.data.moments[0].mine);
+  // Cancelled nights are read-only; deleting the night removes everything.
+  await call('host', 'PATCH', `nights/${gn.id}`, { status: 'cancelled' });
+  check('cancelled night: chat is read-only', (await call('anon', 'POST', `invites/${gn.code}/chat/all`, { guest: ada, text: 'hi' })).status === 409);
+  await call('anon', 'POST', `invites/${gn.code}/rides`, { guest: ada, dir: 'home', from: 'Lekki', time: '02:00' });
+  q = await call('host', 'DELETE', `nights/${gn.id}`);
+  const after = await handle(new Request(`http://localhost:3000/api?route=${murl.slice(1)}`, { headers: { host: 'localhost:3000' } }));
+  check('deleting the night removes moments and chats', q.data.ok && after.status === 404);
+}
+
 r = await call('dj', 'POST', 'crates', { name: 'Warm-up' });
 const crate = r.data.crate;
 r = await call('dj', 'PATCH', `crates/${crate.id}`, { add: { a: 'Rema', t: 'Calm Down' } });

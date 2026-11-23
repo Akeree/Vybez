@@ -4,6 +4,7 @@ import { route, fail, str, int, bool, now, EMAIL_RE, rateLimit } from '../lib/ht
 import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '../auth.js';
 import { getUser, needProduct, activity, slug } from '../domain/users.js';
 import { cleanTracks } from '../domain/music.js';
+import { groupKeys } from '../domain/group.js';
 import { getNight, nightGuests, headcount, readNightInput, inviteView, guestFor, readPhoto, photoUrl, coverOf } from '../domain/nights.js';
 
 // Nights (host)
@@ -81,7 +82,7 @@ route('DELETE', 'nights/:id', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
   const guests = await nightGuests(id);
   const cmds = guests.map((g) => ['DEL', `guest:${g.id}`, `gtok:${g.token}`, `pass:${id}:${g.pass}`]);
-  cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `code:${n.code}`, `photo:${id}`], ['SREM', `u:${n.host}:nights`, id]);
+  cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `code:${n.code}`, `photo:${id}`, ...(await groupKeys(id))], ['SREM', `u:${n.host}:nights`, id]);
   await store.pipe(cmds);
   return { ok: true };
 });

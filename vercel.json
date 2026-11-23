@@ -199,6 +199,14 @@
       "destination": "/v/live"
     },
     {
+      "source": "/i/:code/group",
+      "destination": "/v/group"
+    },
+    {
+      "source": "/moment/:night/:file",
+      "destination": "/api?route=moment/:night/:file"
+    },
+    {
       "source": "/i/:code",
       "destination": "/api?route=page/invite/:code"
     },

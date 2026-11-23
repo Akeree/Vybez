@@ -184,6 +184,7 @@ pages.night = async () => {
     $('[data-edit]').href = `/social/new?edit=${n.id}`;
     $('[data-preview]').href = `/i/${n.code}`;
     $('[data-door]').href = `/social/${n.id}/door`;
+    $('[data-group]').href = `/i/${n.code}/group`;
     const g = d.guests;
     const going = g.filter((x) => x.status === 'going');
     $('[data-n="going"]').textContent = d.going;

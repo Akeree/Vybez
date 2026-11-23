@@ -5,6 +5,7 @@ import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '
 import { DEFAULT_PREFS, RESERVED, slug, selfUser, saveUser, needUser, readProduct, productOf, djOpen, DJ_CLOSED_MESSAGE, syncDjIndex, ACTIVITY_TYPES } from '../domain/users.js';
 import { listSets, listCrates, VIS, EMOJI } from '../domain/music.js';
 import { getNight, nightGuests } from '../domain/nights.js';
+import { groupKeys } from '../domain/group.js';
 
 route('GET', 'me', async (ctx) => {
   if (!ctx.user) return { user: null, storage: store.kind };
@@ -104,7 +105,7 @@ route('DELETE', 'me', async (ctx) => {
     const n = await getNight(id);
     const guests = await nightGuests(id);
     for (const g of guests) cmds.push(['DEL', `guest:${g.id}`, `gtok:${g.token}`, `pass:${id}:${g.pass}`]);
-    cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `photo:${id}`]);
+    cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `photo:${id}`, ...(await groupKeys(id))]);
     if (n) cmds.push(['DEL', `code:${n.code}`]);
   }
   for (const f of following) cmds.push(['SREM', `u:${f}:followers`, u.id]);
