@@ -227,6 +227,9 @@ ul, ol { padding: 0; list-style: none; }
 .foot-links { display: flex; gap: var(--s-lg); flex-wrap: wrap; font: 600 14px/1.3 var(--font-body); color: var(--text-secondary); }
 .foot-links a:hover { color: var(--text-primary); }
 .site-footer .wrap.foot-note { display: block; font-size: 13px; color: var(--text-tertiary); padding-top: 0; padding-bottom: var(--s-lg); }
+/* Footer links get a full-size tap area (24px minimum, WCAG 2.5.8; 44px on touch screens). */
+.foot-links a { display: inline-flex; align-items: center; min-height: 24px; }
+@media (pointer: coarse) { .foot-links a { min-height: 44px; } }
 
 /* Toast */
 .toast-host { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 8px; align-items: center; pointer-events: none; width: min(560px, calc(100% - 32px)); }
@@ -414,6 +417,8 @@ ul, ol { padding: 0; list-style: none; }
 .plans { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-md); align-items: start; }
 .plan { display: flex; flex-direction: column; gap: var(--s-md); padding: var(--s-lg); border-radius: var(--r-md); background: var(--bg-surface); border: 1px solid var(--border-subtle); }
 .plan.featured { background: var(--accent-subtle); border-color: var(--accent); }
+/* While Vybez DJ is coming soon, the plan people can use today comes first. */
+[data-dj="soon"] .plan-social { order: -1; }
 .plan .price { font: 800 28px/1.15 var(--font-display); letter-spacing: -0.02em; }
 .plan .checks li { font-size: 13px; line-height: 1.4; }
 .plan .checks .i { color: var(--success); margin-top: 0; }

@@ -46,6 +46,8 @@ route('POST', 'auth/signin', async (ctx) => {
   const email = str(ctx.body.email, { max: 120, name: 'Email', required: true }).toLowerCase();
   const password = typeof ctx.body.password === 'string' ? ctx.body.password : '';
   await rateLimit(`signin:${ctx.ip}:${email}`, 10, 900);
+  // Also cap one address trying many accounts (credential stuffing).
+  await rateLimit(`signin-ip:${ctx.ip}`, 50, 900);
   const id = await store.cmd('GET', `email:${email}`);
   const user = id && await getUser(id);
   if (!user || !checkPassword(password, user.pw)) fail(401, 'That email and password don’t match.');
@@ -76,6 +78,8 @@ route('POST', 'auth/reset', async (ctx) => {
   const token = str(ctx.body.token, { max: 64, required: true, name: 'Reset link' });
   const password = typeof ctx.body.password === 'string' ? ctx.body.password : '';
   if (password.length < 8) fail(400, 'Use at least 8 characters for your password.');
+  if (password.length > 200) fail(400, 'That password is too long.');
+  await rateLimit(`reset:${ctx.ip}`, 10, 900);
   const id = await store.cmd('GET', `reset:${token}`);
   const user = id && await getUser(id);
   if (!user) fail(400, 'This reset link has expired. Ask for a new one.');

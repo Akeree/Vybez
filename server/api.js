@@ -34,7 +34,9 @@ export async function handle(req) {
     if (method !== 'GET' && method !== 'HEAD') {
       // CSRF: mutating requests must be same-origin JSON.
       const origin = req.headers.get('origin');
-      if (origin && new URL(origin).host !== (req.headers.get('x-forwarded-host') || req.headers.get('host') || url.host)) fail(403, 'Cross-site request blocked.');
+      let originHost = null;
+      try { originHost = origin ? new URL(origin).host : null; } catch { originHost = 'invalid'; }
+      if (origin && originHost !== (req.headers.get('x-forwarded-host') || req.headers.get('host') || url.host)) fail(403, 'Cross-site request blocked.');
       if (!(req.headers.get('content-type') || '').includes('application/json')) fail(415, 'Send JSON.');
     }
     let body = {};

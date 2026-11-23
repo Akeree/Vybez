@@ -43,7 +43,8 @@ export function fillInvite(html, night, host, origin) {
     .replace(/(<meta property="og:title" content=")[^"]*"/, `$1${esc(title)}"`)
     .replace(/(<meta property="og:url" content=")[^"]*"/, `$1${esc(url)}"`)
     .replace(/(<link rel="canonical" href=")[^"]*"/, `$1${esc(url)}"`)
-    .replace(/(<meta property="og:image" content=")[^"]*"/, `$1${esc(image)}"`);
+    .replace(/(<meta property="og:image" content=")[^"]*"/, `$1${esc(image)}"`)
+    .replace(/(<meta property="og:image:alt" content=")[^"]*"/, `$1${esc(`Cover for ${night.title}`)}"`);
 }
 
 // Serves a host's cover photo. The version in the URL changes with every upload, so browsers,
