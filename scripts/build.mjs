@@ -15,7 +15,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const src = join(root, 'src');
 const out = join(root, 'dist');
 // Vercel sets VERCEL_PROJECT_PRODUCTION_URL during builds; SITE_URL overrides it for a custom domain.
-const SITE = (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://vybez.vercel.app')).replace(/\/$/, '');
+const SITE = (process.env.SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : 'https://vybez-ecru.vercel.app')).replace(/\/$/, '');
 
 // Launch switch. Vybez Social launches first: until DJ_OPEN=1 is set in the Vercel project,
 // Vybez DJ is shown as coming soon and new DJ accounts are refused (server/domain/users.js djOpen).
@@ -28,7 +28,7 @@ const CONTACT = process.env.CONTACT_EMAIL || 'akeredayo@gmail.com';
 const LEGAL = {
   name: process.env.LEGAL_NAME || 'Vybez',
   email: `<a class="link" href="mailto:${CONTACT}">${CONTACT}</a>`,
-  updated: process.env.LEGAL_UPDATED || '17 November 2026',
+  updated: process.env.LEGAL_UPDATED || '23 November 2026',
 };
 // "Vybez (“we”)" when Vybez runs itself, "Vybez is run by X (“we”)" for a person or company.
 LEGAL.contact = CONTACT;
@@ -116,6 +116,10 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 for (const dir of ['img', 'fonts', 'css', 'js']) cpSync(join(src, dir), join(out, dir), { recursive: true });
 cpSync(join(src, 'logos', 'mark.svg'), join(out, 'favicon.svg'));
+// PNG icons for iOS home screen, Android and browsers that ignore SVG favicons (src/app-icons).
+cpSync(join(src, 'app-icons'), join(out, 'icons'), { recursive: true });
+cpSync(join(src, 'app-icons', 'favicon.ico'), join(out, 'favicon.ico'));
+cpSync(join(src, 'app-icons', 'apple-touch-icon.png'), join(out, 'apple-touch-icon.png'));
 
 // Module preloads. Without them the browser finds the JS one level at a time
 // (app.js -> session.js -> api.js -> page module), costing a network round trip per level
@@ -154,7 +158,8 @@ for (const file of pages) {
   const route = '/' + rel.replace(/(^|\/)index\.html$/, '').replace(/\.html$/, '');
   const layout = meta.layout || 'site';
   // DJ-only marketing pages stay reachable but out of search while Vybez DJ is coming soon.
-  if (meta.djOnly && !DJ_OPEN) meta.noindex = true;
+  // The DJ app shell (layout 'app') counts as DJ-only too, so its example pages stay out of the sitemap.
+  if ((meta.djOnly || layout === 'app') && !DJ_OPEN) meta.noindex = true;
   meta.product = meta.product || { app: 'dj', social: 'social' }[meta.layout] || '';
   const body = render(raw.slice(m[0].length), meta);
   const shell = read(join(src, 'layouts', `${layout}.html`));
@@ -168,6 +173,11 @@ for (const file of pages) {
     content: '@@CONTENT@@',
     robots: meta.noindex ? 'noindex' : 'index,follow',
     dj: DJ_OPEN ? 'open' : 'soon',
+    // Structured data for search results (name, logo), on the home page only.
+    jsonld: route === '/' ? `<script type="application/ld+json">${JSON.stringify({ '@context': 'https://schema.org', '@graph': [
+      { '@type': 'Organization', name: 'Vybez', url: `${SITE}/`, logo: `${SITE}/icons/icon-512.png` },
+      { '@type': 'WebSite', name: 'Vybez', url: `${SITE}/` },
+    ] })}</script>` : '',
   }).replace('@@CONTENT@@', body);
   // Mark the current navigation item.
   if (meta.nav) html = html.replace(new RegExp(`data-nav="${meta.nav}"`, 'g'), `data-nav="${meta.nav}" aria-current="page"`);
@@ -190,7 +200,21 @@ const brandMap = Object.fromEntries(['mixcloud', 'soundcloud', 'instagram', 'you
 writeFileSync(join(out, 'js', 'icons.js'), `window.VZ_ICONS=${JSON.stringify(iconMap)};\nwindow.VZ_BRANDS=${JSON.stringify(brandMap)};\n`);
 
 writeFileSync(join(out, 'sitemap.xml'), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map((u) => `  <url><loc>${u}</loc></url>`).join('\n')}\n</urlset>\n`);
-writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${SITE}/sitemap.xml\n`);
+writeFileSync(join(out, 'robots.txt'), `User-agent: *\nAllow: /\nDisallow: /api/\nSitemap: ${SITE}/sitemap.xml\n`);
+// Where to report a security problem (RFC 9116). Renew Expires once a year.
+mkdirSync(join(out, '.well-known'), { recursive: true });
+const expires = new Date(Date.now() + 330 * 24 * 3600 * 1000).toISOString().replace(/\.\d{3}Z$/, 'Z');
+writeFileSync(join(out, '.well-known', 'security.txt'), `Contact: mailto:${CONTACT}\nExpires: ${expires}\nPreferred-Languages: en\nPolicy: ${SITE}/help#security\nCanonical: ${SITE}/.well-known/security.txt\n`);
+// Install / home-screen metadata (Android "Add to home screen", iOS uses apple-touch-icon).
+writeFileSync(join(out, 'manifest.webmanifest'), JSON.stringify({
+  name: 'Vybez', short_name: 'Vybez', start_url: '/', scope: '/', display: 'standalone',
+  background_color: '#141118', theme_color: '#141118',
+  icons: [
+    { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+    { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+  ],
+}, null, 2));
 // The invite page template for server-rendered link previews (server/pages.js).
 mkdirSync(join(root, 'server', 'generated'), { recursive: true });
 writeFileSync(join(root, 'server', 'generated', 'invite-page.js'), `// Generated by scripts/build.mjs. Do not edit.\nexport default ${JSON.stringify(read(join(out, 'v', 'invite.html')))};\n`);

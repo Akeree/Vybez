@@ -27,7 +27,13 @@ export function readPhoto(dataUrl) {
   return buf;
 }
 
-export function readNightInput(b, existing = {}) {
+// One-line fields (title, area, address, until) lose line breaks so they can't break the
+// calendar file or link previews built from them.
+const oneLine = (v) => (typeof v === 'string' ? v.replace(/[\r\n]+/g, ' ') : v);
+
+export function readNightInput(input, existing = {}) {
+  const b = { ...input };
+  for (const k of ['title', 'until', 'place', 'area', 'music']) if (k in b) b[k] = oneLine(b[k]);
   const n = { ...existing };
   if ('title' in b || !existing.id) n.title = str(b.title, { max: 60, name: 'Name', required: true });
   if ('when' in b || !existing.id) {

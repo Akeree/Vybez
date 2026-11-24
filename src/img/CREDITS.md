@@ -17,4 +17,5 @@ All photos are from Unsplash under the free Unsplash License (https://unsplash.c
 | face-2.webp | Eye for Ebony | https://unsplash.com/photos/aZzXKGcyWqk |
 | face-3.webp | Ian Pette | https://unsplash.com/photos/LHotCeR8Ap0 |
 | face-4.webp | Chad Madden | https://unsplash.com/photos/F0q2f4OAJaw |
-| og.jpg | Aliburhan S | https://unsplash.com/photos/EkzH-dD_agk |
+
+og.jpg (the default link preview) is a Vybez graphic made from the site's own "rings" cover, logo and fonts. No photo. Regenerate it the same way if the tagline changes.

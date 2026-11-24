@@ -5,3 +5,4 @@ dist
 .data
 server/generated
 .env*
+!.env.example

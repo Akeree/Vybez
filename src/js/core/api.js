@@ -36,6 +36,7 @@ export function onSubmit(form, fn) {
 
 export const nextUrl = () => {
   const n = params.get('next');
-  return n && n.startsWith('/') && !n.startsWith('//') ? n : null;
+  // Same-site paths only: '//host' and '/\\host' would both leave the site.
+  return n && n.startsWith('/') && !n.startsWith('//') && !n.includes('\\') ? n : null;
 };
 export const toSignin = () => { location.replace(`/signin?next=${encodeURIComponent(location.pathname + location.search)}`); };

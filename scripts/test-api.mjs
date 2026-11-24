@@ -95,6 +95,9 @@ check('create night', !!r.data.night?.code, r.data);
 {
   const old = await call('host', 'POST', 'nights', { title: 'Old', when: '2020-01-01T19:00', place: 'a', area: 'b' });
   check('night in the past is refused', old.status === 400, old.data);
+  const nl = await call('host', 'POST', 'nights', { title: 'Line\r\nBREAK:x', when: '2030-11-16T19:00', place: 'a\nb', area: 'c' });
+  check('one-line night fields drop line breaks', nl.data.night?.title === 'Line BREAK:x' && nl.data.night?.place === 'a b', nl.data);
+  if (nl.data.night) await call('host', 'DELETE', `nights/${nl.data.night.id}`);
 }
 const night = r.data.night;
 {
@@ -266,6 +269,10 @@ const csrf = await handle(new Request('http://localhost:3000/api/sets', { method
 check('non-JSON POST blocked', csrf.status === 415);
 const cross = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://evil.example', host: 'localhost:3000', cookie: `vz_session=${jar.dj.vz_session}` }, body: '{}' }));
 check('cross-origin POST blocked', cross.status === 403);
+const badOrigin = await handle(new Request('http://localhost:3000/api/sets', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'null', host: 'localhost:3000' }, body: '{}' }));
+check('malformed Origin refused, not a 500', badOrigin.status === 403);
+r = await call('anon', 'POST', 'auth/reset', { token: 'nope', password: 'x'.repeat(201) });
+check('reset refuses an overlong password', r.status === 400 && /too long/.test(r.data.error), r.data);
 r = await call('legacy', 'PATCH', 'me', { product: 'dj', onboarded: true });
 check('switch product in settings', r.data.user?.product === 'dj');
 check('switching product updates the hint cookie', jar.legacy.vz_product === 'dj');

@@ -1,11 +1,11 @@
-<!--meta {"title":"Page not found","description":"This page doesn't exist.","layout":"site","noindex":true}-->
+<!--meta {"title":"Page not found","description":"This page doesn't exist on Vybez. Head home, plan a night or get help.","layout":"site","noindex":true}-->
 <div class="wrap" style="padding-top:64px;padding-bottom:128px">
   <div class="stack gap-32" style="max-width:640px">
     <span class="tile lg">{{icon:disc-3:28}}</span>
-    <p class="overline">404</p>
+    <p class="overline">404 · Page not found</p>
     <h1 class="display">This track skipped.</h1>
-    <p class="lead">The link may be old, or the DJ made this set private.</p>
-    <div class="row gap-16 wrap-row"><a class="btn btn-primary" href="/explore">Explore live rooms</a><a class="btn btn-outline" href="/">Back to home</a></div>
-    <p class="small t3">Looking for a set? Try searching the DJ’s name on <a class="link" href="/explore">Explore</a>.</p>
+    <p class="lead">The link may be old or mistyped{{#djopen}}, or the DJ made this set private{{/djopen}}. If a friend sent you an invite, ask them for a fresh link.</p>
+    <div class="row gap-16 wrap-row">{{#djsoon}}<a class="btn btn-primary" href="/">Back to home</a><a class="btn btn-outline" href="/social/new">Plan a night</a>{{/djsoon}}{{#djopen}}<a class="btn btn-primary" href="/explore">Explore live rooms</a><a class="btn btn-outline" href="/">Back to home</a>{{/djopen}}</div>
+    <p class="small t3">Or try <a class="link" href="/pricing">Pricing</a>, <a class="link" href="/help">Help</a>{{#djopen}} or <a class="link" href="/explore">Explore</a>{{/djopen}}{{#djsoon}} or <a class="link" href="/signin">Sign in</a>{{/djsoon}}.</p>
   </div>
 </div>

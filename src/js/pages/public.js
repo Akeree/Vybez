@@ -294,7 +294,7 @@ pages.invite = async () => {
     const start = lagos(inv.when);
     const end = new Date(start.getTime() + 5 * 3600000);
     const f = (dt) => dt.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
-    const escI = (s) => String(s || '').replace(/[\\,;]/g, (c) => `\\${c}`).replace(/\n/g, '\\n');
+    const escI = (s) => String(s || '').replace(/[\\,;]/g, (c) => `\\${c}`).replace(/\r\n|\r|\n/g, '\\n');
     download(`${inv.title.replace(/[^\w -]+/g, '') || 'invite'}.ics`, ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Vybez//Social//EN', 'BEGIN:VEVENT', `UID:${code}@vybez`, `DTSTAMP:${f(new Date())}`, `DTSTART:${f(start)}`, `DTEND:${f(end)}`, `SUMMARY:${escI(inv.title)}`, `LOCATION:${escI(`${inv.place || ''}, ${inv.area}`)}`, `DESCRIPTION:${escI(`Hosted by ${inv.host.name}. ${location.href}`)}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n'), 'text/calendar');
   });
   render();

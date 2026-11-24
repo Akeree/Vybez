@@ -2,6 +2,19 @@
 
 Vybez: **Vybez DJ** (sets, tracklists, live rooms) and **Vybez Social** (small invite-only nights). Static pages plus one Vercel Function for the API. No runtime dependencies.
 
+Live: https://vybez-ecru.vercel.app · Status: `/api/health`
+
+## Docs
+| Doc | For |
+|---|---|
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | System diagram, request flow, code map, data model |
+| [docs/OPERATIONS.md](docs/OPERATIONS.md) | Deploy, rollback, environment variables, monitoring, incidents |
+| [docs/SECURITY.md](docs/SECURITY.md) | Security controls, known gaps, how to report a problem |
+| [docs/LEGAL-AND-COMPLIANCE.md](docs/LEGAL-AND-COMPLIANCE.md) | Privacy, terms, NDPA, licences, trademarks, what needs a lawyer |
+| [docs/LAUNCH-AUDIT-2026-11-23.md](docs/LAUNCH-AUDIT-2026-11-23.md) | Latest launch audit and what's still to do |
+| [.env.example](.env.example) | Every environment variable |
+| [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | Fonts, icons, photos and their licences |
+
 ```
 npm run dev     # build + local server with the API on http://localhost:3000 (data in .data/db.json)
 npm test        # end-to-end API checks (in-memory store)
@@ -22,6 +35,7 @@ Vybez Social is open; Vybez DJ shows as **coming soon** until the project has `D
 - `SESSION_SECRET`: a long random value (`openssl rand -hex 32`). Setting it signs everyone out once.
 - `RESEND_API_KEY` + `EMAIL_FROM` (e.g. `Vybez <hello@yourdomain>`): password-reset emails through Resend. The sending domain must be verified in Resend.
 - `SITE_URL`: your custom domain, used for canonical links, the sitemap and reset links.
+- Use a domain address for `CONTACT_EMAIL` (it's published on Privacy, Terms, Help and `/.well-known/security.txt`).
 
 ## Going live on Vercel (one step)
 Accounts and data need storage. In the Vercel project: **Storage → Connect a store → Upstash for Redis** (free tier is fine) and connect it to the project, then redeploy. Vercel adds `KV_REST_API_URL` and `KV_REST_API_TOKEN`; the API picks them up. Until then the site still works, but data lives in memory and can disappear, and the app shows a warning bar. Check `/api/health`: `"storage":"redis"` means it's connected.
