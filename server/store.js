@@ -75,6 +75,11 @@ function localBackend(file) {
     LRANGE: (k, a, b) => { const l = live(k) || []; const end = Number(b) < 0 ? l.length + Number(b) : Number(b); return l.slice(Number(a), end + 1); },
     LTRIM: (k, a, b) => { const l = live(k) || []; const end = Number(b) < 0 ? l.length + Number(b) : Number(b); db.s[k] = l.slice(Number(a), end + 1); return 'OK'; },
     LLEN: (k) => (live(k) || []).length,
+    LREM: (k, count, v) => {
+      const l = live(k) || []; let left = Number(count) || l.length; let n = 0;
+      db.s[k] = l.filter((x) => { if (left > 0 && x === String(v)) { left--; n++; return false; } return true; });
+      return n;
+    },
   };
   return {
     kind: file ? 'file' : 'memory',

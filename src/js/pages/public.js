@@ -260,6 +260,11 @@ pages.invite = async () => {
       $('[data-song-form]').hidden = songs.length >= 2;
     }
     $('[data-leave]').hidden = !g || !['going', 'asking', 'waitlist'].includes(g.status) || cancelled;
+    // The group (chat, rides, moments) opens to approved guests and the host.
+    const gl = $('[data-group]');
+    gl.hidden = !(going || inv.isHost);
+    gl.href = `/i/${code}/group`;
+    if (inv.isHost) $('[data-group-sub]').textContent = 'See the night chat, rides and moments. You can remove anything.';
   };
   onSubmit(rf, async (d) => {
     const r = await api('POST', `invites/${code}/rsvp`, { name: d.name, contact: d.contact, plus: !!d.plus, guest: token || undefined });

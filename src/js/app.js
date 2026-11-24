@@ -18,6 +18,7 @@ const MODULES = {
   social: ['nights', 'plan', 'night', 'door'],
   public: ['live', 'set', 'profile', 'explore', 'invite', 'upgrade'],
   account: ['notifications', 'settings', 'home'],
+  group: ['group'],
 };
 const moduleFor = (p) => Object.keys(MODULES).find((m) => MODULES[m].includes(p));
 

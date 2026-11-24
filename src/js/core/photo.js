@@ -135,3 +135,24 @@ export function cropDialog(img) {
     ro?.observe(frame);
   });
 }
+
+// Moments: keep the whole photo (no crop), longest side at most `max` px, as a JPEG under
+// `maxBytes`. Returns { data, w, h }.
+export function encodeFit(img, max = 1280, maxBytes = 380 * 1024) {
+  const s = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const w = Math.max(1, Math.round(img.naturalWidth * s));
+  const h = Math.max(1, Math.round(img.naturalHeight * s));
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#141118';
+  ctx.fillRect(0, 0, w, h);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, 0, 0, w, h);
+  let q = 0.84;
+  let out = canvas.toDataURL('image/jpeg', q);
+  while (out.length * 0.75 > maxBytes && q > 0.4) { q -= 0.08; out = canvas.toDataURL('image/jpeg', q); }
+  if (!out.startsWith('data:image/jpeg')) throw new Error('This browser couldn’t prepare the photo. Try another browser.');
+  return { data: out, w, h };
+}

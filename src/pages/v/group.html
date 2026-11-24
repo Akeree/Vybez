@@ -1,0 +1,109 @@
+<!--meta {"title":"The group","description":"Chat, rides and moments for a night on Vybez Social.","layout":"bare","page":"group","noindex":true}-->
+<div class="group-page">
+  <header class="group-head">
+    <a class="icon-btn ghost" href="#" data-back aria-label="Back to the invite">{{icon:arrow-left}}</a>
+    <div class="stack grow" style="min-width:0">
+      <p class="label ellipsis" data-night-title>The group</p>
+      <p class="caption t3 ellipsis" data-night-when></p>
+    </div>
+    <span class="chip" data-people-count hidden></span>
+  </header>
+
+  <div class="skeleton group-skeleton" data-loading></div>
+
+  <div class="card state group-state" data-locked hidden>
+    <span class="tile">{{icon:lock}}</span>
+    <h1 class="h4" data-locked-title>The group is for guests on the list</h1>
+    <p class="small t2" data-locked-text>RSVP on the invite. Once you’re on the list, you can chat with everyone going, find a ride and share moments.</p>
+    <a class="btn btn-primary btn-sm" href="#" data-locked-link>Open the invite</a>
+  </div>
+
+  <div class="group-body" data-content hidden>
+    <div class="tabs group-tabs" role="tablist" aria-label="The group">
+      <button class="tab" type="button" role="tab" id="tab-chat" aria-controls="panel-chat" aria-selected="true" data-tab="chat">Chat<span class="unread-dot" data-unread-chat hidden><span class="sr-only">, new messages</span></span></button>
+      <button class="tab" type="button" role="tab" id="tab-rides" aria-controls="panel-rides" aria-selected="false" data-tab="rides" tabindex="-1">Rides <span class="t3" data-ride-count></span></button>
+      <button class="tab" type="button" role="tab" id="tab-moments" aria-controls="panel-moments" aria-selected="false" data-tab="moments" tabindex="-1">Moments <span class="t3" data-moment-count></span></button>
+    </div>
+
+    <!-- Chat -->
+    <section class="group-panel chat-panel" id="panel-chat" role="tabpanel" aria-labelledby="tab-chat" data-panel="chat">
+      <div class="room-pills" role="group" aria-label="Chats" data-rooms></div>
+      <div class="ride-room-head" data-room-head hidden></div>
+      <ol class="chat-log" aria-live="polite" aria-label="Messages" data-log></ol>
+      <form class="composer" data-composer autocomplete="off">
+        <label class="sr-only" for="msg">Message</label>
+        <textarea class="input composer-input" id="msg" name="text" rows="1" maxlength="600" placeholder="Message everyone" enterkeyhint="send" required></textarea>
+        <button class="icon-btn composer-send" type="submit" aria-label="Send">{{icon:send:18}}</button>
+      </form>
+      <p class="caption t3 composer-note" data-composer-note></p>
+    </section>
+
+    <!-- Rides -->
+    <section class="group-panel stack gap-16" id="panel-rides" role="tabpanel" aria-labelledby="tab-rides" data-panel="rides" hidden>
+      <div class="stack gap-4">
+        <h2 class="h4">Car hop to the night</h2>
+        <p class="small t2">Driving, or splitting a Bolt or Uber? Post where you’re coming from. Guests heading the same way join and plan it in the ride’s own chat.</p>
+      </div>
+      <div class="row between wrap-row gap-8">
+        <div class="pills" role="group" aria-label="Show rides" data-dir-filter>
+          <button class="pill" type="button" aria-pressed="true" data-dir="there">Getting there</button>
+          <button class="pill" type="button" aria-pressed="false" data-dir="home">Going home</button>
+        </div>
+        <button class="btn btn-primary btn-sm" type="button" data-new-ride>{{icon:plus:16}}Post a ride</button>
+      </div>
+      <div class="stack gap-8" data-rides></div>
+      <p class="caption t3 row gap-8 safety-note">{{icon:shield-check:16}}<span>Only people the host approved can see rides. Share your exact pickup spot in the ride chat, not here. The host can read ride chats.</span></p>
+    </section>
+
+    <!-- Moments -->
+    <section class="group-panel stack gap-16" id="panel-moments" role="tabpanel" aria-labelledby="tab-moments" data-panel="moments" hidden>
+      <div class="row between wrap-row gap-8">
+        <div class="stack gap-4">
+          <h2 class="h4">Moments</h2>
+          <p class="small t2">Photos from the night, only for the list.</p>
+        </div>
+        <label class="btn btn-primary btn-sm" data-moment-add>{{icon:image-plus:16}}Add a photo<input class="sr-only" type="file" accept="image/*" data-moment-file></label>
+      </div>
+      <div class="moment-grid" data-moments></div>
+    </section>
+  </div>
+</div>
+
+<dialog class="modal" data-ride-dialog aria-labelledby="ride-t">
+  <form class="stack gap-16" data-ride-form novalidate>
+    <div class="row between"><h2 class="h4" id="ride-t" data-ride-form-title>Post a ride</h2><button class="icon-btn ghost" type="button" aria-label="Close" data-close>{{icon:x}}</button></div>
+    <fieldset class="field">
+      <legend class="label">Which way</legend>
+      <div class="seg" role="radiogroup">
+        <label><input type="radio" name="dir" value="there" checked><span>Getting there</span></label>
+        <label><input type="radio" name="dir" value="home"><span>Going home</span></label>
+      </div>
+    </fieldset>
+    <fieldset class="field">
+      <legend class="label">How</legend>
+      <div class="seg" role="radiogroup">
+        <label><input type="radio" name="kind" value="driving" checked><span>{{icon:car:16}}I’m driving</span></label>
+        <label><input type="radio" name="kind" value="cab"><span>{{icon:users:16}}Split a cab</span></label>
+      </div>
+    </fieldset>
+    <div class="field"><label for="r-from" data-from-label>Leaving from</label><input class="input" id="r-from" name="from" required maxlength="60" placeholder="Area, e.g. Yaba or Lekki Phase 1"><span class="hint">An area is enough. Agree the exact spot in the chat.</span></div>
+    <div class="row gap-16 ride-form-row">
+      <div class="field grow"><label for="r-time" data-time-label>Leaving at</label><input class="input" id="r-time" name="time" type="time" required></div>
+      <div class="field grow"><label for="r-seats" data-seats-label>Seats for others</label><input class="input" id="r-seats" name="seats" type="number" inputmode="numeric" min="1" max="6" value="3" required></div>
+    </div>
+    <div class="field"><label for="r-note">Note <span class="t3">(optional)</span></label><input class="input" id="r-note" name="note" maxlength="140" placeholder="e.g. Bolt from Sabo, we split the fare"></div>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" type="button" data-close>Cancel</button><button class="btn btn-primary btn-sm" type="submit" data-ride-submit>Post ride</button></div>
+  </form>
+</dialog>
+
+<dialog class="modal" data-moment-dialog aria-labelledby="moment-t">
+  <form class="stack gap-16" data-moment-form>
+    <div class="row between"><h2 class="h4" id="moment-t">Share a moment</h2><button class="icon-btn ghost" type="button" aria-label="Close" data-close>{{icon:x}}</button></div>
+    <img class="moment-preview" alt="" data-moment-preview>
+    <div class="field"><label for="m-cap">Caption <span class="t3">(optional)</span></label><input class="input" id="m-cap" name="caption" maxlength="140"></div>
+    <p class="caption t3">Everyone on the list can see it. You or the host can remove it later.</p>
+    <p class="form-error" data-error role="alert" hidden></p>
+    <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" type="button" data-close>Cancel</button><button class="btn btn-primary btn-sm" type="submit">Share</button></div>
+  </form>
+</dialog>
