@@ -9,8 +9,8 @@ export async function nightGuests(id) {
 }
 export const headcount = (guests) => guests.filter((g) => g.status === 'going').reduce((n, g) => n + 1 + (g.plus ? 1 : 0), 0);
 
-// The host's own cover photo: a 1200x630 JPEG made on their phone, kept in the store under
-// photo:<nightId>. night.photo is a version that changes on every upload, so the URL can be
+// The host's own cover photo: a 1200x630 JPEG made on their phone, kept at
+// cover/<nightId>/<version>.jpg (server/files.js; before Blob, in the store under photo:<nightId>). night.photo is a version that changes on every upload, so the URL can be
 // cached forever.
 export const COVERS = ['rings', 'rooftop', 'dinner', 'living', 'beach', 'owambe', 'crowd'];
 export const PHOTO_MAX_BYTES = 600 * 1024;

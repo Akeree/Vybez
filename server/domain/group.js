@@ -9,6 +9,7 @@ import { store } from '../store.js';
 import { fail, str, int, now } from '../lib/http.js';
 import { getUser } from './users.js';
 import { guestFor } from './nights.js';
+import { files, coverPath, momentPath } from '../files.js';
 
 export const MAX_MESSAGES = 500; // kept per room; older ones drop off
 export const MAX_RIDES = 30;
@@ -124,7 +125,7 @@ export function readMoment(dataUrl) {
   const buf = Buffer.from(m[1], 'base64');
   if (buf.length > MOMENT_MAX_BYTES) fail(413, 'That photo is too big. Try a different one.');
   if (buf.length < 500 || buf[0] !== 0xff || buf[1] !== 0xd8 || buf[2] !== 0xff) fail(400, 'That doesn’t look like a photo. Try a JPEG or a photo from your camera.');
-  return m[1];
+  return buf;
 }
 
 export async function nightMoments(nid) {
@@ -134,10 +135,9 @@ export async function nightMoments(nid) {
 
 // Serves a moment photo. The id in the URL is long and random and only shown to the list.
 export async function momentResponse(nid, mid) {
-  let b64 = null;
-  try { b64 = await store.cmd('GET', momentImgKey(nid, mid)); } catch { /* treat as missing */ }
-  if (!b64) return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' } });
-  const buf = Buffer.from(b64, 'base64');
+  let buf = null;
+  try { buf = await files.get(momentPath(nid, mid), momentImgKey(nid, mid)); } catch { /* treat as missing */ }
+  if (!buf) return new Response('Not found', { status: 404, headers: { 'Content-Type': 'text/plain', 'Cache-Control': 'no-store' } });
   return new Response(buf, {
     status: 200,
     headers: { 'Content-Type': 'image/jpeg', 'Content-Length': String(buf.length), 'Cache-Control': 'private, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff', 'X-Robots-Tag': 'noindex' },
@@ -152,6 +152,12 @@ export async function groupKeys(nid) {
     ...rideIds.flatMap((r) => [`ride:${r}`, chatKey(nid, r)]),
     ...moments.map((m) => momentImgKey(nid, m.id)),
   ];
+}
+
+// Every photo file a night owns (cover and moments), for deleting a night or an account.
+export async function nightFilePaths(night) {
+  const moments = await nightMoments(night.id);
+  return [...(night.photo ? [coverPath(night.id, night.photo)] : []), ...moments.map((m) => momentPath(night.id, m.id))];
 }
 
 export async function hostName(night) { return shortName((await getUser(night.host))?.name || 'Host'); }

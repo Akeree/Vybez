@@ -98,13 +98,17 @@ All data lives in one Upstash Redis database as strings (JSON), sets and lists. 
 | `guest:<id>` | JSON | Guest: name, contact, status, plus-one, songs, pass, check-in |
 | `gtok:<token>` | string | Guest's device token → guest id (how a guest proves who they are without an account) |
 | `pass:<night>:<pass>` | string | Door pass → guest id |
-| `photo:<night>` | string | Host's cover photo (base64 JPEG, ≤600 KB) |
+| `photo:<night>`, `moment:<night>:<id>`, `file:<path>` | string | Photos kept as base64 before Blob, or when no Blob store is connected. Moved by `scripts/move-photos-to-blob.mjs` |
 | `u:<id>:activity` | list | Notifications (latest 200) |
 | `reset:<token>` | string, 1 h TTL | Password reset links |
 | `rl:<key>:<window>` | counter, TTL | Rate limits |
 | `set:*`, `crate:*`, `live:*`, `comment:*`, `react:*` | mixed | Vybez DJ (sets, crates, live rooms, comments, reactions) |
 
-The group chat, rides and moments from PR #9 add their own keys (see `server/domain/group.js` once merged).
+The group chat, rides and moments add their own keys (see `server/domain/group.js`).
+
+On Preview deployments every key starts with `preview:` (see `server/store.js`), so test data never mixes with live data.
+
+Photos live in **Vercel Blob** (private store) at `cover/<night>/<version>.jpg` and `moment/<night>/<id>.jpg` (`preview/…` on Preview). They are always served through the API (`/photo/…`, `/moment/…`), so Blob URLs are never shown and the same access rules apply. See `server/files.js`.
 
 ## Security model in one paragraph
 
@@ -116,14 +120,14 @@ Sessions are HMAC-signed cookies (`HttpOnly`, `SameSite=Lax`, `Secure`) carrying
 |---|---|---|---|
 | URL | https://vybez-ecru.vercel.app (custom domain to come) | per-branch Vercel URL | http://localhost:3000 |
 | Trigger | push to `main` | push to any other branch / PR | `npm run dev` |
-| Storage | Upstash Redis | same Upstash database as Production | `.data/db.json` |
+| Storage | Upstash Redis | its own Upstash database if connected, and always under a `preview:` key prefix | `.data/db.json` |
+| Photos | Vercel Blob | same Blob store, under `preview/` | `.data/db.json` |
+| Errors | Sentry (`environment: production`) | Sentry (`environment: preview`) | console |
 | Indexing | indexed (sitemap, robots) | Vercel adds `X-Robots-Tag: noindex` | n/a |
 
 Operating notes, environment variables and rollback are in [OPERATIONS.md](OPERATIONS.md).
 
 ## Known limits and next steps
 
-- Preview deployments write to the production database. Give Preview its own Upstash database before real users arrive.
-- Photos are stored in Redis as base64. Fine for early access; move to object storage (Vercel Blob) if photo volume grows.
 - Updates use polling (15 to 30 s), not realtime.
-- No error tracking or uptime monitoring yet (see OPERATIONS.md).
+- Error tracking (Sentry) and uptime alerts need their accounts set up; the code is ready (see OPERATIONS.md).

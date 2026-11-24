@@ -10,6 +10,7 @@ import {
   getRide, nightRides, readRideInput, rideView, canReadRide, ridesKey, chatKey, MAX_RIDES,
   readMoment, nightMoments, momentsKey, momentImgKey, momentUrl, MAX_MOMENTS,
 } from '../domain/group.js';
+import { files, momentPath } from '../files.js';
 
 async function nightByCode(code) {
   const id = await store.cmd('GET', `code:${String(code).toLowerCase()}`);
@@ -154,9 +155,10 @@ route('POST', 'invites/:code/moments', async (ctx, { code }) => {
   canPost(n);
   await rateLimit(`moment:${n.id}:${me.id}`, 12, 3600);
   if ((await store.cmd('LLEN', momentsKey(n.id))) >= MAX_MOMENTS) fail(400, `This night has ${MAX_MOMENTS} moments, the most it can hold. The host can remove some to make room.`);
-  const b64 = readMoment(ctx.body.image);
+  const buf = readMoment(ctx.body.image);
   const m = { id: randomId(16), by: me.id, name: me.name, caption: str(ctx.body.caption, { max: 140, name: 'Caption' }), w: int(ctx.body.w, 1, 4000, 1080), h: int(ctx.body.h, 1, 4000, 1080), at: now() };
-  await store.pipe([['SET', momentImgKey(n.id, m.id), b64], ['LPUSH', momentsKey(n.id), JSON.stringify(m)]]);
+  await files.put(momentPath(n.id, m.id), buf);
+  await store.cmd('LPUSH', momentsKey(n.id), JSON.stringify(m));
   return { moment: { ...m, by: undefined, url: momentUrl(n.id, m.id), mine: true, canRemove: true } };
 });
 
@@ -166,7 +168,8 @@ route('DELETE', 'invites/:code/moments/:mid', async (ctx, { code, mid }) => {
   const hit = raw.find((s) => { try { return JSON.parse(s).id === mid; } catch { return false; } });
   if (!hit) fail(404, 'That moment is already gone.');
   if (!me.host && JSON.parse(hit).by !== me.id) fail(403, 'You can only remove your own moments.');
-  await store.pipe([['LREM', momentsKey(n.id), 1, hit], ['DEL', momentImgKey(n.id, mid)]]);
+  await store.cmd('LREM', momentsKey(n.id), 1, hit);
+  await files.del([momentPath(n.id, mid)], [momentImgKey(n.id, mid)]);
   return { ok: true };
 });
 

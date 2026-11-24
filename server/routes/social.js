@@ -4,7 +4,8 @@ import { route, fail, str, int, bool, now, EMAIL_RE, rateLimit } from '../lib/ht
 import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '../auth.js';
 import { getUser, needProduct, activity, slug } from '../domain/users.js';
 import { cleanTracks } from '../domain/music.js';
-import { groupKeys } from '../domain/group.js';
+import { groupKeys, nightFilePaths } from '../domain/group.js';
+import { files, coverPath } from '../files.js';
 import { getNight, nightGuests, headcount, readNightInput, inviteView, guestFor, readPhoto, photoUrl, coverOf } from '../domain/nights.js';
 
 // Nights (host)
@@ -55,16 +56,18 @@ route('PUT', 'nights/:id/photo', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
   await rateLimit(`photo:${n.host}`, 30, 3600);
   const buf = readPhoto(ctx.body.image);
+  const old = n.photo;
   n.photo = randomCode(8);
   n.cover = 'photo';
-  await store.cmd('SET', `photo:${id}`, buf.toString('base64'));
+  await files.put(coverPath(id, n.photo), buf);
   await store.setJSON(`night:${id}`, n);
+  if (old) await files.del([coverPath(id, old)], [`photo:${id}`]);
   return { night: { ...n, photoUrl: photoUrl(n) } };
 });
 
 route('DELETE', 'nights/:id/photo', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
-  await store.cmd('DEL', `photo:${id}`);
+  if (n.photo) await files.del([coverPath(id, n.photo)], [`photo:${id}`]);
   delete n.photo;
   if (n.cover === 'photo') n.cover = 'rings';
   await store.setJSON(`night:${id}`, n);
@@ -82,8 +85,10 @@ route('DELETE', 'nights/:id', async (ctx, { id }) => {
   const n = await hostNight(ctx, id);
   const guests = await nightGuests(id);
   const cmds = guests.map((g) => ['DEL', `guest:${g.id}`, `gtok:${g.token}`, `pass:${id}:${g.pass}`]);
+  const paths = await nightFilePaths(n);
   cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `code:${n.code}`, `photo:${id}`, ...(await groupKeys(id))], ['SREM', `u:${n.host}:nights`, id]);
   await store.pipe(cmds);
+  await files.del(paths);
   return { ok: true };
 });
 

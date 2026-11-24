@@ -8,12 +8,12 @@ Vybez's risk profile: a Nigerian consumer web service for nights out (18+), coll
 
 | # | Area | Status | What's in place / what's left |
 |---|---|---|---|
-| 1 | Privacy policy | ✅ Done | `/privacy`: what, why, lawful basis under the NDPA 2023, processors (Vercel, Upstash, Resend), transfers outside Nigeria, cookies, retention, rights, NDPC complaint route, children, security and 72-hour breach notice. Group chat/rides/moments added by PR #9. |
+| 1 | Privacy policy | ✅ Done | `/privacy`: what, why, lawful basis under the NDPA 2023, processors (Vercel incl. Blob photo storage, Upstash, Resend, Sentry), transfers outside Nigeria, cookies, retention, rights, NDPC complaint route, children, security and 72-hour breach notice. Group chat/rides/moments added by PR #9. |
 | 2 | Terms of service | ✅ Done | `/terms`: 18+, account rules, host responsibility for events, content rules, photos of other people, reporting, copyright complaints, music and trademarks, early-access pricing, liability, Nigerian law. |
 | 3 | Consent at sign-up and RSVP | ✅ Fixed today | Sign-up and the RSVP form now say "you confirm you're 18 or over and agree to the Terms and Privacy policy" right next to the button, with links. |
 | 4 | Cookie consent banner | ✅ Not needed | Only strictly necessary cookies (`vz_session`, `vz_product`) and local storage for things the user asked for. No analytics or ad cookies. **If you add analytics**, use cookieless Vercel Web Analytics or add a consent banner first. |
 | 5 | NDPA / NDPC registration | ⚠️ **Lawyer** | Controllers "of major importance" must register with the NDPC and may need a Data Protection Officer and yearly compliance audits. A small early-access service is probably below the thresholds, but the NDPC's General Application and Implementation Directive (GAID) sets them by number of data subjects. Confirm and set a trigger (e.g. 1,000+ people). |
-| 6 | Cross-border transfer | ⚠️ **Lawyer** | Data sits with US providers (Vercel, Upstash, Resend). The privacy policy says so. Confirm the legal basis for transfer under the NDPA's cross-border transfer rules (adequacy or contractual safeguards: the providers' DPAs) and keep copies of each provider's Data Processing Addendum. |
+| 6 | Cross-border transfer | ⚠️ **Lawyer** | Data sits with US providers (Vercel, Upstash, Resend, Sentry). The privacy policy says so. Confirm the legal basis for transfer under the NDPA's cross-border transfer rules (adequacy or contractual safeguards: the providers' DPAs) and keep copies of each provider's Data Processing Addendum. |
 | 7 | GDPR / UK GDPR | ℹ️ Low | Only applies if you target people in the EU/UK. You don't today (naira, Lagos). If diaspora hosts in London start using it, revisit (EU/UK representative, legal basis wording). |
 | 8 | Guests' personal data | ✅ Done | Guests give name and optional phone/email; only the host sees contact details (stated on the form). Terms limit hosts to using guest details for that night. Guests can leave a list; removal by email within 30 days (OPERATIONS.md). |
 | 9 | Age (18+) | ⚠️ Partly | Terms and Privacy say 18+, and sign-up/RSVP now ask people to confirm it. There is no hard age check (none is standard for invite tools). **Lawyer**: confirm a self-declaration is enough for a nightlife product; hosts stay responsible for age limits at their event (Terms). |
@@ -38,7 +38,7 @@ Vybez's risk profile: a Nigerian consumer web service for nights out (18+), coll
 ## Lawyer pack (take this list to one meeting)
 
 1. NDPC registration / Data Protection Officer threshold for Vybez, and what triggers it (item 5).
-2. Cross-border transfer basis for Vercel, Upstash and Resend (item 6).
+2. Cross-border transfer basis for Vercel, Upstash, Resend and Sentry (item 6).
 3. Is the 18+ self-declaration enough for an invite tool used for nights out (item 9)?
 4. Trademark search and filing for "Vybez" (item 18).
 5. Business registration: name vs company, and who is the data controller (item 19).

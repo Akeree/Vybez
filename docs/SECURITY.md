@@ -26,10 +26,11 @@ Email the address on [/help#security](https://vybez-ecru.vercel.app/help#securit
 - **Sign out is per device.** Sessions are stateless; "sign out everywhere" happens when the password changes. Add a "sign out of all devices" button that bumps the session version.
 - **Sign-in timing.** A sign-in for an email with no account returns slightly faster than a wrong password. Sign-up already tells you an email is taken, so this leaks nothing new.
 - **Invite codes are guessable in theory.** A code is the host's first name, the night title and 4 random characters (about 920,000 combinations). Someone guessing could see the title, date and area, never the address. Add per-IP limits on `GET /api/invites/:code` if abuse shows up.
-- **Shared database.** Preview and Production use the same Upstash database, so a preview build can touch real data. Separate them before launch.
+- **Shared database (mitigated).** Preview and Production still share one Upstash database unless a second one is connected, but every Preview key is prefixed `preview:` and every Preview photo path `preview/`, so a preview build can't read or overwrite live data. A second database for Preview removes the shared quota too (OPERATIONS.md).
+- **Error reports.** Sentry gets the error, stack, cleaned path (no ids, codes or handles), deployment and browser name. No cookies, bodies, query strings, IPs, emails or photos.
 - **Reset links without `SITE_URL`.** The link falls back to the request host. Set `SITE_URL` in Production.
 - **No dependency risk** (there are none), but also **no automated security scanning** in CI. Turn on GitHub secret scanning and Dependabot alerts in the repository settings.
 
 ## Breach response
 
-If personal data may have leaked: contain it (rotate `SESSION_SECRET`, `KV_REST_API_TOKEN`, `RESEND_API_KEY`), work out what and who, then notify the Nigeria Data Protection Commission within 72 hours and the affected people without delay (Nigeria Data Protection Act 2023). Steps are in [OPERATIONS.md](OPERATIONS.md#incident-and-breach-response).
+If personal data may have leaked: contain it (rotate `SESSION_SECRET`, `KV_REST_API_TOKEN`, `BLOB_READ_WRITE_TOKEN`, `RESEND_API_KEY`), work out what and who, then notify the Nigeria Data Protection Commission within 72 hours and the affected people without delay (Nigeria Data Protection Act 2023). Steps are in [OPERATIONS.md](OPERATIONS.md#incident-and-breach-response).

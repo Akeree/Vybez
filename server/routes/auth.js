@@ -4,15 +4,31 @@ import { route, fail, str, int, bool, now, EMAIL_RE, rateLimit } from '../lib/ht
 import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '../auth.js';
 import { DEFAULT_PREFS, selfUser, getUser, saveUser, claimHandle, readProduct, syncDjIndex, djOpen, DJ_CLOSED_MESSAGE } from '../domain/users.js';
 import { sendEmail } from '../domain/email.js';
+import { files } from '../files.js';
+import { errorTrackingOn } from '../monitor.js';
 
-route('GET', 'health', async () => ({
-  ok: true,
-  storage: store.kind,
-  persistent: store.kind !== 'memory',
-  email: !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM),
-  sessionSecret: !!process.env.SESSION_SECRET,
-  djOpen: djOpen(),
-}));
+// Uptime monitors call this every few minutes. It answers 503 when the database can't be
+// reached, so the monitor alerts instead of seeing a cheerful 200 from a broken site.
+route('GET', 'health', async () => {
+  let storageOk = true;
+  try { await store.cmd('GET', 'health:ping'); } catch (err) { storageOk = false; console.error(err); }
+  const body = {
+    ok: storageOk,
+    storage: store.kind,
+    storageOk,
+    persistent: store.kind !== 'memory',
+    env: process.env.VERCEL_ENV || 'development',
+    // On Preview: true when test data is kept apart from live data (see server/store.js).
+    isolated: process.env.VERCEL_ENV === 'preview' ? !!store.prefix : undefined,
+    photos: files.kind(),
+    errorTracking: errorTrackingOn(),
+    email: !!(process.env.RESEND_API_KEY && process.env.EMAIL_FROM),
+    sessionSecret: !!process.env.SESSION_SECRET,
+    djOpen: djOpen(),
+  };
+  if (!storageOk) fail(503, 'The database isn’t answering.', body);
+  return body;
+});
 
 // Auth
 route('POST', 'auth/signup', async (ctx) => {
