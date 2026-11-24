@@ -104,15 +104,28 @@ function pick() {
 
 const backend = pick();
 
+// Preview deployments must never touch live data. On Vercel Preview every key gets a
+// "preview:" prefix, so even if Preview shares the Production database (as it did until
+// Nov 2026) test nights, accounts and rate limits live in their own space. Give Preview its
+// own Upstash database as well and the prefix is simply harmless. STORE_PREFIX overrides it.
+export const KEY_PREFIX = process.env.STORE_PREFIX ?? (process.env.VERCEL_ENV === 'preview' ? 'preview:' : '');
+const ALL_KEYS = new Set(['MGET', 'DEL']); // every argument is a key; other commands: the first one
+export function prefixed([name, ...args]) {
+  if (!KEY_PREFIX || !args.length) return [name, ...args];
+  const all = ALL_KEYS.has(String(name).toUpperCase());
+  return [name, ...args.map((a, i) => (all || i === 0 ? KEY_PREFIX + a : a))];
+}
+
 export const store = {
   kind: backend.kind,
-  cmd: (...a) => backend.cmd(...a),
-  pipe: (c) => backend.pipe(c),
-  async getJSON(k) { const v = await backend.cmd('GET', k); return v ? JSON.parse(v) : null; },
-  async setJSON(k, v, ttlSec) { return ttlSec ? backend.cmd('SET', k, JSON.stringify(v), 'EX', ttlSec) : backend.cmd('SET', k, JSON.stringify(v)); },
+  prefix: KEY_PREFIX,
+  cmd: (...a) => backend.cmd(...prefixed(a)),
+  pipe: (c) => backend.pipe(c.map(prefixed)),
+  async getJSON(k) { const v = await store.cmd('GET', k); return v ? JSON.parse(v) : null; },
+  async setJSON(k, v, ttlSec) { return ttlSec ? store.cmd('SET', k, JSON.stringify(v), 'EX', ttlSec) : store.cmd('SET', k, JSON.stringify(v)); },
   async mgetJSON(keys) {
     if (!keys.length) return [];
-    const vals = await backend.cmd('MGET', ...keys);
+    const vals = await store.cmd('MGET', ...keys);
     return vals.map((v) => (v ? JSON.parse(v) : null));
   },
 };

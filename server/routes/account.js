@@ -5,7 +5,8 @@ import { hashPassword, checkPassword, makeSession, randomId, randomCode } from '
 import { DEFAULT_PREFS, RESERVED, slug, selfUser, saveUser, needUser, readProduct, productOf, djOpen, DJ_CLOSED_MESSAGE, syncDjIndex, ACTIVITY_TYPES } from '../domain/users.js';
 import { listSets, listCrates, VIS, EMOJI } from '../domain/music.js';
 import { getNight, nightGuests } from '../domain/nights.js';
-import { groupKeys } from '../domain/group.js';
+import { groupKeys, nightFilePaths } from '../domain/group.js';
+import { files } from '../files.js';
 
 route('GET', 'me', async (ctx) => {
   if (!ctx.user) return { user: null, storage: store.kind };
@@ -99,6 +100,7 @@ route('DELETE', 'me', async (ctx) => {
     store.cmd('SMEMBERS', `u:${u.id}:following`), store.cmd('SMEMBERS', `u:${u.id}:followers`),
   ]);
   const cmds = [];
+  const paths = [];
   for (const id of setIds) cmds.push(['DEL', `set:${id}`, `set:${id}:c`, `set:${id}:savedby`]);
   for (const id of crateIds) cmds.push(['DEL', `crate:${id}`]);
   for (const id of nightIds) {
@@ -107,12 +109,14 @@ route('DELETE', 'me', async (ctx) => {
     for (const g of guests) cmds.push(['DEL', `guest:${g.id}`, `gtok:${g.token}`, `pass:${id}:${g.pass}`]);
     cmds.push(['DEL', `night:${id}`, `night:${id}:g`, `photo:${id}`, ...(await groupKeys(id))]);
     if (n) cmds.push(['DEL', `code:${n.code}`]);
+    if (n) paths.push(...(await nightFilePaths(n)));
   }
   for (const f of following) cmds.push(['SREM', `u:${f}:followers`, u.id]);
   for (const f of followers) cmds.push(['SREM', `u:${f}:following`, u.id]);
   cmds.push(['SREM', 'djs', u.id], ['SREM', 'live:on', u.id]);
   cmds.push(['DEL', `u:${u.id}`, `email:${u.email}`, `handle:${u.handle}`, `u:${u.id}:sets`, `u:${u.id}:crates`, `u:${u.id}:nights`, `u:${u.id}:following`, `u:${u.id}:followers`, `u:${u.id}:saved`, `u:${u.id}:activity`, `u:${u.id}:readAt`, `live:${u.id}`, `live:${u.id}:feed`]);
   await store.pipe(cmds);
+  await files.del(paths);
   ctx.setCookie('');
   return { ok: true };
 });

@@ -13,6 +13,8 @@ import './routes/dj.js';
 import './routes/social.js';
 import './routes/group.js';
 import { momentResponse } from './domain/group.js';
+import { reportError } from './monitor.js';
+import './routes/monitor.js';
 
 export async function handle(req) {
   const url = new URL(req.url);
@@ -84,7 +86,7 @@ export async function handle(req) {
     fail(matched ? 405 : 404, matched ? 'Method not allowed.' : 'Not found.');
   } catch (err) {
     if (err instanceof HttpError) return json({ error: err.message, ...(err.extra || {}) }, err.status);
-    console.error(err);
+    await reportError(err, req);
     return json({ error: 'Something went wrong on our side. Try again.' }, 500);
   }
 }

@@ -1,4 +1,27 @@
 // Vybez site behaviour. Small, dependency-free, progressive: every page works without it.
+
+// Crash reports: uncaught errors on any page go to /api/client-error, which passes them to
+// Sentry when it's set up (server/monitor.js). At most 3 per page view; only our own scripts.
+(() => {
+  let sent = 0;
+  const send = (type, message, stack, file) => {
+    if (sent >= 3 || (file && !file.startsWith(location.origin)) || message === 'Script error.') return;
+    sent++;
+    try {
+      fetch('/api/client-error', {
+        method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type, message: String(message || '').slice(0, 500), stack: String(stack || '').slice(0, 4000), page: location.pathname }),
+      }).catch(() => {});
+    } catch { /* never break the page */ }
+  };
+  addEventListener('error', (e) => { if (e.error || e.message) send(e.error?.name || 'Error', e.message, e.error?.stack, e.filename); });
+  addEventListener('unhandledrejection', (e) => {
+    const r = e.reason;
+    if (r && typeof r === 'object' && 'status' in r) return; // API errors already shown to the person
+    send(r?.name || 'UnhandledRejection', r?.message || String(r), r?.stack);
+  });
+})();
+
 (() => {
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));

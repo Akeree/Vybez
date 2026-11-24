@@ -43,5 +43,5 @@ export const routes = [];
 export const route = (method, pattern, fn) => {
   const keys = [];
   const re = new RegExp(`^${pattern.replace(/:(\w+)/g, (_, k) => { keys.push(k); return '([^/]+)'; })}$`);
-  routes.push({ method, re, keys, fn });
+  routes.push({ method, pattern, re, keys, fn });
 };

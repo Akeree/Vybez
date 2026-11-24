@@ -7,7 +7,7 @@ How Vybez is deployed, configured, watched and recovered. Hosting: Vercel (team 
 - Every push to `main` deploys to Production. Every other branch and pull request gets a Preview URL.
 - Build: `npm run build` (no dependencies to install). Output: `dist/`. API: `api/index.js`.
 - Before merging: `npm test` (API) and `DJ_OPEN=1 npm run test:mobile` (phone run, needs Playwright).
-- After a deploy: open `/api/health`. Expect `"storage":"redis"`, `"persistent":true`, `"sessionSecret":true`, and `"email":true` once Resend is set up.
+- After a deploy: open `/api/health`. Expect `"ok":true`, `"storage":"redis"`, `"photos":"blob"`, `"errorTracking":true`, `"sessionSecret":true`, and `"email":true` once Resend is set up. On a Preview URL also expect `"isolated":true`.
 
 ## Rollback
 
@@ -27,15 +27,21 @@ Set in Vercel → Settings → Environment Variables, then redeploy. A template 
 | `LEGAL_NAME` | Recommended | Who runs Vybez (a person or registered business). Defaults to "Vybez" |
 | `LEGAL_UPDATED` | Optional | Overrides the "last updated" date on Privacy and Terms |
 | `DJ_OPEN` | Optional | `1` opens Vybez DJ. Unset keeps it "coming soon" |
+| `BLOB_READ_WRITE_TOKEN` | Yes | Vercel Blob for photos (added by Vercel → Storage → Blob). Without it photos go into Redis |
+| `SENTRY_DSN` | Recommended | Sends server errors and browser crashes to Sentry. Without it errors only reach Vercel → Logs |
+| `STORE_PREFIX` | No | Overrides the automatic `preview:` key prefix on Preview. Leave unset |
 
-## Monitoring (to set up)
+## Preview data stays apart from live data
 
-Nothing alerts anyone yet. Cheapest useful setup:
+On Preview deployments (`VERCEL_ENV=preview`) every database key starts with `preview:` and every photo path with `preview/`. Test nights, accounts and rate limits made on a Preview URL can never show up on, or overwrite, the live site, even though both use the same Upstash database. For a fully separate database as well: Vercel → Storage → create a second Upstash Redis (free) → connect it to **Preview only**, and remove Preview from the first database's connection. Data created on Preview URLs before 24 Nov 2026 is still in the live database without a prefix; it's harmless test data.
 
-1. **Uptime**: a free monitor (Better Stack, UptimeRobot) on `https://<domain>/api/health` every 5 minutes, alerting by email or WhatsApp.
-2. **Errors**: Vercel → Logs filtered to `level:error` (the API logs every 500 with `console.error`). Add Vercel Log Drains or Sentry later.
+## Monitoring
+
+1. **Uptime**: a free UptimeRobot (or Better Stack) monitor on `https://<domain>/api/health` every 5 minutes, alerting by email. Health checks the database on every call and answers **503** when it can't reach it, so a broken database alerts too, not only a site that's down.
+2. **Errors**: set `SENTRY_DSN` (free Sentry Developer plan, a "Browser JavaScript" or "Node.js" project; copy the DSN from Project Settings → Client Keys). Every 500 from the API and every uncaught error in a visitor's browser (max 3 per page view, rate limited per IP) goes to Sentry, tagged `production` or `preview` and with the commit it came from. Paths are stripped of ids, codes and handles; no cookies, bodies, query strings or IPs are sent. Sentry emails you on new issues by default. Errors are always in Vercel → Logs as well.
 3. **Usage**: Vercel Web Analytics is cookieless, so it can be turned on without a cookie banner. Add one line to the Privacy policy when you do.
-4. **Upstash**: watch the daily command count and storage on the free tier; photos are the biggest keys.
+4. **Upstash**: watch the daily command count and storage on the free tier.
+5. **Blob**: photos are in Vercel Blob (free on Hobby up to 1 GB storage). Photos saved before Blob still load from Redis; move them once with `node --env-file=.env.production scripts/move-photos-to-blob.mjs --apply` (dry run without `--apply`).
 
 ## Routine tasks
 
@@ -46,7 +52,7 @@ Nothing alerts anyone yet. Cheapest useful setup:
 
 ## Incident and breach response
 
-1. **Contain**: roll back (above). If secrets may be exposed, rotate them: `SESSION_SECRET` (signs everyone out), Upstash token (Vercel → Storage → rotate), `RESEND_API_KEY`.
+1. **Contain**: roll back (above). If secrets may be exposed, rotate them: `SESSION_SECRET` (signs everyone out), Upstash token (Vercel → Storage → rotate), Blob token, `RESEND_API_KEY`, `SENTRY_DSN`.
 2. **Assess**: what data, whose, since when. Vercel logs keep about a day on the free plan, so export them early.
 3. **Notify**: if personal data was exposed, tell the Nigeria Data Protection Commission within **72 hours** of finding out, and tell affected people without delay in plain language (what happened, what data, what they should do). Keep a written record either way.
 4. **Fix and review**: patch, add a test, write a short note on what happened and what changes.
