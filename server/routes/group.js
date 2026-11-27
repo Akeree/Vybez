@@ -9,6 +9,7 @@ import {
   memberOf, canPost, readRoom, postMessage, removeMessage, roomStats, shortName, hostName,
   getRide, nightRides, readRideInput, rideView, canReadRide, ridesKey, chatKey, MAX_RIDES,
   readMoment, nightMoments, momentsKey, momentImgKey, momentUrl, MAX_MOMENTS,
+  readCheckinInput, nightCheckins, saveCheckin, checkinView, NUDGE_GAP,
 } from '../domain/group.js';
 
 async function nightByCode(code) {
@@ -19,6 +20,8 @@ async function nightByCode(code) {
 }
 // 19:30 -> 7:30 pm, as people say it.
 const hm = (t) => { const [h, m] = t.split(':').map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, '0')} ${h < 12 ? 'am' : 'pm'}`; };
+// A moment in time as Lagos clock time: 1:40 am.
+const at12 = (ts) => new Date(ts).toLocaleTimeString('en-GB', { hour: 'numeric', minute: '2-digit', hour12: true, timeZone: 'Africa/Lagos' }).replace(/\s+/g, ' ');
 const tokenOf = (ctx) => ctx.body?.guest || ctx.query.get('guest') || '';
 async function enter(ctx, code) {
   const n = await nightByCode(code);
@@ -47,8 +50,10 @@ route('GET', 'invites/:code/group', async (ctx, { code }) => {
   const rides = (await nightRides(n.id)).filter((r) => active.has(r.by)).sort((a, b) => (a.dir === b.dir ? a.time.localeCompare(b.time) : a.dir === 'there' ? -1 : 1));
   const views = rides.map((r) => rideView(r, me, active));
   const rooms = ['all', ...views.filter((r) => r.joined || me.host).map((r) => r.id)];
-  const [stats, moments] = await Promise.all([roomStats(n.id, rooms), store.cmd('LLEN', momentsKey(n.id))]);
+  const [stats, moments, checkins] = await Promise.all([roomStats(n.id, rooms), store.cmd('LLEN', momentsKey(n.id)), nightCheckins(n.id)]);
   return {
+    now: now(),
+    checkins: Object.entries(checkins).filter(([id]) => active.has(id)).map(([id, c]) => checkinView(id, c, me.id)),
     me, people: list.map((p) => ({ ...p, me: p.id === me.id })),
     night: { title: n.title, when: n.when, until: n.until || '', area: n.area, code: n.code, status: n.status || 'on', nightId: me.host ? n.id : undefined },
     rides: views, rooms: stats, moments,
@@ -140,6 +145,45 @@ route('DELETE', 'invites/:code/rides/:rid', async (ctx, { code, rid }) => {
   if (r.by !== me.id && !me.host) fail(403, 'Only the person who posted this ride, or the host, can remove it.');
   await store.pipe([['DEL', `ride:${r.id}`, chatKey(n.id, r.id)], ['SREM', ridesKey(n.id), r.id]]);
   return { ok: true };
+});
+
+// ---------- check-ins ----------
+// "I'm here", "Heading home" (and by when) or "Home safe". It shows in the night chat, and the
+// group's pages pop up a prompt to check on anyone who isn't home by the time they gave.
+route('POST', 'invites/:code/checkin', async (ctx, { code }) => {
+  const { n, me } = await enter(ctx, code);
+  canPost(n);
+  await rateLimit(`checkin:${n.id}:${me.id}`, 20, 3600);
+  const input = readCheckinInput(ctx.body);
+  const prev = (await nightCheckins(n.id))[me.id];
+  const at = now();
+  const c = { name: me.name, state: input.state, at, eta: input.state === 'leaving' ? at + input.mins * 60000 : null, nudges: [] };
+  await saveCheckin(n.id, me.id, c);
+  const text = {
+    here: `${me.name} is here.`,
+    leaving: prev?.state === 'leaving' ? `${me.name} needs a bit more time. Now expects to be home by ${at12(c.eta)}.` : `${me.name} is heading home and expects to be there by ${at12(c.eta)}.`,
+    home: `${me.name} got home safe.`,
+  }[c.state];
+  await postMessage(n.id, 'all', me, text, 'checkin', { state: c.state, eta: c.eta });
+  return { checkin: checkinView(me.id, c, me.id) };
+});
+
+// Check on someone who's heading home: they get a pop-up, and the chat shows you asked.
+route('POST', 'invites/:code/checkin/:who/nudge', async (ctx, { code, who }) => {
+  const { n, me } = await enter(ctx, code);
+  canPost(n);
+  if (who === me.id) fail(400, 'That’s you. Tap Home safe when you’re in.');
+  const active = new Set((await people(n)).map((p) => p.id));
+  const c = active.has(who) ? (await nightCheckins(n.id))[who] : null;
+  if (!c) fail(404, 'They haven’t checked in tonight.');
+  if (c.state !== 'leaving') fail(409, c.state === 'home' ? `${c.name} is already home safe.` : `${c.name} isn’t heading home yet.`);
+  const t = now();
+  c.nudges = c.nudges || [];
+  if (c.nudges.some((x) => x.by === me.id && t - x.at < NUDGE_GAP)) fail(429, `You checked on ${c.name} a moment ago. Give them a few minutes.`);
+  c.nudges = [...c.nudges, { by: me.id, name: me.name, at: t }].slice(-10);
+  await saveCheckin(n.id, who, c);
+  await postMessage(n.id, 'all', me, `${me.name} is checking on ${c.name}${c.name.endsWith('.') ? '' : '.'} Home yet?`, 'nudge', { to: who });
+  return { checkin: checkinView(who, c, me.id) };
 });
 
 // ---------- moments ----------

@@ -1,6 +1,6 @@
 // Vybez Social "the group" (/i/:code/group): chat, rides (car hop) and moments for one night.
 // Guests use the token their RSVP left on this device; the host is recognised by their session.
-import { $, $$, I, esc, initials, plural, seg, store, toast, fmtWhen } from '../core/util.js';
+import { $, $$, I, esc, initials, plural, seg, store, toast, fmtWhen, lagos } from '../core/util.js';
 import { api, onSubmit, showError, clearError } from '../core/api.js';
 import { loadImage, encodeFit } from '../core/photo.js';
 
@@ -38,7 +38,8 @@ pages.group = async () => {
   let messages = [];
   let editing = null; // ride being edited
 
-  const loadGroup = async () => { g = await api('GET', withQ(`invites/${code}/group`)); };
+  let skew = 0; // server clock minus this device's clock, so "overdue" doesn't depend on a wrong phone clock
+  const loadGroup = async () => { g = await api('GET', withQ(`invites/${code}/group`)); g.checkins = g.checkins || []; if (g.now) skew = g.now - Date.now(); };
   try { await loadGroup(); } catch (err) {
     $('[data-loading]').hidden = true;
     const box = $('[data-locked]'); box.hidden = false;
@@ -62,6 +63,8 @@ pages.group = async () => {
     const unread = Object.entries(g.rooms).some(([r, s]) => s.last && s.last.by !== g.me.id && s.last.at > Number(store.get(seenKey(r)) || 0) && !(tab === 'chat' && r === room));
     $('[data-unread-chat]').hidden = !unread;
     if (g.me.host && g.night.nightId) $('[data-back]').href = `/social/${g.night.nightId}`;
+    renderCheckinButton();
+    showPop();
   };
   const setTab = (t, focus = false) => {
     tab = t;
@@ -113,6 +116,14 @@ pages.group = async () => {
     const canRemove = (mine || g.me.host) && m.kind === 'text';
     const day = !prev || dayOf(prev.at) !== dayOf(m.at) ? `<li class="chat-day"><span>${esc(dayOf(m.at))}</span></li>` : '';
     if (m.kind === 'event') return `${day}<li class="chat-event caption t3">${esc(m.text)} · ${timeOf(m.at)}</li>`;
+    if (m.kind === 'nudge') return `${day}<li class="chat-nudge caption t3">${I('bell', 14)}<span>${esc(m.to === g.me.id ? `${m.name} is checking on you. Home yet?` : m.text)} · ${timeOf(m.at)}</span></li>`;
+    if (m.kind === 'checkin' && m.state === 'here') return `${day}<li class="chat-nudge caption t3"><span class="ci-here-icon">${I('map-pin', 14)}</span><span>${esc(m.by === g.me.id ? 'You checked in. The group knows you’re here.' : m.text)} · ${timeOf(m.at)}</span></li>`;
+    if (m.kind === 'checkin') {
+      const st = CI[m.state] || CI.here;
+      const c = ciOf(m.by);
+      const late = c && !c.me && c.state === 'leaving' && c.at <= m.at && overdue(c);
+      return `${day}<li class="chat-checkin"><span class="tile ${late ? 'warn' : st.tone}">${I(late ? 'triangle-alert' : st.icon, 18)}</span><span class="stack grow gap-2"><span class="small">${esc(m.by === g.me.id ? ({ here: 'You checked in. The group knows you’re here.', leaving: `You’re heading home and expect to be there by ${timeOf(m.eta)}.`, home: 'You got home safe.' }[m.state] || m.text) : m.text)}</span><span class="caption t3">${late ? `Not home yet · was due ${timeOf(c.eta)}` : timeOf(m.at)}</span></span>${late && !readOnly() ? `<button class="btn btn-outline btn-sm" type="button" data-nudge="${esc(m.by)}">Check on ${esc(first(c.name))}</button>` : ''}</li>`;
+    }
     if (m.kind === 'ride') return `${day}<li class="chat-ride"><span class="tile">${I('car', 18)}</span><span class="stack grow gap-2"><span class="small">${esc(m.text)}</span><span class="caption t3">${timeOf(m.at)}</span></span><button class="btn btn-outline btn-sm" type="button" data-go-rides>See rides</button></li>`;
     const grouped = prev && prev.kind === 'text' && prev.by === m.by && m.at - prev.at < 5 * 60000 && dayOf(prev.at) === dayOf(m.at);
     return `${day}<li class="msg${mine ? ' mine' : ''}${grouped ? ' grouped' : ''}" data-mid="${esc(m.id)}">
@@ -155,8 +166,10 @@ pages.group = async () => {
       const r = await api('GET', withQ(`invites/${code}/chat/${encodeURIComponent(id)}`, `after=${after}`));
       if (id !== room || !r.messages.length) return;
       const known = new Set(messages.map((m) => m.id));
-      messages.push(...r.messages.filter((m) => !known.has(m.id)));
+      const fresh = r.messages.filter((m) => !known.has(m.id));
+      messages.push(...fresh);
       renderLog(); markSeen();
+      if (fresh.some((m) => m.kind === 'checkin' || m.kind === 'nudge')) refresh().catch(() => {});
     } catch { /* try again on the next tick */ }
   };
   $('[data-rooms]').addEventListener('click', (e) => { const b = e.target.closest('[data-room]'); if (b && b.dataset.room !== room) openRoom(b.dataset.room); });
@@ -178,6 +191,8 @@ pages.group = async () => {
   });
   $('[data-log]').addEventListener('click', async (e) => {
     if (e.target.closest('[data-go-rides]')) { setTab('rides'); return; }
+    const nb = e.target.closest('[data-nudge]');
+    if (nb) { nudge(nb.dataset.nudge, nb); return; }
     const rp = e.target.closest('[data-report-msg]');
     if (rp) { report('message', rp.dataset.reportMsg); return; }
     const b = e.target.closest('[data-remove-msg]'); if (!b) return;
@@ -274,6 +289,168 @@ pages.group = async () => {
     renderRides();
     toast(editing ? 'Ride updated.' : 'Ride posted. Everyone on the list can see it.');
   });
+
+  // ---------- check-ins ----------
+  // Like a safety check-in: tap "I'm here", "Heading home" (and when you expect to be in) or
+  // "Home safe". The group sees it in the chat, and a pop-up asks them to check on anyone who
+  // isn't home by the time they said. Only what you tap is shared, never your location.
+  const CI = {
+    here: { label: 'Here', icon: 'map-pin', tone: 'muted', chip: '' },
+    leaving: { label: 'Heading home', icon: 'car', tone: '', chip: 'warning' },
+    home: { label: 'Home safe', icon: 'house', tone: 'ok', chip: 'success' },
+  };
+  const nowS = () => Date.now() + skew;
+  const first = (name) => String(name || '').split(' ')[0];
+  const ciOf = (id) => g.checkins.find((c) => c.id === id);
+  const mine = () => g.checkins.find((c) => c.me);
+  const overdue = (c) => c.state === 'leaving' && c.eta && nowS() > c.eta && nowS() - c.eta < 6 * 3600000;
+  const recent = (c, hrs = 2) => nowS() - c.at < hrs * 3600000;
+
+  const renderCheckinButton = () => {
+    const b = $('[data-checkin-open]');
+    b.hidden = readOnly();
+    const c = mine();
+    b.dataset.state = c?.state || '';
+    $('[data-checkin-label]').textContent = c ? (c.state === 'leaving' && overdue(c) ? 'Home yet?' : CI[c.state].label) : 'Check in';
+    b.setAttribute('aria-label', c ? `Check-in: ${c.state === 'leaving' ? `heading home, expected by ${timeOf(c.eta)}` : CI[c.state].label}. Change` : 'Check in');
+  };
+
+  // The sheet: your three options, then where everyone else is at.
+  const cdlg = $('[data-checkin-dialog]');
+  let mins = 40;
+  const byTime = () => timeOf(nowS() + mins * 60000);
+  const statusOf = (c) => {
+    if (!c) return '<span class="caption t3">Not checked in</span>';
+    if (c.state === 'leaving') return overdue(c) ? `<span class="chip danger">Late · due ${esc(timeOf(c.eta))}</span>` : `<span class="chip warning">Home by ${esc(timeOf(c.eta))}</span>`;
+    return `<span class="chip ${CI[c.state].chip}">${CI[c.state].label}</span>`;
+  };
+  const renderSheet = () => {
+    const c = mine();
+    $$('[data-ci]', cdlg).forEach((b) => { b.setAttribute('aria-pressed', String(c?.state === b.dataset.ci)); });
+    $('[data-ci-here-hint]').textContent = `Tell the group you’ve made it to ${g.night.area}`;
+    $$('[data-mins]', cdlg).forEach((b) => b.setAttribute('aria-checked', String(Number(b.dataset.mins) === mins)));
+    $('[data-ci-by]').textContent = `Start check-in · home by ${byTime()}`;
+    const order = (p) => { const x = ciOf(p.id); if (!x) return 4; if (overdue(x)) return 0; return { leaving: 1, here: 2, home: 3 }[x.state]; };
+    const list = [...g.people].sort((a, b) => order(a) - order(b) || (a.me ? -1 : b.me ? 1 : 0));
+    $('[data-ci-list]').innerHTML = list.map((p) => {
+      const x = ciOf(p.id);
+      const canNudge = x && !p.me && x.state === 'leaving' && !readOnly() && !x.nudges.some((n) => n.me && nowS() - n.at < 5 * 60000);
+      return `<li><span class="avatar${p.host ? ' host' : ''}" aria-hidden="true">${esc(initials(p.name))}</span><span class="stack grow gap-2" style="min-width:0"><span class="label ellipsis">${p.me ? 'You' : esc(p.name)}${p.host ? ' <span class="caption t3">· Host</span>' : ''}</span><span class="row gap-8">${statusOf(x)}</span></span>${canNudge ? `<button class="btn btn-outline btn-sm" type="button" data-nudge="${esc(p.id)}">Check on ${esc(first(p.name))}</button>` : ''}</li>`;
+    }).join('');
+  };
+  const openSheet = (expand = false) => {
+    const c = mine();
+    const open = expand || c?.state === 'leaving';
+    $('[data-ci="leaving"]').setAttribute('aria-expanded', String(open));
+    $('[data-ci-eta]').hidden = !open;
+    renderSheet();
+    cdlg.showModal();
+  };
+  $('[data-checkin-open]').addEventListener('click', () => openSheet());
+  $$('[data-close]', cdlg).forEach((b) => b.addEventListener('click', () => cdlg.close()));
+  $('[data-ci-mins]', cdlg).addEventListener('click', (e) => { const b = e.target.closest('[data-mins]'); if (!b) return; mins = Number(b.dataset.mins); renderSheet(); });
+  const ciTimer = setInterval(() => { if (cdlg.open) $('[data-ci-by]').textContent = `Start check-in · home by ${byTime()}`; }, 15000);
+  void ciTimer;
+
+  async function checkin(state, m) {
+    const r = await api('POST', `invites/${code}/checkin`, body(state === 'leaving' ? { state, mins: m } : { state }));
+    g.checkins = [...g.checkins.filter((c) => !c.me), r.checkin];
+    renderHead();
+    if (cdlg.open) cdlg.close();
+    toast({ here: 'Checked in. The group knows you’re here.', leaving: `Check-in started. Tap Home safe when you’re in by ${timeOf(r.checkin.eta)}.`, home: 'Glad you’re home. The group can see you’re safe.' }[state]);
+    if (tab === 'chat' && room === 'all') poll();
+  }
+  cdlg.addEventListener('click', async (e) => {
+    const nb = e.target.closest('[data-nudge]');
+    if (nb) { await nudge(nb.dataset.nudge, nb); renderSheet(); return; }
+    const opt = e.target.closest('[data-ci]');
+    const start = e.target.closest('[data-ci-start]');
+    if (opt && opt.dataset.ci === 'leaving') {
+      const open = opt.getAttribute('aria-expanded') !== 'true';
+      opt.setAttribute('aria-expanded', String(open)); $('[data-ci-eta]').hidden = !open; return;
+    }
+    const btn = start || opt; if (!btn) return;
+    btn.disabled = true;
+    try { await checkin(start ? 'leaving' : opt.dataset.ci, mins); } catch (err) { toast(err.message); } finally { btn.disabled = false; }
+  });
+
+  async function nudge(id, btn) {
+    const c = ciOf(id); if (!c) return;
+    if (btn) btn.disabled = true;
+    try {
+      const r = await api('POST', `invites/${code}/checkin/${encodeURIComponent(id)}/nudge`, body());
+      g.checkins = g.checkins.map((x) => (x.id === id ? r.checkin : x));
+      toast(`${first(c.name)} will see you checked on them.`);
+      if (tab === 'chat' && room === 'all') poll();
+      renderLog(); showPop();
+    } catch (err) { toast(err.message); if (btn) btn.disabled = false; }
+  }
+
+  // Pop-ups: one at a time, most urgent first. Each is shown once (remembered on this device).
+  const popKey = `vybez-ci-${code}`;
+  const popSeen = () => { try { return JSON.parse(store.get(popKey) || '[]'); } catch { return []; } };
+  const markPop = (k) => store.set(popKey, JSON.stringify([...popSeen().filter((x) => x !== k), k].slice(-60)));
+  let popNow = null; let popTimer = null;
+  const nextPop = () => {
+    if (readOnly()) return null;
+    const seen = new Set(popSeen());
+    const me = mine();
+    const out = [];
+    if (me?.state === 'leaving') {
+      const n = me.nudges.filter((x) => !x.me).sort((a, b) => b.at - a.at)[0];
+      if (n) out.push({ key: `nudge:${n.at}`, tone: 'warn', icon: 'bell', title: `${n.name} is checking on you`, text: 'Home yet? Let the group know you got in safe.', actions: [['home', 'I’m home safe', 'primary'], ['more', '+20 min']] });
+      if (overdue(me)) out.push({ key: `selfdue:${me.eta}`, tone: 'warn', icon: 'house', title: 'Home yet?', text: `You said you’d be home by ${timeOf(me.eta)}. Let the group know you’re safe.`, actions: [['home', 'I’m home safe', 'primary'], ['more', '+20 min']] });
+    }
+    for (const c of g.checkins.filter((x) => !x.me)) {
+      if (overdue(c) && !c.nudges.some((n) => n.me)) out.push({ key: `due:${c.id}:${c.eta}`, tone: 'warn', icon: 'triangle-alert', title: `${c.name} isn’t home yet`, text: `They expected to be home by ${timeOf(c.eta)}. Check on them?`, actions: [[`nudge:${c.id}`, `Check on ${first(c.name)}`, 'primary'], ['ok', 'Not now']] });
+    }
+    for (const c of g.checkins.filter((x) => !x.me && x.state === 'leaving' && !overdue(x) && recent(x))) {
+      out.push({ key: `leaving:${c.id}:${c.at}`, tone: '', icon: 'car', title: `${c.name} is heading home`, text: `Expected home by ${timeOf(c.eta)}. If they’re not in by then, we’ll ask you to check on them.`, actions: [['ok', 'Okay']] });
+    }
+    for (const c of g.checkins.filter((x) => !x.me && x.state === 'home' && recent(x))) {
+      out.push({ key: `home:${c.id}:${c.at}`, tone: 'ok', icon: 'house', title: `${c.name} got home safe`, text: '', actions: [], auto: true });
+    }
+    // Suggestions for you, like a phone suggesting a check-in when you set off.
+    const start = lagos(g.night.when).getTime();
+    const day = g.night.when.slice(0, 10);
+    if (!me && nowS() > start - 30 * 60000 && nowS() < start + 8 * 3600000) out.push({ key: `suggest-here:${day}`, tone: '', icon: 'map-pin', over: 'Suggested', title: 'Made it?', text: 'Let the group know you’ve arrived.', actions: [['here', 'I’m here', 'primary'], ['ok', 'Not yet']] });
+    const late = g.night.until ? lagos(g.night.until).getTime() : start + 3 * 3600000;
+    if (me?.state === 'here' && nowS() > Math.max(late - 30 * 60000, me.at + 30 * 60000)) out.push({ key: `suggest-leave:${me.at}`, tone: '', icon: 'car', over: 'Suggested', title: 'Heading out soon?', text: 'Start a check-in. If you’re not home when you said, the group gets a nudge to check on you.', actions: [['sheet', 'Start check-in', 'primary'], ['ok', 'Later']] });
+    return out.find((p) => !seen.has(p.key)) || null;
+  };
+  function showPop() {
+    const host = $('[data-ci-pop]');
+    const p = nextPop();
+    if (popNow && p && popNow.key === p.key) return;
+    clearTimeout(popTimer);
+    popNow = p;
+    if (!p) { host.innerHTML = ''; return; }
+    host.style.top = `${$('.group-tabs').offsetHeight + 8}px`; // under the tabs, so they stay usable
+    host.innerHTML = `<div class="ci-pop ${p.tone}" role="${p.tone === 'warn' ? 'alert' : 'status'}">
+      <span class="tile ${p.tone === 'ok' ? 'ok' : p.tone === 'warn' ? 'warn' : ''}">${I(p.icon)}</span>
+      <div class="stack grow gap-2" style="min-width:0">
+        <span class="overline muted">${esc(p.over || 'Check-in')}</span>
+        <span class="label">${esc(p.title)}</span>
+        ${p.text ? `<span class="small t2">${esc(p.text)}</span>` : ''}
+        ${p.actions.length ? `<span class="row gap-8">${p.actions.map(([a, label, kind]) => `<button class="btn btn-${kind || 'outline'} btn-sm" type="button" data-pop="${esc(a)}">${esc(label)}</button>`).join('')}</span>` : ''}
+      </div>
+      <button class="icon-btn ghost" type="button" data-pop="ok" aria-label="Dismiss">${I('x', 16)}</button>
+    </div>`;
+    if (p.auto) popTimer = setTimeout(() => { markPop(p.key); popNow = null; showPop(); }, 6000);
+  }
+  $('[data-ci-pop]').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-pop]'); if (!b || !popNow) return;
+    const p = popNow; const a = b.dataset.pop;
+    markPop(p.key); popNow = null;
+    try {
+      if (a === 'home' || a === 'here') { b.disabled = true; await checkin(a); }
+      else if (a === 'more') { b.disabled = true; await checkin('leaving', 20); }
+      else if (a === 'sheet') openSheet(true);
+      else if (a.startsWith('nudge:')) await nudge(a.slice(6));
+    } catch (err) { toast(err.message); }
+    showPop();
+  });
+  setInterval(() => { if (!document.hidden) { renderCheckinButton(); showPop(); } }, 30000);
 
   // ---------- moments ----------
   let moments = null;

@@ -37,7 +37,7 @@ function redisBackend() {
   };
 }
 
-// A tiny Redis subset in plain JS: strings, sets, lists, counters with expiry.
+// A tiny Redis subset in plain JS: strings, sets, lists, hashes, counters with expiry.
 function localBackend(file) {
   let db = { s: {}, x: {} };
   if (file && existsSync(file)) {
@@ -75,6 +75,13 @@ function localBackend(file) {
     LRANGE: (k, a, b) => { const l = live(k) || []; const end = Number(b) < 0 ? l.length + Number(b) : Number(b); return l.slice(Number(a), end + 1); },
     LTRIM: (k, a, b) => { const l = live(k) || []; const end = Number(b) < 0 ? l.length + Number(b) : Number(b); db.s[k] = l.slice(Number(a), end + 1); return 'OK'; },
     LLEN: (k) => (live(k) || []).length,
+    // Hashes are kept as [field, value, ...], the same flat shape Upstash returns for HGETALL.
+    HSET: (k, ...fv) => {
+      const h = Object.fromEntries(((l) => l.reduce((a, v, i) => (i % 2 ? a : [...a, [v, l[i + 1]]]), []))(live(k) || []));
+      let n = 0; for (let i = 0; i < fv.length; i += 2) { if (!(fv[i] in h)) n++; h[fv[i]] = String(fv[i + 1]); }
+      db.s[k] = Object.entries(h).flat(); return n;
+    },
+    HGETALL: (k) => [...(live(k) || [])],
     LREM: (k, count, v) => {
       const l = live(k) || []; let left = Number(count) || l.length; let n = 0;
       db.s[k] = l.filter((x) => { if (left > 0 && x === String(v)) { left--; n++; return false; } return true; });
@@ -87,7 +94,7 @@ function localBackend(file) {
       const op = ops[String(name).toUpperCase()];
       if (!op) throw new Error(`Unsupported command ${name}`);
       const r = op(...args.map(String));
-      if (!['GET', 'MGET', 'SMEMBERS', 'SISMEMBER', 'SCARD', 'LRANGE', 'LLEN'].includes(String(name).toUpperCase())) save();
+      if (!['GET', 'MGET', 'SMEMBERS', 'SISMEMBER', 'SCARD', 'LRANGE', 'LLEN', 'HGETALL'].includes(String(name).toUpperCase())) save();
       return r;
     },
     async pipe(cmds) { const out = []; for (const c of cmds) out.push(await this.cmd(...c)); return out; },
