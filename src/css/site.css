@@ -926,6 +926,46 @@ html[data-signed-in] [data-demo] { display: none !important; }
 .safety-note { align-items: flex-start; }
 .safety-note .i { margin-top: 1px; color: var(--success); }
 .ride-form-row { align-items: flex-start; }
+
+/* Check-ins: "I'm here", "Heading home" (with an ETA), "Home safe", and pop-ups that ask the group
+   to check on anyone who isn't home by the time they said. */
+.tile.ok { background: var(--success-subtle); color: var(--success); }
+.tile.muted { background: var(--bg-raised); color: var(--text-secondary); }
+.tile.danger { background: var(--danger-subtle); color: var(--danger); }
+.checkin-btn { flex: none; }
+.checkin-btn[data-state="here"] .i { color: var(--accent-text); }
+.checkin-btn[data-state="leaving"] .i { color: var(--warning); }
+.checkin-btn[data-state="home"] .i { color: var(--success); }
+@media (max-width: 380px) { .checkin-btn [data-checkin-label] { display: none; } .checkin-btn { width: 40px; padding: 0; } }
+.ci-option { display: flex; align-items: center; gap: var(--s-md); width: 100%; padding: var(--s-md); border-radius: var(--r-md); background: var(--bg-canvas); border: 1px solid var(--border-strong); text-align: left; transition: background-color .15s, border-color .15s; }
+.ci-option:hover { background: var(--bg-raised); }
+.ci-option[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-subtle); }
+.ci-option .tile { width: 40px; height: 40px; border-radius: var(--r-sm); }
+.ci-option:disabled { opacity: .5; cursor: not-allowed; }
+.ci-eta { padding: 0 var(--s-md) var(--s-sm); }
+.ci-eta .pill[aria-checked="true"] { background: var(--bg-inverse); color: var(--text-inverse); border-color: var(--bg-inverse); }
+.ci-eta .btn { align-self: flex-start; }
+.ci-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.ci-list li { display: flex; align-items: center; gap: var(--s-sm); padding: var(--s-sm) 0; border-top: 1px solid var(--border-subtle); min-height: 48px; }
+.ci-list li:first-child { border-top: 0; }
+.ci-list .avatar { width: 32px; height: 32px; font-size: 11px; }
+.chat-checkin { display: flex; align-items: center; gap: var(--s-sm); padding: var(--s-sm) var(--s-md); border-radius: var(--r-md); background: var(--bg-surface); border: 1px solid var(--border-subtle); }
+.chat-checkin .tile { width: 32px; height: 32px; border-radius: var(--r-sm); }
+.chat-nudge { display: flex; align-items: center; justify-content: center; gap: var(--s-xs); text-align: center; padding: var(--s-xxs) var(--s-md); }
+.chat-nudge .i { color: var(--warning); flex: none; }
+.chat-nudge .ci-here-icon .i { color: var(--accent-text); }
+.ci-list .row { min-width: 0; }
+.ci-list .chip { max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.ci-list .btn { flex: none; }
+.group-body { position: relative; }
+.ci-pop-host { position: absolute; top: var(--s-sm); left: var(--s-md); right: var(--s-md); z-index: 20; pointer-events: none; }
+.ci-pop { pointer-events: auto; display: flex; align-items: flex-start; gap: var(--s-md); padding: var(--s-md); border-radius: var(--r-md); background: var(--bg-raised); border: 1px solid var(--border-strong); box-shadow: 0 16px 48px rgba(0, 0, 0, .5); animation: ci-in .2s ease-out; }
+.ci-pop.warn { border-color: rgba(245, 184, 75, .5); }
+.ci-pop.ok { border-color: rgba(61, 214, 140, .4); }
+.ci-pop .tile { width: 40px; height: 40px; border-radius: var(--r-sm); }
+.ci-pop .icon-btn { width: 32px; height: 32px; margin: calc(-1 * var(--s-xs)) calc(-1 * var(--s-xs)) 0 0; }
+.ci-pop .row { flex-wrap: wrap; margin-top: var(--s-xs); }
+@keyframes ci-in { from { opacity: 0; transform: translateY(-8px); } }
 .ride-form-row > .field { flex: 1; min-width: 0; }
 .seg { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-sm); }
 .seg label { position: relative; }

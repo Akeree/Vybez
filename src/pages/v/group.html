@@ -6,6 +6,7 @@
       <p class="label ellipsis" data-night-title>The group</p>
       <p class="caption t3 ellipsis" data-night-when></p>
     </div>
+    <button class="btn btn-outline btn-sm checkin-btn" type="button" data-checkin-open hidden>{{icon:shield-check:16}}<span data-checkin-label>Check in</span></button>
     <span class="chip" data-people-count hidden></span>
   </header>
 
@@ -19,6 +20,7 @@
   </div>
 
   <div class="group-body" data-content hidden>
+    <div class="ci-pop-host" data-ci-pop aria-live="polite"></div>
     <div class="tabs group-tabs" role="tablist" aria-label="The group">
       <button class="tab" type="button" role="tab" id="tab-chat" aria-controls="panel-chat" aria-selected="true" data-tab="chat">Chat<span class="unread-dot" data-unread-chat hidden><span class="sr-only">, new messages</span></span></button>
       <button class="tab" type="button" role="tab" id="tab-rides" aria-controls="panel-rides" aria-selected="false" data-tab="rides" tabindex="-1">Rides <span class="t3" data-ride-count></span></button>
@@ -106,4 +108,40 @@
     <p class="form-error" data-error role="alert" hidden></p>
     <div class="row gap-8" style="justify-content:flex-end"><button class="btn btn-outline btn-sm" type="button" data-close>Cancel</button><button class="btn btn-primary btn-sm" type="submit">Share</button></div>
   </form>
+</dialog>
+
+<dialog class="modal checkin-modal" data-checkin-dialog aria-labelledby="ci-t">
+  <div class="stack gap-16">
+    <div class="row between"><h2 class="h4" id="ci-t">Check in</h2><button class="icon-btn ghost" type="button" aria-label="Close" data-close>{{icon:x}}</button></div>
+    <p class="small t2">Let the group know where you’re at. Only what you tap is shared, never your location.</p>
+    <div class="stack gap-8" role="group" aria-label="Check in as">
+      <button class="ci-option" type="button" data-ci="here" aria-pressed="false">
+        <span class="tile">{{icon:map-pin}}</span>
+        <span class="stack grow gap-2"><span class="label">I’m here</span><span class="caption t2" data-ci-here-hint>Tell the group you’ve arrived</span></span>
+      </button>
+      <button class="ci-option" type="button" data-ci="leaving" aria-pressed="false" aria-expanded="false" aria-controls="ci-eta">
+        <span class="tile">{{icon:car}}</span>
+        <span class="stack grow gap-2"><span class="label">Heading home</span><span class="caption t2">If you’re not home in time, the group gets a nudge to check on you</span></span>
+      </button>
+      <div class="ci-eta stack gap-8" id="ci-eta" data-ci-eta hidden>
+        <span class="label" id="ci-eta-l">Home in about</span>
+        <div class="pills" role="radiogroup" aria-labelledby="ci-eta-l" data-ci-mins>
+          <button class="pill" type="button" role="radio" aria-checked="false" data-mins="20">20 min</button>
+          <button class="pill" type="button" role="radio" aria-checked="true" data-mins="40">40 min</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" data-mins="60">1 hr</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" data-mins="90">1½ hr</button>
+          <button class="pill" type="button" role="radio" aria-checked="false" data-mins="120">2 hr</button>
+        </div>
+        <button class="btn btn-primary btn-sm" type="button" data-ci-start><span data-ci-by>Start check-in</span></button>
+      </div>
+      <button class="ci-option" type="button" data-ci="home" aria-pressed="false">
+        <span class="tile ok">{{icon:house}}</span>
+        <span class="stack grow gap-2"><span class="label">Home safe</span><span class="caption t2">Ends your check-in and tells the group you’re in</span></span>
+      </button>
+    </div>
+    <div class="stack gap-8">
+      <p class="overline muted">The group tonight</p>
+      <ul class="ci-list" data-ci-list></ul>
+    </div>
+  </div>
 </dialog>

@@ -3,6 +3,9 @@
 //  - Rides (car hop): a guest who is driving, or wants to split a Bolt or Uber, posts a ride
 //    from their area; others on the list join it and plan in the ride's own chat.
 //  - Moments: photos from the night, seen only by the list.
+//  - Check-ins: a guest taps "I'm here", "Heading home" (with when they expect to be home)
+//    or "Home safe". The group sees it in the chat and gets a pop-up to check on anyone who
+//    isn't home by the time they said. No location is shared, only what the guest taps.
 // Nobody outside the list can read any of it. Guests see each other's first names only,
 // never phone numbers or emails. The host can read every room and remove anything.
 import { store } from '../store.js';
@@ -19,6 +22,7 @@ export const chatKey = (nid, room) => `night:${nid}:chat:${room}`;
 export const ridesKey = (nid) => `night:${nid}:rides`;
 export const momentsKey = (nid) => `night:${nid}:moments`;
 export const momentImgKey = (nid, mid) => `moment:${nid}:${mid}`;
+export const checkinsKey = (nid) => `night:${nid}:checkins`;
 export const momentUrl = (nid, mid) => `/moment/${nid}/${mid}.jpg`;
 
 // "Adaeze Okafor" -> "Adaeze O." so guests know who's who without full names.
@@ -51,8 +55,8 @@ export async function readRoom(nid, room, after = 0) {
   return after ? list.filter((m) => m.at >= after) : list;
 }
 
-export async function postMessage(nid, room, me, text, kind = 'text') {
-  const msg = { id: `${now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, by: me.id, name: me.name, host: !!me.host, text, kind, at: now() };
+export async function postMessage(nid, room, me, text, kind = 'text', extra = {}) {
+  const msg = { id: `${now().toString(36)}${Math.random().toString(36).slice(2, 6)}`, by: me.id, name: me.name, host: !!me.host, text, kind, at: now(), ...extra };
   await store.pipe([['LPUSH', chatKey(nid, room), JSON.stringify(msg)], ['LTRIM', chatKey(nid, room), 0, MAX_MESSAGES - 1]]);
   return msg;
 }
@@ -117,6 +121,42 @@ export function canReadRide(r, me) {
   return me.host || r.members.some((m) => m.id === me.id);
 }
 
+// ---------- check-ins ----------
+export const CHECKIN_STATES = ['here', 'leaving', 'home'];
+export const ETA_MINUTES = [20, 40, 60, 90, 120];
+export const NUDGE_GAP = 5 * 60000; // one nudge per person, per friend, every 5 minutes
+
+export function readCheckinInput(b) {
+  const state = CHECKIN_STATES.includes(b.state) ? b.state : null;
+  if (!state) fail(400, 'Pick how you’re checking in.');
+  if (state !== 'leaving') return { state };
+  const mins = int(b.mins, 5, 240, 0);
+  if (!mins) fail(400, 'Pick when you expect to be home.');
+  return { state, mins };
+}
+
+export async function nightCheckins(nid) {
+  const raw = await store.cmd('HGETALL', checkinsKey(nid));
+  // HGETALL comes back flat: [field, value, field, value, ...].
+  const list = Array.isArray(raw) ? raw : Object.entries(raw || {}).flat();
+  const out = {};
+  for (let i = 0; i < list.length; i += 2) { try { out[list[i]] = JSON.parse(list[i + 1]); } catch { /* skip */ } }
+  return out;
+}
+
+export async function saveCheckin(nid, id, c) {
+  await store.cmd('HSET', checkinsKey(nid), id, JSON.stringify(c));
+}
+
+// What the group sees: state, when, when they expect to be home, and who checked on them.
+export function checkinView(id, c, meId) {
+  return {
+    id, name: c.name, state: c.state, at: c.at, eta: c.state === 'leaving' ? c.eta : null,
+    nudges: c.state === 'leaving' ? (c.nudges || []).map((n) => ({ name: n.name, at: n.at, me: n.by === meId })) : [],
+    me: id === meId,
+  };
+}
+
 // ---------- moments ----------
 export function readMoment(dataUrl) {
   const m = /^data:image\/jpeg;base64,([A-Za-z0-9+/=]+)$/.exec(typeof dataUrl === 'string' ? dataUrl : '');
@@ -148,7 +188,7 @@ export async function momentResponse(nid, mid) {
 export async function groupKeys(nid) {
   const [rideIds, moments] = await Promise.all([store.cmd('SMEMBERS', ridesKey(nid)), nightMoments(nid)]);
   return [
-    chatKey(nid, 'all'), ridesKey(nid), momentsKey(nid),
+    chatKey(nid, 'all'), ridesKey(nid), momentsKey(nid), checkinsKey(nid),
     ...rideIds.flatMap((r) => [`ride:${r}`, chatKey(nid, r)]),
     ...moments.map((m) => momentImgKey(nid, m.id)),
   ];
